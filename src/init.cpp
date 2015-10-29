@@ -912,7 +912,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     fStormNode = GetBoolArg("-stormnode", false);
     if(fStormNode) {
-        LogPrintf("IS SANDSTORM MASTER NODE\n");
+        LogPrintf("IS SANDSTORM STORMNODE\n");
         strStormNodeAddr = GetArg("-stormnodeaddr", "");
 
         LogPrintf(" addr %s\n", strStormNodeAddr.c_str());

@@ -93,7 +93,7 @@ void CActiveStormnode::ManageStatus()
                 return;
             }
 
-            LogPrintf("CActiveStormnode::ManageStatus() - Is capable master node!\n");
+            LogPrintf("CActiveStormnode::ManageStatus() - Is capable Stormnode!\n");
 
             status = STORMNODE_IS_CAPABLE;
             notCapableReason = "";

@@ -30,7 +30,7 @@ bool CStormnodeConfig::read(std::string& strErr) {
             iss.str(line);
             iss.clear();
             if (!(iss >> alias >> ip >> privKey >> txHash >> outputIndex)) {
-                strErr = "Could not parse masternode.conf line: " + line;
+                strErr = "Could not parse stormnode.conf line: " + line;
                 streamConfig.close();
                 return false;
             }
@@ -45,7 +45,7 @@ bool CStormnodeConfig::read(std::string& strErr) {
             }
             CDarkSilkAddress address(donationAddress);
             if (!address.IsValid()) {
-                strErr = "Invalid Dash address in masternode.conf line: " + line;
+                strErr = "Invalid Dash address in stormnode.conf line: " + line;
                 streamConfig.close();
                 return false;
             }
@@ -54,12 +54,12 @@ bool CStormnodeConfig::read(std::string& strErr) {
 
         /*if(Params().NetworkID() == CChainParams::MAIN){
             if(CService(ip).GetPort() != 31000) {
-                strErr = "Invalid port detected in masternode.conf: " + line + " (must be 31000 for mainnet)";
+                strErr = "Invalid port detected in stormnode.conf: " + line + " (must be 31000 for mainnet)";
                 streamConfig.close();
                 return false;
             }
         } else if(CService(ip).GetPort() == 31000) {
-            strErr = "Invalid port detected in masternode.conf: " + line + " (31000 must be only on mainnet)";
+            strErr = "Invalid port detected in stormnode.conf: " + line + " (31000 must be only on mainnet)";
             streamConfig.close();
             return false;
         }*/

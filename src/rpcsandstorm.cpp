@@ -59,8 +59,8 @@ Value sandstorm(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() == 0)
         throw runtime_error(
-            "sandstorm <silkaddress> <amount>\n"
-            "silkaddress, reset, or auto (AutoDenominate)"
+            "sandstorm <darksilkaddress> <amount>\n"
+            "darksilkaddress, reset, or auto (AutoDenominate)"
             "<amount> is a real and is rounded to the nearest 0.00000001"
             + HelpRequiringPassphrase());
 
@@ -83,8 +83,8 @@ Value sandstorm(const Array& params, bool fHelp)
 
     if (params.size() != 2)
         throw runtime_error(
-            "sandstorm <silkaddress> <amount>\n"
-            "silkaddress, denominate, or auto (AutoDenominate)"
+            "sandstorm <darksilkaddress> <amount>\n"
+            "darksilkaddress, denominate, or auto (AutoDenominate)"
             "<amount> is a real and is rounded to the nearest 0.00000001"
             + HelpRequiringPassphrase());
 
@@ -738,7 +738,7 @@ Value stormnodelist(const Array& params, bool fHelp)
                 && strMode != "protocol" && strMode != "full" && strMode != "votes" && strMode != "donation" && strMode != "pose"))
     {
         throw runtime_error(
-                "masternodelist ( \"mode\" \"filter\" )\n"
+                "stormnodelist ( \"mode\" \"filter\" )\n"
                 "Get a list of masternodes in different modes\n"
                 "\nArguments:\n"
                 "1. \"mode\"      (string, optional/required to use filter, defaults = status) The mode to run list in\n"

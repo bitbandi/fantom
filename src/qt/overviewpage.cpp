@@ -398,7 +398,7 @@ void OverviewPage::sandStormStatus()
     std::ostringstream convert;
 
     if(state == POOL_STATUS_IDLE) {
-        convert << tr("Darksend is idle.").toStdString();
+        convert << tr("Sandstorm is idle.").toStdString();
     } else if(state == POOL_STATUS_ACCEPTING_ENTRIES) {
         if(entries == 0) {
             if(sandStormPool.strAutoDenomResult.size() == 0){

@@ -32,8 +32,6 @@ DarkSilk is a new digital currency that enables instant payments to anyone, anyw
 
 DarkSilk utilises Stormnodes, Sandstorm and InstantX to provide anonymous and near instant transaction confirmations.
 
-DarkSilk only broadcasts transactions once unlike Bitcoin Core which rebroadcasts transactions which can be used to unmask and link IP addresses and transactions. However if your transaction does not successfully broadcast you can use the -resendtx console command to broadcast the transaction again.
-
 DarkSilk implements Gavin Andresens signature cache optimisation from Bitcoin for significantly faster transaction validation.
 
 DarkSilk uses ShadowChat from Shadow for encrypted, anonymous and secure messaging via the DarkSilk wallet network.

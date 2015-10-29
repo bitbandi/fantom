@@ -645,7 +645,7 @@ void CSandstormPool::CheckFinalTransaction()
             }
 
             string txHash = txNew.GetHash().ToString().c_str();
-            if(fDebug) LogPrintf("CDarksendPool::Check() -- txHash %d \n", txHash);
+            if(fDebug) LogPrintf("CSandstormPool::Check() -- txHash %d \n", txHash);
             if(!mapSandstormBroadcastTxes.count(txNew.GetHash())){
                 CSandstormBroadcastTx dstx;
                 dstx.tx = txNew;
