@@ -199,8 +199,7 @@ QT_TRANSLATE_NOOP("fantom-core", "Warning: This version is obsolete, upgrade req
 QT_TRANSLATE_NOOP("fantom-core", "WARNING: syncronized checkpoint violation detected, but skipped!"),
 QT_TRANSLATE_NOOP("fantom-core", "Error: Disk space is low!"),
 QT_TRANSLATE_NOOP("fantom-core", ""
-"This is a pre-release test build - use at your own risk - do not use for "
-"mining or merchant applications"),
+"Welcome to the Client - Remember, the currency is in Alpha Stage"),
 QT_TRANSLATE_NOOP("fantom-core", ""
 "WARNING: Invalid checkpoint found! Displayed transactions may not be "
 "correct! You may need to upgrade, or notify developers."),

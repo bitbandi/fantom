@@ -3206,7 +3206,7 @@ alternate-background-color: rgb(86, 0, 120);)</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <source>Welcome to the Client - Remember, the currency is in Alpha Stage</source>
         <translation>Tämä on esijulkaistu testikäännös - käytä omalla vastuulla - älä käytä louhintaan tai kaupankäyntisovellutuksiin</translation>
     </message>
     <message>
