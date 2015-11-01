@@ -63,7 +63,7 @@ public:
             LOCK(wallet->cs_wallet);
             BOOST_FOREACH(const PAIRTYPE(CTxDestination, std::string)& item, wallet->mapAddressBook)
             {
-                const CDarkSilkAddress& address = item.first;
+                const CFantomAddress& address = item.first;
                 const std::string& strName = item.second;
                 bool fMine = IsMine(*wallet, address.Get());
                 cachedAddressTable.append(AddressTableEntry(fMine ? AddressTableEntry::Receiving : AddressTableEntry::Sending,
@@ -204,7 +204,7 @@ QVariant AddressTableModel::data(const QModelIndex &index, int role) const
         QFont font;
         if(index.column() == Address)
         {
-            font = GUIUtil::darksilkAddressFont();
+            font = GUIUtil::fantomAddressFont();
         }
         return font;
     }
@@ -249,7 +249,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
                 wallet->UpdateStealthAddress(strTemp, strValue, false);
             } else
             {
-                wallet->SetAddressBookName(CDarkSilkAddress(strTemp).Get(), value.toString().toStdString());
+                wallet->SetAddressBookName(CFantomAddress(strTemp).Get(), value.toString().toStdString());
             }
             break;
         case Address:
@@ -261,7 +261,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
                 return false;
             }
             // Do nothing, if old address == new address
-            if(CDarkSilkAddress(rec->address.toStdString()) == CDarkSilkAddress(value.toString().toStdString()))
+            if(CFantomAddress(rec->address.toStdString()) == CFantomAddress(value.toString().toStdString()))
             {
                 editStatus = NO_CHANGES;
                 return false;
@@ -274,7 +274,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
             }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
-            else if(wallet->mapAddressBook.count(CDarkSilkAddress(value.toString().toStdString()).Get()))
+            else if(wallet->mapAddressBook.count(CFantomAddress(value.toString().toStdString()).Get()))
             {
                 editStatus = DUPLICATE_ADDRESS;
                 return false;
@@ -285,9 +285,9 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
                 {
                     LOCK(wallet->cs_wallet);
                     // Remove old entry
-                    wallet->DelAddressBookName(CDarkSilkAddress(rec->address.toStdString()).Get());
+                    wallet->DelAddressBookName(CFantomAddress(rec->address.toStdString()).Get());
                     // Add new entry with new address
-                    wallet->SetAddressBookName(CDarkSilkAddress(value.toString().toStdString()).Get(), rec->label.toStdString());
+                    wallet->SetAddressBookName(CFantomAddress(value.toString().toStdString()).Get(), rec->label.toStdString());
                 }
             }
             break;
@@ -342,7 +342,7 @@ QModelIndex AddressTableModel::index(int row, int column, const QModelIndex &par
 
 void AddressTableModel::updateEntry(const QString &address, const QString &label, bool isMine, int status)
 {
-    // Update address book model from DarkSilk core
+    // Update address book model from Fantom core
     priv->updateEntry(address, label, isMine, status);
 }
 
@@ -388,13 +388,13 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
             // Check for duplicate addresses
             {
                 LOCK(wallet->cs_wallet);
-                if (wallet->mapAddressBook.count(CDarkSilkAddress(strAddress).Get()))
+                if (wallet->mapAddressBook.count(CFantomAddress(strAddress).Get()))
                 {
                     editStatus = DUPLICATE_ADDRESS;
                     return QString();
                 };
                 
-                wallet->SetAddressBookName(CDarkSilkAddress(strAddress).Get(), strLabel);
+                wallet->SetAddressBookName(CFantomAddress(strAddress).Get(), strLabel);
             }
         }
     }
@@ -429,11 +429,11 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
                 editStatus = KEY_GENERATION_FAILURE;
                 return QString();
             }
-            strAddress = CDarkSilkAddress(newKey.GetID()).ToString();
+            strAddress = CFantomAddress(newKey.GetID()).ToString();
             
             {
                 LOCK(wallet->cs_wallet);
-                wallet->SetAddressBookName(CDarkSilkAddress(strAddress).Get(), strLabel);
+                wallet->SetAddressBookName(CFantomAddress(strAddress).Get(), strLabel);
             }
         }
     }
@@ -458,7 +458,7 @@ bool AddressTableModel::removeRows(int row, int count, const QModelIndex &parent
     }
     {
         LOCK(wallet->cs_wallet);
-        wallet->DelAddressBookName(CDarkSilkAddress(rec->address.toStdString()).Get());
+        wallet->DelAddressBookName(CFantomAddress(rec->address.toStdString()).Get());
     }
     return true;
 }
@@ -485,7 +485,7 @@ QString AddressTableModel::labelForAddress(const QString &address) const
             return QString::fromStdString(it->label);
         } else
         {
-            CDarkSilkAddress address_parsed(sAddr);
+            CFantomAddress address_parsed(sAddr);
             std::map<CTxDestination, std::string>::iterator mi = wallet->mapAddressBook.find(address_parsed.Get());
             if (mi != wallet->mapAddressBook.end())
             {

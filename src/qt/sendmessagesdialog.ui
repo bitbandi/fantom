@@ -71,7 +71,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../darksilk.qrc">
+           <iconset resource="../fantom.qrc">
             <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
           </property>
           <property name="shortcut">
@@ -88,7 +88,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../darksilk.qrc">
+           <iconset resource="../fantom.qrc">
             <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
           </property>
           <property name="shortcut">
@@ -163,7 +163,7 @@
         <string>Add &amp;Recipient</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
        </property>
        <property name="autoDefault">
@@ -186,7 +186,7 @@
         <string>Clear &amp;All</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
        <property name="autoRepeatDelay">
@@ -225,7 +225,7 @@
         <string>S&amp;end</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
        </property>
        <property name="default">
@@ -239,7 +239,7 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/quit</normaloff>:/icons/quit</iconset>
        </property>
       </widget>
@@ -256,7 +256,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

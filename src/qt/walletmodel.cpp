@@ -155,7 +155,7 @@ bool WalletModel::validateAddress(const QString &address)
             return true;
     };
     
-    CDarkSilkAddress addressParsed(sAddr);
+    CFantomAddress addressParsed(sAddr);
     return addressParsed.IsValid();
 }
 
@@ -251,7 +251,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
                     
                     CKeyID ckidTo = cpkTo.GetID();
                     
-                    CDarkSilkAddress addrTo(ckidTo);
+                    CFantomAddress addrTo(ckidTo);
                     
                     if (SecretToPublicKey(ephem_secret, ephem_pubkey) != 0)
                     {
@@ -320,7 +320,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
             }
            
             CScript scriptPubKey;
-            scriptPubKey.SetDestination(CDarkSilkAddress(sAddr).Get());
+            scriptPubKey.SetDestination(CFantomAddress(sAddr).Get());
             vecSend.push_back(make_pair(scriptPubKey, rcp.amount));
    	            
             
@@ -356,7 +356,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
 	std::string strFailReason;
 
         /*if(recipients[0].useInstantX && total > GetSporkValue(SPORK_5_MAX_VALUE)*COIN){
-            emit message(tr("Send Coins"), tr("InstantX doesn't support sending values that high yet. Transactions are currently limited to %n DRKSLK.", "", GetSporkValue(SPORK_5_MAX_VALUE)),true,
+            emit message(tr("Send Coins"), tr("InstantX doesn't support sending values that high yet. Transactions are currently limited to %n FNX.", "", GetSporkValue(SPORK_5_MAX_VALUE)),true,
                          CClientUIInterface::MSG_ERROR);
             return TransactionCreationFailed;
         }*/
@@ -402,7 +402,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
         std::string strAddress = rcp.address.toStdString();
-        CTxDestination dest = CDarkSilkAddress(strAddress).Get();
+        CTxDestination dest = CFantomAddress(strAddress).Get();
         std::string strLabel = rcp.label.toStdString();
         {
             LOCK(wallet->cs_wallet);
@@ -537,9 +537,9 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet, 
                                   Q_ARG(int, status));
     } else
     {
-        LogPrintf("NotifyAddressBookChanged %s %s isMine=%i status=%i\n", CDarkSilkAddress(address).ToString().c_str(), label.c_str(), isMine, status);
+        LogPrintf("NotifyAddressBookChanged %s %s isMine=%i status=%i\n", CFantomAddress(address).ToString().c_str(), label.c_str(), isMine, status);
         QMetaObject::invokeMethod(walletmodel, "updateAddressBook", Qt::QueuedConnection,
-                                  Q_ARG(QString, QString::fromStdString(CDarkSilkAddress(address).ToString())),
+                                  Q_ARG(QString, QString::fromStdString(CFantomAddress(address).ToString())),
                                   Q_ARG(QString, QString::fromStdString(label)),
                                   Q_ARG(bool, isMine),
                                   Q_ARG(int, status));
@@ -666,7 +666,7 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
 
         CTxDestination address;
         if(!out.fSpendable || !ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address)) continue;
-        mapCoins[CDarkSilkAddress(address).ToString().c_str()].push_back(out);
+        mapCoins[CFantomAddress(address).ToString().c_str()].push_back(out);
     }
 }
 

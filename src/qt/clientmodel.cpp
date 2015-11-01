@@ -9,7 +9,7 @@
 #include "alert.h"
 #include "main.h"
 #include "ui_interface.h"
-#include "stormnodeman.h"
+#include "blanknodeman.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -23,7 +23,7 @@ static const int64_t nClientStartupTime = GetTime();
 
 ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), optionsModel(optionsModel),
-    cachedNumBlocks(0), cachedStormnodeCountString(""), numBlocksAtStartup(-1), pollTimer(0)
+    cachedNumBlocks(0), cachedBlanknodeCountString(""), numBlocksAtStartup(-1), pollTimer(0)
 {
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(updateTimer()));
@@ -47,7 +47,7 @@ int ClientModel::getNumConnections() const
     return vNodes.size();
 }
 
-QString ClientModel::getStormnodeCountString() const
+QString ClientModel::getBlanknodeCountString() const
 {
     return QString::number((int)snodeman.CountEnabled()) + " / " + QString::number((int)snodeman.size());
 }
@@ -114,13 +114,13 @@ void ClientModel::updateSnTimer()
     TRY_LOCK(cs_main, lockMain);
     if(!lockMain)
         return;
-    QString newStormnodeCountString = getStormnodeCountString();
+    QString newBlanknodeCountString = getBlanknodeCountString();
 
-    if (cachedStormnodeCountString != newStormnodeCountString)
+    if (cachedBlanknodeCountString != newBlanknodeCountString)
     {
-        cachedStormnodeCountString = newStormnodeCountString;
+        cachedBlanknodeCountString = newBlanknodeCountString;
 
-        emit strStormnodesChanged(cachedStormnodeCountString);
+        emit strBlanknodesChanged(cachedBlanknodeCountString);
     }
 }
 

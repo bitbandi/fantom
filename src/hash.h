@@ -1,10 +1,10 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DARKSILK_HASH_H
-#define DARKSILK_HASH_H
+#ifndef FANTOM_HASH_H
+#define FANTOM_HASH_H
 
 #include "uint256.h"
 #include "serialize.h"
@@ -17,7 +17,7 @@
 
 #include <vector>
 
-/** A hasher class for DarkSilk's 256-bit hash (double SHA-256). */
+/** A hasher class for Fantom's 256-bit hash (double SHA-256). */
 class CHash256 {
 private:
     CSHA256 sha;
@@ -41,7 +41,7 @@ public:
     }
 };
 
-/** A hasher class for DarkSilk's 160-bit hash (SHA-256 + RIPEMD-160). */
+/** A hasher class for Fantom's 160-bit hash (SHA-256 + RIPEMD-160). */
 class CHash160 {
 private:
     CSHA256 sha;

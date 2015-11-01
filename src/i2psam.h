@@ -13,7 +13,7 @@
 #include <utility>
 
 #ifdef WIN32
-#ifndef DARKSILK_NETBASE_H
+#ifndef FANTOM_NETBASE_H
 ////#define _WIN32_WINNT 0x0501
 #define WIN32_LEAN_AND_MEAN 1
 #define FD_SETSIZE

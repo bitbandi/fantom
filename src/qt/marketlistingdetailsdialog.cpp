@@ -29,7 +29,7 @@ MarketListingDetailsDialog::MarketListingDetailsDialog(QWidget *parent, uint256 
     ui->descriptionLabel->setText(QString::fromStdString(listing.listing.sDescription));
     ui->untilLabel->setText(QString::fromStdString(DateTimeStrFormat(listing.listing.nCreated + (7 * 24 * 60 * 60))));
     ui->priceLabel->setText(QString::number(listing.listing.nPrice / COIN, 'f', 8));
-    ui->sellerAddressLabel->setText(QString::fromStdString(CDarkSilkAddress(listing.listing.sellerKey.GetID()).ToString()));
+    ui->sellerAddressLabel->setText(QString::fromStdString(CFantomAddress(listing.listing.sellerKey.GetID()).ToString()));
 
     if(listing.listing.sImageOneUrl != "")
     {

@@ -111,8 +111,8 @@ alternate-background-color: rgb(0, 0, 0);</string>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
             </property>
             <property name="text">
@@ -697,8 +697,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -723,8 +723,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -744,7 +744,7 @@ alternate-background-color: rgb(86, 0, 120);
         <number>3</number>
        </property>
         <item>
-        <widget class="QCheckBox" name="checkUseSandstorm">
+        <widget class="QCheckBox" name="checkUseZerosend">
          <property name="minimumSize">
           <size>
            <width>95</width>
@@ -752,7 +752,7 @@ alternate-background-color: rgb(86, 0, 120);
           </size>
          </property>
          <property name="text">
-          <string>Sandstorm</string>
+          <string>Zerosend</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -836,15 +836,15 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
         <string>S&amp;end</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
        </property>
        <property name="default">
@@ -857,7 +857,7 @@ alternate-background-color: rgb(86, 0, 120);
   </layout>
  </widget>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

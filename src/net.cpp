@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,7 +11,7 @@
 #include "main.h"
 #include "addrman.h"
 #include "ui_interface.h"
-#include "sandstorm.h"
+#include "zerosend.h"
 #include "wallet.h"
 #include "market.h"
 
@@ -370,7 +370,7 @@ CNode* FindNode(const CService& addr)
     return NULL;
 }
 
-CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool sandStormMaster)
+CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool zeroSendMaster)
 {
     if (pszDest == NULL) {
         if (IsLocal(addrConnect))
@@ -380,8 +380,8 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool sandStormMast
         CNode* pnode = FindNode((CService)addrConnect);
         if (pnode)
         {
-	    if(sandStormMaster)
-                pnode->fSandStormMaster = true;
+	    if(zeroSendMaster)
+                pnode->fZeroSendMaster = true;
 
             pnode->AddRef();
             return pnode;
@@ -555,7 +555,7 @@ void CNode::copyStats(CNodeStats &stats)
         nPingUsecWait = GetTimeMicros() - nPingUsecStart;
     }
 
-    // Raw ping time is in microseconds, but show it to user as whole seconds (DarkSilk users should be well used to small numbers with many decimal places by now :)
+    // Raw ping time is in microseconds, but show it to user as whole seconds (Fantom users should be well used to small numbers with many decimal places by now :)
     stats.dPingTime = (((double)nPingUsecTime) / 1e6);
     stats.dPingWait = (((double)nPingUsecWait) / 1e6);
     
@@ -1185,7 +1185,7 @@ void ThreadMapPort()
             }
         }
 
-        string strDesc = "DarkSilk " + FormatFullVersion();
+        string strDesc = "Fantom " + FormatFullVersion();
 
 try {
           while (true) {
@@ -1779,7 +1779,7 @@ bool BindListenPort(const CService &addrBind, string& strError)
     {
         int nErr = WSAGetLastError();
         if (nErr == WSAEADDRINUSE)
-            strError = strprintf(_("Unable to bind to %s on this computer. DarkSilk is probably already running."), addrBind.ToString());
+            strError = strprintf(_("Unable to bind to %s on this computer. Fantom is probably already running."), addrBind.ToString());
         else
             strError = strprintf(_("Unable to bind to %s on this computer (bind returned error %d, %s)"), addrBind.ToString(), nErr, strerror(nErr));
         LogPrintf("%s\n", strError);

@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_TIMEDATA_H
-#define DARKSILK_TIMEDATA_H
+#ifndef FANTOM_TIMEDATA_H
+#define FANTOM_TIMEDATA_H
 
 #include <stdint.h>
 

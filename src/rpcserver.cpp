@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -204,10 +204,10 @@ Value stop(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "stop\n"
-            "Stop DarkSilk server.");
+            "Stop Fantom server.");
     // Shutdown will take long enough that the response should get back
     StartShutdown();
-    return "DarkSilk server stopping";
+    return "Fantom server stopping";
 }
 
 
@@ -251,10 +251,11 @@ static const CRPCCommand vRPCCommands[] =
 
 /* Dark features */
     { "spork",                  &spork,                  true,      false,      false },
-    { "stormnode",              &stormnode,             true,      false,      true },
-    { "stormnodelist",          &stormnodelist,         true,      false,      false },
+    { "blanknode",              &blanknode,             true,      false,      true },
+    { "blanknodelist",          &blanknodelist,         true,      false,      false },
 #ifdef ENABLE_WALLET
-    { "sandstorm",              &sandstorm,               false,     false,      true },
+	{ "setgenerate",		    &setgenerate,			 true,		 false,		 true },
+    { "zerosend",              &zerosend,               false,     false,      true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
     { "getstakinginfo",         &getstakinginfo,         true,      false,     false },
     { "getnewaddress",          &getnewaddress,          true,      false,     true },
@@ -532,7 +533,7 @@ void StartRPCThreads()
     {
         unsigned char rand_pwd[32];
         RAND_bytes(rand_pwd, 32);
-        string strWhatAmI = "To use darksilkd";
+        string strWhatAmI = "To use fantomd";
         if (mapArgs.count("-server"))
             strWhatAmI = strprintf(_("To use the %s option"), "\"-server\"");
         else if (mapArgs.count("-daemon"))
@@ -541,13 +542,13 @@ void StartRPCThreads()
             _("%s, you must set a rpcpassword in the configuration file:\n"
               "%s\n"
               "It is recommended you use the following random password:\n"
-              "rpcuser=darksilkrpc\n"
+              "rpcuser=fantomrpc\n"
               "rpcpassword=%s\n"
               "(you do not need to remember this password)\n"
               "The username and password MUST NOT be the same.\n"
               "If the file does not exist, create it with owner-readable-only file permissions.\n"
               "It is also recommended to set alertnotify so you are notified of problems;\n"
-              "for example: alertnotify=echo %%s | mail -s \"DarkSilk Alert\" admin@foo.com\n"),
+              "for example: alertnotify=echo %%s | mail -s \"Fantom Alert\" admin@foo.com\n"),
                 strWhatAmI,
                 GetConfigFile().string(),
                 EncodeBase58(&rand_pwd[0],&rand_pwd[0]+32)),
@@ -880,7 +881,7 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
 }
 
 std::string HelpExampleCli(string methodname, string args){
-    return "> darksilk-cli " + methodname + " " + args + "\n";
+    return "> fantom-cli " + methodname + " " + args + "\n";
 }
 
 std::string HelpExampleRpc(string methodname, string args){

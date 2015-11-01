@@ -1,8 +1,8 @@
 // Copyright (c) 2012-2015 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DARKSILK_MRUSET_H
-#define DARKSILK_MRUSET_H
+#ifndef FANTOM_MRUSET_H
+#define FANTOM_MRUSET_H
 
 #include <set>
 #include <deque>

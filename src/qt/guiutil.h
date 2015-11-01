@@ -18,7 +18,7 @@ class QAbstractItemView;
 class QLabel;
 QT_END_NAMESPACE
 
-/** Utility functions used by the DarkSilk Qt UI.
+/** Utility functions used by the Fantom Qt UI.
  */
 namespace GUIUtil
 {
@@ -26,17 +26,17 @@ namespace GUIUtil
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
 
-    // Render DarkSilk addresses in monospace font
-    QFont darksilkAddressFont();
+    // Render Fantom addresses in monospace font
+    QFont fantomAddressFont();
 
     // Set up widgets for address and amounts
     void setupAddressWidget(QLineEdit *widget, QWidget *parent);
     void setupAmountWidget(QLineEdit *widget, QWidget *parent);
 
-    // Parse "darksilk:" URI into recipient object, return true on successful parsing
+    // Parse "fantom:" URI into recipient object, return true on successful parsing
     // See Bitcoin URI definition discussion here: https://bitcointalk.org/index.php?topic=33490.0
-    bool parseDarkSilkURI(const QUrl &uri, SendCoinsRecipient *out);
-    bool parseDarkSilkURI(QString uri, SendCoinsRecipient *out);
+    bool parseFantomURI(const QUrl &uri, SendCoinsRecipient *out);
+    bool parseFantomURI(QString uri, SendCoinsRecipient *out);
 
     // HTML escaping for rich text controls
     QString HtmlEscape(const QString& str, bool fMultiLine=false);
@@ -98,7 +98,7 @@ namespace GUIUtil
     bool GetStartOnSystemStartup();
     bool SetStartOnSystemStartup(bool fAutoStart);
 
-    /** Help message for DarkSilk-Qt, shown with --help. */
+    /** Help message for Fantom-Qt, shown with --help. */
     class HelpMessageBox : public QMessageBox
     {
         Q_OBJECT

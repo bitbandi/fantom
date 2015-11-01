@@ -105,7 +105,7 @@ OBJS= \
     obj/key.o \
     obj/eckey.o \
     obj/init.o \
-    obj/darksilkd.o \
+    obj/fantomd.o \
     obj/keystore.o \
     obj/core.o \
     obj/main.o \
@@ -134,16 +134,16 @@ OBJS= \
     obj/scrypt-x86_64.o \
     obj/chainparams.o \
     obj/stealth.o \
-    obj/activestormnode.o \
-    obj/sandstorm.o \
-    obj/sandstorm-relay.o \
+    obj/activeblanknode.o \
+    obj/zerosend.o \
+    obj/zerosend-relay.o \
     obj/eccryptoverify.o \
     obj/instantx.o \
-    obj/stormnodeconfig.o \
-    obj/stormnodeman.o \
-    obj/stormnode.o \
-    obj/stormnode-pos.o \
-    obj/rpcsandstorm.o \
+    obj/blanknodeconfig.o \
+    obj/blanknodeman.o \
+    obj/blanknode.o \
+    obj/blanknode-pos.o \
+    obj/rpczerosend.o \
     obj/spork.o \
     obj/crypto/hmac_sha256.o \
     obj/crypto/hmac_sha512.o \
@@ -168,7 +168,7 @@ ifeq (${USE_WALLET}, 1)
         obj/walletdb.o
 endif
 
-all: darksilkd
+all: fantomd
 
 LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
@@ -202,11 +202,11 @@ obj/%.o: %.cpp
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
-darksilkd: $(OBJS:obj/%=obj/%)
+fantomd: $(OBJS:obj/%=obj/%)
 	$(LINK) $(xCXXFLAGS) -o $@ $^ $(xLDFLAGS) $(LIBS)
 
 clean:
-	-rm -f darksilkd
+	-rm -f fantomd
 	-rm -f obj/*.o
 	-rm -f obj/*.P
 	-rm -f obj/build.h

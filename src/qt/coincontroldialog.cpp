@@ -4,12 +4,12 @@
 #include "core.h"
 #include "init.h"
 #include "base58.h"
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "walletmodel.h"
 #include "addresstablemodel.h"
 #include "optionsmodel.h"
 #include "coincontrol.h"
-#include "sandstorm.h"
+#include "zerosend.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -112,7 +112,7 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
     ui->treeWidget->setColumnWidth(COLUMN_LABEL, 170);
     ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 190);
-    ui->treeWidget->setColumnWidth(COLUMN_SANDSTORM_ROUNDS, 120);
+    ui->treeWidget->setColumnWidth(COLUMN_ZEROSEND_ROUNDS, 120);
     ui->treeWidget->setColumnWidth(COLUMN_DATE, 60);
     ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 100);
     ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
@@ -505,7 +505,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
             nChange = nAmount - nPayFee - nPayAmount;
 
             // DS Fee = overpay
-            if(coinControl->useSandStorm && nChange > 0)
+            if(coinControl->useZeroSend && nChange > 0)
             {
                 nPayFee += nChange;
                 nChange = 0;
@@ -548,7 +548,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     }
     
     // actually update labels
-    int nDisplayUnit = DarkSilkUnits::DRKSLK;
+    int nDisplayUnit = FantomUnits::FNX;
     if (model && model->getOptionsModel())
         nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
             
@@ -569,25 +569,25 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     
     // stats
     l1->setText(QString::number(nQuantity));                                 // Quantity        
-    l2->setText(DarkSilkUnits::formatWithUnit(nDisplayUnit, nAmount));        // Amount
-    l3->setText(DarkSilkUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
-    l4->setText(DarkSilkUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
+    l2->setText(FantomUnits::formatWithUnit(nDisplayUnit, nAmount));        // Amount
+    l3->setText(FantomUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
+    l4->setText(FantomUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
     l5->setText(((nBytes > 0) ? "~" : "") + QString::number(nBytes));                                    // Bytes
     l6->setText(sPriorityLabel);                                             // Priority
     l7->setText((fLowOutput ? (fDust ? tr("DUST") : tr("yes")) : tr("no"))); // Low Output / Dust
-    l8->setText(DarkSilkUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
+    l8->setText(FantomUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
     
     // turn labels "red"
     l5->setStyleSheet((nBytes >= 10000) ? "color:red;" : "");               // Bytes >= 10000
     l6->setStyleSheet((dPriority <= 576000) ? "color:red;" : "");         // Priority < "medium"
     l7->setStyleSheet((fLowOutput) ? "color:red;" : "");                    // Low Output = "yes"
-    l8->setStyleSheet((nChange > 0 && nChange < CENT) ? "color:red;" : ""); // Change < 0.01DRKSLK
+    l8->setStyleSheet((nChange > 0 && nChange < CENT) ? "color:red;" : ""); // Change < 0.01FNX
         
     // tool tips
-    l5->setToolTip(tr("This label turns red, if the transaction size is bigger than 10000 bytes.\n\n This means a fee of at least %1 per kb is required.\n\n Can vary +/- 1 Byte per input.").arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)));
-    l6->setToolTip(tr("Transactions with higher priority get more likely into a block.\n\nThis label turns red, if the priority is smaller than \"medium\".\n\n This means a fee of at least %1 per kb is required.").arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)));
-    l7->setToolTip(tr("This label turns red, if any recipient receives an amount smaller than %1.\n\n This means a fee of at least %2 is required. \n\n Amounts below 0.546 times the minimum relay fee are shown as DUST.").arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)).arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)));
-    l8->setToolTip(tr("This label turns red, if the change is smaller than %1.\n\n This means a fee of at least %2 is required.").arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)).arg(DarkSilkUnits::formatWithUnit(nDisplayUnit, CENT)));
+    l5->setToolTip(tr("This label turns red, if the transaction size is bigger than 10000 bytes.\n\n This means a fee of at least %1 per kb is required.\n\n Can vary +/- 1 Byte per input.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
+    l6->setToolTip(tr("Transactions with higher priority get more likely into a block.\n\nThis label turns red, if the priority is smaller than \"medium\".\n\n This means a fee of at least %1 per kb is required.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
+    l7->setToolTip(tr("This label turns red, if any recipient receives an amount smaller than %1.\n\n This means a fee of at least %2 is required. \n\n Amounts below 0.546 times the minimum relay fee are shown as DUST.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)).arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
+    l8->setToolTip(tr("This label turns red, if the change is smaller than %1.\n\n This means a fee of at least %2 is required.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)).arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
     dialog->findChild<QLabel *>("labelCoinControlBytesText")    ->setToolTip(l5->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlPriorityText") ->setToolTip(l6->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlLowOutputText")->setToolTip(l7->toolTip());
@@ -608,7 +608,7 @@ void CoinControlDialog::updateView()
     QFlags<Qt::ItemFlag> flgCheckbox=Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     QFlags<Qt::ItemFlag> flgTristate=Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsTristate;    
     
-    int nDisplayUnit = DarkSilkUnits::DRKSLK;
+    int nDisplayUnit = FantomUnits::FNX;
     if (model && model->getOptionsModel())
         nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
         
@@ -664,9 +664,9 @@ void CoinControlDialog::updateView()
             QString sAddress = "";
             if(ExtractDestination(out.tx->vout[out.i].scriptPubKey, outputAddress))
             {
-                sAddress = CDarkSilkAddress(outputAddress).ToString().c_str();
+                sAddress = CFantomAddress(outputAddress).ToString().c_str();
                 
-                // if listMode or change => show darksilk address. In tree mode, address is not shown again for direct wallet address outputs
+                // if listMode or change => show fantom address. In tree mode, address is not shown again for direct wallet address outputs
                 if (!treeMode || (!(sAddress == sWalletAddress)))
                     itemOutput->setText(COLUMN_ADDRESS, sAddress);
                     
@@ -694,18 +694,18 @@ void CoinControlDialog::updateView()
             }
 
             // amount
-            itemOutput->setText(COLUMN_AMOUNT, DarkSilkUnits::format(nDisplayUnit, out.tx->vout[out.i].nValue));
+            itemOutput->setText(COLUMN_AMOUNT, FantomUnits::format(nDisplayUnit, out.tx->vout[out.i].nValue));
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
 
             // date
             itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(out.tx->GetTxTime()).toUTC().toString("yy-MM-dd hh:mm"));
             
-            // Sandstorm rounds
+            // Zerosend rounds
             CTxIn vin = CTxIn(out.tx->GetHash(), out.i);
-            int rounds = GetInputSandstormRounds(vin);
+            int rounds = GetInputZerosendRounds(vin);
 
-            if(rounds > 0) itemOutput->setText(COLUMN_SANDSTORM_ROUNDS, strPad(QString::number(rounds), 15, " "));
-            else itemOutput->setText(COLUMN_SANDSTORM_ROUNDS, strPad(QString("n/a"), 15, " "));
+            if(rounds > 0) itemOutput->setText(COLUMN_ZEROSEND_ROUNDS, strPad(QString::number(rounds), 15, " "));
+            else itemOutput->setText(COLUMN_ZEROSEND_ROUNDS, strPad(QString("n/a"), 15, " "));
             // confirmations
             itemOutput->setText(COLUMN_CONFIRMATIONS, strPad(QString::number(out.nDepth), 8, " "));
             
@@ -742,7 +742,7 @@ void CoinControlDialog::updateView()
         {
             dPrioritySum = dPrioritySum / (nInputSum + 78);
             itemWalletAddress->setText(COLUMN_CHECKBOX, "(" + QString::number(nChildren) + ")");
-            itemWalletAddress->setText(COLUMN_AMOUNT, DarkSilkUnits::format(nDisplayUnit, nSum));
+            itemWalletAddress->setText(COLUMN_AMOUNT, FantomUnits::format(nDisplayUnit, nSum));
             itemWalletAddress->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(nSum), 15, " "));
             itemWalletAddress->setText(COLUMN_PRIORITY, CoinControlDialog::getPriorityLabel(dPrioritySum));
             itemWalletAddress->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64_t)dPrioritySum), 20, " "));

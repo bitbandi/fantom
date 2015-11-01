@@ -157,7 +157,7 @@ color: rgb(0, 0, 0);</string>
         <string notr="true">color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
-        <string>DarkSilk-client</string>
+        <string>Fantom-client</string>
        </property>
       </widget>
      </item>
@@ -177,7 +177,7 @@ color: rgb(0, 0, 0);</string>
      <item>
       <widget class="QPushButton" name="pushButtonCurrentI2PAddress">
        <property name="styleSheet">
-        <string notr="true">background: rgb(86,0,120); color: rgb(255,255,255); border: 1px inset grey; border-radius: 1px; margin: 0px;</string>
+        <string notr="true">background: rgb(15,55,126); color: rgb(255,255,255); border: 1px inset grey; border-radius: 1px; margin: 0px;</string>
        </property>
        <property name="text">
         <string>Current
@@ -188,7 +188,7 @@ I2P-address...</string>
      <item>
       <widget class="QPushButton" name="pushButtonGenerateI2PAddress">
        <property name="styleSheet">
-        <string notr="true">background: rgb(86,0,120); color: rgb(255,255,255); border: 1px inset grey; border-radius: 1px; margin: 0px;</string>
+        <string notr="true">background: rgb(15,55,126); color: rgb(255,255,255); border: 1px inset grey; border-radius: 1px; margin: 0px;</string>
        </property>
        <property name="text">
         <string>Generate

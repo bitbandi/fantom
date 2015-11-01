@@ -1,5 +1,5 @@
 ---
-name: "darksilk-deps"
+name: "fantom-deps"
 suites:
 - "trusty"
 architectures:
@@ -135,5 +135,5 @@ script: |
   #
   #
   cd $STAGING
-  find include lib bin host | sort | zip -X@ $OUTDIR/darksilk-deps-linux${GBUILD_BITS}-gitian.zip
+  find include lib bin host | sort | zip -X@ $OUTDIR/fantom-deps-linux${GBUILD_BITS}-gitian.zip
 

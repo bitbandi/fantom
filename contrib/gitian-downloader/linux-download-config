@@ -1,11 +1,11 @@
 --- 
-name: darksilk
+name: fantom
 urls:
-- http://darksilk.org/darksilk-latest-linux-gitian.zip
+- http://fantom.org/fantom-latest-linux-gitian.zip
 rss:
 - url: http://sourceforge.net/api/file/index/project-id/244765/mtime/desc/limit/100/rss
   xpath: //item/link/text()
-  pattern: darksilk-\d+.\d+.\d+-linux-gitian.zip
+  pattern: fantom-\d+.\d+.\d+-linux-gitian.zip
 signers:
   0A82509767C7D4A5D14DA2301AE1D35043E08E54:
     weight: 40

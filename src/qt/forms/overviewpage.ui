@@ -84,7 +84,7 @@
             <item>
              <widget class="QLabel" name="labelWalletStatus">
               <property name="toolTip">
-               <string>The displayed information may be out of date. Your wallet automatically synchronizes with the DarkSilk network after a connection is established, but this process has not completed yet.</string>
+               <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Fantom network after a connection is established, but this process has not completed yet.</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QLabel { color: red; }</string>
@@ -277,7 +277,7 @@
                <string>Your current total balance</string>
               </property>
               <property name="text">
-               <string notr="true">0 DRKSLK</string>
+               <string notr="true">0 FNX</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -310,7 +310,7 @@
 </widget>
 </item>
 <item>
-<widget class="QFrame" name="frameSandstorm">
+<widget class="QFrame" name="frameZerosend">
 <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -364,7 +364,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLabel" name="sandstormEnabled">
+           <widget class="QLabel" name="zerosendEnabled">
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
@@ -384,7 +384,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QProgressBar" name="sandstormProgress">
+           <widget class="QProgressBar" name="zerosendProgress">
             <property name="maximumSize">
              <size>
               <width>154</width>
@@ -405,7 +405,7 @@
              <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
-             <string>Sandstorm Balance:</string>
+             <string>Zerosend Balance:</string>
             </property>
            </widget>
           </item>
@@ -421,7 +421,7 @@
              <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
-             <string>0 SILK</string>
+             <string>0 FNX</string>
             </property>
            </widget>
           </item>
@@ -441,7 +441,7 @@
              <string notr="true">color: rgb(255, 255, 255);</string>
             </property>
             <property name="text">
-             <string>0 SILK / 0 Rounds</string>
+             <string>0 FNX / 0 Rounds</string>
             </property>
            </widget>
           </item>
@@ -458,7 +458,7 @@
           <item row="4" column="1">
            <widget class="QLabel" name="labelSubmittedDenom">
             <property name="statusTip">
-             <string>Amount submitted to the Stormnode. To mix, other users must submit the exact same denomination(s).</string>
+             <string>Amount submitted to the Blanknode. To mix, other users must submit the exact same denomination(s).</string>
             </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);</string>
@@ -471,7 +471,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QLabel" name="sandstormStatus">
+         <widget class="QLabel" name="zerosendStatus">
           <property name="minimumSize">
            <size>
             <width>288</width>
@@ -495,7 +495,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QPushButton" name="toggleSandstorm">
+           <widget class="QPushButton" name="toggleZerosend">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -505,8 +505,8 @@
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
             </property>
             <property name="text">
              <string>Start/Stop</string>
@@ -514,7 +514,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="sandstormReset">
+           <widget class="QPushButton" name="zerosendReset">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -522,7 +522,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Reset the current status of Sandstorm (can interrupt Sandstorm if it's in the process of Mixing, which can cost you money!)</string>
+             <string>Reset the current status of Zerosend (can interrupt Zerosend if it's in the process of Mixing, which can cost you money!)</string>
             </property>
             <property name="autoFillBackground">
              <bool>false</bool>
@@ -530,8 +530,8 @@ alternate-background-color: rgb(86, 0, 120);</string>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
             </property>
             <property name="text">
              <string>Reset</string>
@@ -539,7 +539,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="sandstormAuto">
+           <widget class="QPushButton" name="zerosendAuto">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -547,13 +547,13 @@ alternate-background-color: rgb(86, 0, 120);</string>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Try to manually submit a Sandstorm request.</string>
+             <string>Try to manually submit a Zerosend request.</string>
             </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
             </property>
             <property name="text">
              <string>Try Mix</string>
@@ -592,7 +592,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
             <item>
              <widget class="QLabel" name="labelTransactionsStatus">
               <property name="toolTip">
-               <string>The displayed information may be out of date. Your wallet automatically synchronizes with the DarkSilk network after a connection is established, but this process has not completed yet.</string>
+               <string>The displayed information may be out of date. Your wallet automatically synchronizes with the Fantom network after a connection is established, but this process has not completed yet.</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QLabel { color: red; }</string>

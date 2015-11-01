@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_UTIL_H
-#define DARKSILK_UTIL_H
+#ifndef FANTOM_UTIL_H
+#define FANTOM_UTIL_H
 
 #ifndef WIN32
 #include <sys/types.h>
@@ -94,7 +94,7 @@ T* alignup(T* p)
     return u.ptr;
 }
 
-boost::filesystem::path GetStormnodeConfigFile();
+boost::filesystem::path GetBlanknodeConfigFile();
 
 #ifdef WIN32
 #define MSG_NOSIGNAL        0
@@ -119,18 +119,18 @@ inline void MilliSleep(int64_t n)
 
 //Dark features
 
-extern bool fStormNode;
+extern bool fBlankNode;
 extern bool fLiteMode;
 extern int nInstantXDepth;
-extern int nSandstormRounds;
-extern int nAnonymizeDarkSilkAmount;
+extern int nZerosendRounds;
+extern int nAnonymizeFantomAmount;
 extern int nLiquidityProvider;
-extern bool fEnableSandstorm;
-extern int64_t enforceStormnodePaymentsTime;
-extern std::string strStormNodeAddr;
+extern bool fEnableZerosend;
+extern int64_t enforceBlanknodePaymentsTime;
+extern std::string strBlankNodeAddr;
 extern int keysLoaded;
 extern bool fSucessfullyLoaded;
-extern std::vector<int64_t> sandStormDenominations;
+extern std::vector<int64_t> zeroSendDenominations;
 
 extern bool fDebug;
 extern bool fDebugSmsg;
@@ -590,7 +590,7 @@ inline uint32_t ByteReverse(uint32_t value)
 //    threadGroup.create_thread(boost::bind(&LoopForever<boost::function<void()> >, "nothing", f, milliseconds));
 template <typename Callable> void LoopForever(const char* name,  Callable func, int64_t msecs)
 {
-    std::string s = strprintf("darksilk-%s", name);
+    std::string s = strprintf("fantom-%s", name);
     RenameThread(s.c_str());
     LogPrintf("%s thread start\n", name);
     try
@@ -616,7 +616,7 @@ template <typename Callable> void LoopForever(const char* name,  Callable func, 
 // .. and a wrapper that just calls func once
 template <typename Callable> void TraceThread(const char* name,  Callable func)
 {
-    std::string s = strprintf("darksilk-%s", name);
+    std::string s = strprintf("fantom-%s", name);
     RenameThread(s.c_str());
     try
     {

@@ -98,11 +98,11 @@ void StatisticsPage::updateStatistics() {
     }
 
     if (volume > volumePrevious) {
-        ui->volumeBox->setText("<font color=\"green\">" + qVolume + " DRKSLK" + "</font>");
+        ui->volumeBox->setText("<font color=\"green\">" + qVolume + " FNX" + "</font>");
     } else if (volume < volumePrevious) {
-        ui->volumeBox->setText("<font color=\"red\">" + qVolume + " DRKSLK" + "</font>");
+        ui->volumeBox->setText("<font color=\"red\">" + qVolume + " FNX" + "</font>");
     } else {
-        ui->volumeBox->setText(qVolume + " DRKSLK");
+        ui->volumeBox->setText(qVolume + " FNX");
     }
 
     updatePrevious(nHeight, phase, nSubsidy, pHardness, pHardness2, pPawrate2, Qlpawrate, peers, volume);

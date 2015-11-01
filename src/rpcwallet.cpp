@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -114,13 +114,13 @@ Value getnewaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewaddress ( \"account\" )\n"
-            "\nReturns a new DarkSilk address for receiving payments.\n"
+            "\nReturns a new Fantom address for receiving payments.\n"
             "If 'account' is specified (recommended), it is added to the address book \n"
             "so payments received with the address will be credited to 'account'.\n"
             "\nArguments:\n"
             "1. \"account\"        (string, optional) The account name for the address to be linked to. if not provided, the default account \"\" is used. It can also be set to the empty string \"\" to represent the default account. The account does not need to exist, it will be created if there is no account by the given name.\n"
             "\nResult:\n"
-            "\"darksilkaddress\"    (string) The new DarkSilk address\n"
+            "\"fantomaddress\"    (string) The new Fantom address\n"
             "\nExamples:\n"
             + HelpExampleCli("getnewaddress", "")
             + HelpExampleCli("getnewaddress", "\"\"")
@@ -144,11 +144,11 @@ Value getnewaddress(const Array& params, bool fHelp)
 
     pwalletMain->SetAddressBookName(keyID, strAccount);
 
-    return CDarkSilkAddress(keyID).ToString();
+    return CFantomAddress(keyID).ToString();
 }
 
 
-CDarkSilkAddress GetAccountAddress(string strAccount, bool bForceNew=false)
+CFantomAddress GetAccountAddress(string strAccount, bool bForceNew=false)
 {
     CWalletDB walletdb(pwalletMain->strWalletFile);
 
@@ -183,7 +183,7 @@ CDarkSilkAddress GetAccountAddress(string strAccount, bool bForceNew=false)
         walletdb.WriteAccount(strAccount, account);
     }
 
-    return CDarkSilkAddress(account.vchPubKey.GetID());
+    return CFantomAddress(account.vchPubKey.GetID());
 }
 
 Value getaccountaddress(const Array& params, bool fHelp)
@@ -191,11 +191,11 @@ Value getaccountaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "getaccountaddress \"account\"\n"
-            "\nReturns the current DarkSIlk address for receiving payments to this account.\n"
+            "\nReturns the current Fantom address for receiving payments to this account.\n"
             "\nArguments:\n"
             "1. \"account\"       (string, required) The account name for the address. It can also be set to the empty string \"\" to represent the default account. The account does not need to exist, it will be created and a new address created  if there is no account by the given name.\n"
             "\nResult:\n"
-            "\"darksilkaddress\"   (string) The account DarkSilk address\n"
+            "\"fantomaddress\"   (string) The account Fantom address\n"
             "\nExamples:\n"
             + HelpExampleCli("getaccountaddress", "")
             + HelpExampleCli("getaccountaddress", "\"\"")
@@ -219,19 +219,19 @@ Value setaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "setaccount \"darksilkaddress\" \"account\"\n"
+            "setaccount \"fantomaddress\" \"account\"\n"
             "\nSets the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"darksilkaddress\"  (string, required) The DarkSilk address to be associated with an account.\n"
+            "1. \"fantomaddress\"  (string, required) The Fantom address to be associated with an account.\n"
             "2. \"account\"         (string, required) The account to assign the address to.\n"
             "\nExamples:\n"
             + HelpExampleCli("setaccount", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\" \"tabby\"")
             + HelpExampleRpc("setaccount", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\", \"tabby\"")
         );
 
-    CDarkSilkAddress address(params[0].get_str());
+    CFantomAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DarkSilk address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Fantom address");
 
 
     string strAccount;
@@ -256,10 +256,10 @@ Value getaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getaccount \"darksilkaddress\"\n"
+            "getaccount \"fantomaddress\"\n"
             "\nReturns the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"darksilkaddress\"  (string, required) The darksilk address for account lookup.\n"
+            "1. \"fantomaddress\"  (string, required) The fantom address for account lookup.\n"
             "\nResult:\n"
             "\"accountname\"        (string) the account address\n"
             "\nExamples:\n"
@@ -267,9 +267,9 @@ Value getaccount(const Array& params, bool fHelp)
             + HelpExampleRpc("getaccount", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\"")
         );
 
-    CDarkSilkAddress address(params[0].get_str());
+    CFantomAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DarkSilk address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Fantom address");
 
     string strAccount;
     map<CTxDestination, string>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
@@ -289,7 +289,7 @@ Value getaddressesbyaccount(const Array& params, bool fHelp)
             "1. \"account\"  (string, required) The account name.\n"
             "\nResult:\n"
             "[                     (json array of string)\n"
-            "  \"darksilkaddress\"  (string) a darksilk address associated with the given account\n"
+            "  \"fantomaddress\"  (string) a fantom address associated with the given account\n"
             "  ,...\n"
             "]\n"
             "\nExamples:\n"
@@ -301,9 +301,9 @@ Value getaddressesbyaccount(const Array& params, bool fHelp)
 
     // Find all addresses that have the given account
     Array ret;
-    BOOST_FOREACH(const PAIRTYPE(CDarkSilkAddress, string)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CFantomAddress, string)& item, pwalletMain->mapAddressBook)
     {
-        const CDarkSilkAddress& address = item.first;
+        const CFantomAddress& address = item.first;
         const string& strName = item.second;
         if (strName == strAccount)
             ret.push_back(address.ToString());
@@ -315,12 +315,12 @@ Value sendtoaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 4)
         throw runtime_error(
-            "sendtoaddress \"darksilkaddress\" amount ( \"comment\" \"comment-to\" )\n"
+            "sendtoaddress \"fantomaddress\" amount ( \"comment\" \"comment-to\" )\n"
             "\nSent an amount to a given address. The amount is a real and is rounded to the nearest 0.00000001\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-            "1. \"darksilkaddress\"  (string, required) The DarkSilk address to send to.\n"
-            "2. \"amount\"      (numeric, required) The amount in DRKSLK to send. eg 0.1\n"
+            "1. \"fantomaddress\"  (string, required) The Fantom address to send to.\n"
+            "2. \"amount\"      (numeric, required) The amount in FNX to send. eg 0.1\n"
             "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
             "                             This is not part of the transaction, just kept in your wallet.\n"
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
@@ -334,9 +334,9 @@ Value sendtoaddress(const Array& params, bool fHelp)
             + HelpExampleRpc("sendtoaddress", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\", 0.1, \"donation\", \"seans outpost\"")
         );
 
-    CDarkSilkAddress address(params[0].get_str());
+    CFantomAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DarkSilk address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Fantom address");
 
     // Amount
     int64_t nAmount = AmountFromValue(params[1]);
@@ -377,8 +377,8 @@ Value listaddressgroupings(const Array& params, bool fHelp)
             "[\n"
             "  [\n"
             "    [\n"
-            "      \"darksilkaddress\",     (string) The DarkSilk address\n"
-            "      amount,                 (numeric) The amount in DRKSLK\n"
+            "      \"fantomaddress\",     (string) The Fantom address\n"
+            "      amount,                 (numeric) The amount in FNX\n"
             "      \"account\"             (string, optional) The account\n"
             "    ]\n"
             "    ,...\n"
@@ -398,12 +398,12 @@ Value listaddressgroupings(const Array& params, bool fHelp)
         BOOST_FOREACH(CTxDestination address, grouping)
         {
             Array addressInfo;
-            addressInfo.push_back(CDarkSilkAddress(address).ToString());
+            addressInfo.push_back(CFantomAddress(address).ToString());
             addressInfo.push_back(ValueFromAmount(balances[address]));
             {
                 LOCK(pwalletMain->cs_wallet);
-                if (pwalletMain->mapAddressBook.find(CDarkSilkAddress(address).Get()) != pwalletMain->mapAddressBook.end())
-                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CDarkSilkAddress(address).Get())->second);
+                if (pwalletMain->mapAddressBook.find(CFantomAddress(address).Get()) != pwalletMain->mapAddressBook.end())
+                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CFantomAddress(address).Get())->second);
             }
             jsonGrouping.push_back(addressInfo);
         }
@@ -416,11 +416,11 @@ Value signmessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "signmessage \"darksilkaddress\" \"message\"\n"
+            "signmessage \"fantomaddress\" \"message\"\n"
             "\nSign a message with the private key of an address"
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
-            "1. \"darksilkaddress\"  (string, required) The DarkSilk address to use for the private key.\n"
+            "1. \"fantomaddress\"  (string, required) The Fantom address to use for the private key.\n"
             "2. \"message\"         (string, required) The message to create a signature of.\n"
             "\nResult:\n"
             "\"signature\"          (string) The signature of the message encoded in base 64\n"
@@ -440,7 +440,7 @@ Value signmessage(const Array& params, bool fHelp)
     string strAddress = params[0].get_str();
     string strMessage = params[1].get_str();
 
-    CDarkSilkAddress addr(strAddress);
+    CFantomAddress addr(strAddress);
     if (!addr.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
 
@@ -467,13 +467,13 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "getreceivedbyaddress \"darksilkaddress\" ( minconf )\n"
-            "\nReturns the total amount received by the given darksilkaddress in transactions with at least minconf confirmations.\n"
+            "getreceivedbyaddress \"fantomaddress\" ( minconf )\n"
+            "\nReturns the total amount received by the given fantomaddress in transactions with at least minconf confirmations.\n"
             "\nArguments:\n"
-            "1. \"darksilkaddress\"  (string, required) The DarkSilk address for transactions.\n"
+            "1. \"fantomaddress\"  (string, required) The Fantom address for transactions.\n"
             "2. minconf             (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount   (numeric) The total amount in DRKSLK received at this address.\n"
+            "amount   (numeric) The total amount in FNX received at this address.\n"
             "\nExamples:\n"
             "\nThe amount from transactions with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaddress", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\"") +
@@ -485,11 +485,11 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
             + HelpExampleRpc("getreceivedbyaddress", "\"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\", 10")
        );
 
-    // DarkSilk address
-    CDarkSilkAddress address = CDarkSilkAddress(params[0].get_str());
+    // Fantom address
+    CFantomAddress address = CFantomAddress(params[0].get_str());
     CScript scriptPubKey;
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DarkSilk address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Fantom address");
     scriptPubKey.SetDestination(address.Get());
     if (!IsMine(*pwalletMain,scriptPubKey))
         return (double)0.0;
@@ -538,7 +538,7 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
             "1. \"account\"      (string, required) The selected account, may be the default account using \"\".\n"
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in DRKSLK received for this account.\n"
+            "amount              (numeric) The total amount in FNX received for this account.\n"
             "\nExamples:\n"
             "\nAmount received by the default account with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaccount", "\"\"") +
@@ -628,7 +628,7 @@ Value getbalance(const Array& params, bool fHelp)
             "1. \"account\"      (string, optional) The selected account, or \"*\" for entire wallet. It may be the default account using \"\".\n"
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in DRKSLK received for this account.\n"
+            "amount              (numeric) The total amount in FNX received for this account.\n"
             "\nExamples:\n"
             "\nThe total amount in the server across all accounts\n"
             + HelpExampleCli("getbalance", "") +
@@ -701,11 +701,11 @@ Value movecmd(const Array& params, bool fHelp)
             "\nResult:\n"
             "true|false           (boolean) true if successfull.\n"
             "\nExamples:\n"
-            "\nMove 0.01 DRKSLK from the default account to the account named tabby\n"
+            "\nMove 0.01 FNX from the default account to the account named tabby\n"
             + HelpExampleCli("move", "\"\" \"tabby\" 0.01") +
-            "\nMove 0.01 DRKSLK timotei to akiko with a comment and funds have 10 confirmations\n"
+            "\nMove 0.01 FNX timotei to akiko with a comment and funds have 10 confirmations\n"
             + HelpExampleCli("move", "\"timotei\" \"akiko\" 0.01 10 \"happy birthday!\"") +
-            "\nAs a json DRKSLK call\n"
+            "\nAs a json FNX call\n"
             + HelpExampleRpc("move", "\"timotei\", \"akiko\", 0.01, 10, \"happy birthday!\"")
         );
 
@@ -759,14 +759,14 @@ Value sendfrom(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 3 || params.size() > 7)
         throw runtime_error(
-            "sendfrom \"fromaccount\" \"todarksilkaddress\" amount ( minconf \"comment\" \"comment-to\" )\n"
-            "\nSent an amount from an account to a DarkSilk address.\n"
+            "sendfrom \"fromaccount\" \"tofantomaddress\" amount ( minconf \"comment\" \"comment-to\" )\n"
+            "\nSent an amount from an account to a Fantom address.\n"
             "The amount is a real and is rounded to the nearest 0.00000001."
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
             "1. \"fromaccount\"       (string, required) The name of the account to send funds from. May be the default account using \"\".\n"
-            "2. \"todarksilkaddress\"  (string, required) The DarkSilk address to send funds to.\n"
-            "3. amount                (numeric, required) The amount in DRKSLK. (transaction fee is added on top).\n"
+            "2. \"tofantomaddress\"  (string, required) The Fantom address to send funds to.\n"
+            "3. amount                (numeric, required) The amount in FNX. (transaction fee is added on top).\n"
             "4. minconf               (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
             "5. \"comment\"           (string, optional) A comment used to store what the transaction is for. \n"
             "                                     This is not part of the transaction, just kept in your wallet.\n"
@@ -776,7 +776,7 @@ Value sendfrom(const Array& params, bool fHelp)
             "\nResult:\n"
             "\"transactionid\"        (string) The transaction id.\n"
             "\nExamples:\n"
-            "\nSend 0.01 DRKSLK from the default account to the address, must have at least 1 confirmation\n"
+            "\nSend 0.01 FNX from the default account to the address, must have at least 1 confirmation\n"
             + HelpExampleCli("sendfrom", "\"\" \"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\" 0.01") +
             "\nSend 0.01 from the tabby account to the given address, funds must have at least 10 confirmations\n"
             + HelpExampleCli("sendfrom", "\"tabby\" \"Dh4V55Ebdwsef8gMGL2fhWA9ZmMjt4KPwg\" 0.01 10 \"donation\" \"seans outpost\"") +
@@ -785,9 +785,9 @@ Value sendfrom(const Array& params, bool fHelp)
         );
 
     string strAccount = AccountFromValue(params[0]);
-    CDarkSilkAddress address(params[1].get_str());
+    CFantomAddress address(params[1].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DarkSilk address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Fantom address");
     int64_t nAmount = AmountFromValue(params[2]);
 
     int nMinDepth = 1;
@@ -835,7 +835,7 @@ Value sendmany(const Array& params, bool fHelp)
             "1. \"fromaccount\"         (string, required) The account to send the funds from, can be \"\" for the default account\n"
             "2. \"amounts\"             (string, required) A json object with addresses and amounts\n"
             "    {\n"
-            "      \"address\":amount   (numeric) The DarkSilk address is the key, the numeric amount in DRKSLK is the value\n"
+            "      \"address\":amount   (numeric) The Fantom address is the key, the numeric amount in FNX is the value\n"
             "      ,...\n"
             "    }\n"
             "3. minconf                 (numeric, optional, default=1) Only use the balance confirmed at least this many times.\n"
@@ -863,15 +863,15 @@ Value sendmany(const Array& params, bool fHelp)
     if (params.size() > 3 && params[3].type() != null_type && !params[3].get_str().empty())
         wtx.mapValue["comment"] = params[3].get_str();
 
-    set<CDarkSilkAddress> setAddress;
+    set<CFantomAddress> setAddress;
     vector<pair<CScript, int64_t> > vecSend;
 
     int64_t totalAmount = 0;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CDarkSilkAddress address(s.name_);
+        CFantomAddress address(s.name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DarkSilk address: ")+s.name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Fantom address: ")+s.name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
@@ -920,20 +920,20 @@ Value addmultisigaddress(const Array& params, bool fHelp)
     {
         string msg = "addmultisigaddress nrequired [\"key\",...] ( \"account\" )\n"
             "\nAdd a nrequired-to-sign multisignature address to the wallet.\n"
-            "Each key is a DarkSilk address or hex-encoded public key.\n"
+            "Each key is a Fantom address or hex-encoded public key.\n"
             "If 'account' is specified, assign address to that account.\n"
 
             "\nArguments:\n"
             "1. nrequired        (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-            "2. \"keysobject\"   (string, required) A json array of DarkSilk addresses or hex-encoded public keys\n"
+            "2. \"keysobject\"   (string, required) A json array of Fantom addresses or hex-encoded public keys\n"
             "     [\n"
-            "       \"address\"  (string) DarkSilk address or hex-encoded public key\n"
+            "       \"address\"  (string) Fantom address or hex-encoded public key\n"
             "       ...,\n"
             "     ]\n"
             "3. \"account\"      (string, optional) An account to assign the addresses to.\n"
 
             "\nResult:\n"
-            "\"darksilkaddress\"  (string) A DarkSilk address associated with the keys.\n"
+            "\"fantomaddress\"  (string) A Fantom address associated with the keys.\n"
 
             "\nExamples:\n"
             "\nAdd a multisig address from 2 addresses\n"
@@ -963,8 +963,8 @@ Value addmultisigaddress(const Array& params, bool fHelp)
     {
         const std::string& ks = keys[i].get_str();
 
-        // Case 1: DarkSilk address and we have full public key:
-        CDarkSilkAddress address(ks);
+        // Case 1: Fantom address and we have full public key:
+        CFantomAddress address(ks);
         if (pwalletMain && address.IsValid())
         {
             CKeyID keyID;
@@ -1002,7 +1002,7 @@ Value addmultisigaddress(const Array& params, bool fHelp)
         throw runtime_error("AddCScript() failed");
 
     pwalletMain->SetAddressBookName(innerID, strAccount);
-    return CDarkSilkAddress(innerID).ToString();
+    return CFantomAddress(innerID).ToString();
 }
 
 Value addredeemscript(const Array& params, bool fHelp)
@@ -1027,7 +1027,7 @@ Value addredeemscript(const Array& params, bool fHelp)
         throw runtime_error("AddCScript() failed");
 
     pwalletMain->SetAddressBookName(innerID, strAccount);
-    return CDarkSilkAddress(innerID).ToString();
+    return CFantomAddress(innerID).ToString();
 }
 
 struct tallyitem
@@ -1055,7 +1055,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
         fIncludeEmpty = params[1].get_bool();
 
     // Tally
-    map<CDarkSilkAddress, tallyitem> mapTally;
+    map<CFantomAddress, tallyitem> mapTally;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -1082,11 +1082,11 @@ Value ListReceived(const Array& params, bool fByAccounts)
     // Reply
     Array ret;
     map<string, tallyitem> mapAccountTally;
-    BOOST_FOREACH(const PAIRTYPE(CDarkSilkAddress, string)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CFantomAddress, string)& item, pwalletMain->mapAddressBook)
     {
-        const CDarkSilkAddress& address = item.first;
+        const CFantomAddress& address = item.first;
         const string& strAccount = item.second;
-        map<CDarkSilkAddress, tallyitem>::iterator it = mapTally.find(address);
+        map<CFantomAddress, tallyitem>::iterator it = mapTally.find(address);
         if (it == mapTally.end() && !fIncludeEmpty)
             continue;
 
@@ -1157,7 +1157,7 @@ Value listreceivedbyaddress(const Array& params, bool fHelp)
             "  {\n"
             "    \"address\" : \"receivingaddress\",  (string) The receiving address\n"
             "    \"account\" : \"accountname\",       (string) The account of the receiving address. The default account is \"\".\n"
-            "    \"amount\" : x.xxx,                  (numeric) The total amount in DRKSLK received by the address\n"
+            "    \"amount\" : x.xxx,                  (numeric) The total amount in FNX received by the address\n"
             "    \"confirmations\" : n                (numeric) The number of confirmations of the most recent transaction included\n"
             "  }\n"
             "  ,...\n"
@@ -1203,7 +1203,7 @@ Value listreceivedbyaccount(const Array& params, bool fHelp)
 
 static void MaybePushAddress(Object & entry, const CTxDestination &dest)
 {
-    CDarkSilkAddress addr;
+    CFantomAddress addr;
     if (addr.Set(dest))
         entry.push_back(Pair("address", addr.ToString()));
 }
@@ -1314,16 +1314,16 @@ Value listtransactions(const Array& params, bool fHelp)
             "  {\n"
             "    \"account\":\"accountname\",       (string) The account name associated with the transaction. \n"
             "                                                It will be \"\" for the default account.\n"
-            "    \"address\":\"darksilkaddress\",    (string) The DarkSilk address of the transaction. Not present for \n"
+            "    \"address\":\"fantomaddress\",    (string) The Fantom address of the transaction. Not present for \n"
             "                                                move transactions (category = move).\n"
             "    \"category\":\"send|receive|move\", (string) The transaction category. 'move' is a local (off blockchain)\n"
             "                                                transaction between accounts, and not associated with an address,\n"
             "                                                transaction id or block. 'send' and 'receive' transactions are \n"
             "                                                associated with an address, transaction id and block details\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in DRKSLK. This is negative for the 'send' category, and for the\n"
+            "    \"amount\": x.xxx,          (numeric) The amount in FNX. This is negative for the 'send' category, and for the\n"
             "                                         'move' category for moves outbound. It is positive for the 'receive' category,\n"
             "                                         and for the 'move' category for inbound funds.\n"
-            "    \"fee\": x.xxx,             (numeric) The amount of the fee in DRKSLK. This is negative and only available for the \n"
+            "    \"fee\": x.xxx,             (numeric) The amount of the fee in FNX. This is negative and only available for the \n"
             "                                         'send' category of transactions.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and \n"
             "                                         'receive' category of transactions.\n"
@@ -1489,11 +1489,11 @@ Value listsinceblock(const Array& params, bool fHelp)
             "{\n"
             "  \"transactions\": [\n"
             "    \"account\":\"accountname\",       (string) The account name associated with the transaction. Will be \"\" for the default account.\n"
-            "    \"address\":\"darksilkaddress\",    (string) The DarkSilk address of the transaction. Not present for move transactions (category = move).\n"
+            "    \"address\":\"fantomaddress\",    (string) The Fantom address of the transaction. Not present for move transactions (category = move).\n"
             "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in DRKSLK. This is negative for the 'send' category, and for the 'move' category for moves \n"
+            "    \"amount\": x.xxx,          (numeric) The amount in FNX. This is negative for the 'send' category, and for the 'move' category for moves \n"
             "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
-            "    \"fee\": x.xxx,             (numeric) The amount of the fee in DRKSLK. This is negative and only available for the 'send' category of transactions.\n"
+            "    \"fee\": x.xxx,             (numeric) The amount of the fee in FNX. This is negative and only available for the 'send' category of transactions.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
             "    \"blockhash\": \"hashvalue\",     (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
             "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
@@ -1578,7 +1578,7 @@ Value gettransaction(const Array& params, bool fHelp)
             "1. \"txid\"    (string, required) The transaction id\n"
             "\nResult:\n"
             "{\n"
-            "  \"amount\" : x.xxx,        (numeric) The transaction amount in DRKSLK\n"
+            "  \"amount\" : x.xxx,        (numeric) The transaction amount in FNX\n"
             "  \"confirmations\" : n,     (numeric) The number of confirmations\n"
             "  \"blockhash\" : \"hash\",  (string) The block hash\n"
             "  \"blockindex\" : xx,       (numeric) The block index\n"
@@ -1589,9 +1589,9 @@ Value gettransaction(const Array& params, bool fHelp)
             "  \"details\" : [\n"
             "    {\n"
             "      \"account\" : \"accountname\",  (string) The account name involved in the transaction, can be \"\" for the default account.\n"
-            "      \"address\" : \"darksilkaddress\",   (string) The DarkSilk address involved in the transaction\n"
+            "      \"address\" : \"fantomaddress\",   (string) The Fantom address involved in the transaction\n"
             "      \"category\" : \"send|receive\",    (string) The category, either 'send' or 'receive'\n"
-            "      \"amount\" : x.xxx                  (numeric) The amount in DRKSLK\n"
+            "      \"amount\" : x.xxx                  (numeric) The amount in FNX\n"
             "    }\n"
             "    ,...\n"
             "  ],\n"
@@ -1726,7 +1726,7 @@ Value walletpassphrase(const Array& params, bool fHelp)
         throw runtime_error(
             "walletpassphrase \"passphrase\" timeout ( anonymizeonly )\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
-            "This is needed prior to performing transactions related to private keys such as sending DarkSilk\n"
+            "This is needed prior to performing transactions related to private keys such as sending Fantom\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds.\n"
@@ -1737,7 +1737,7 @@ Value walletpassphrase(const Array& params, bool fHelp)
             "\nExamples:\n"
             "\nUnlock the wallet for 60 seconds\n"
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\" 60") +
-            "\nUnlock the wallet for 60 seconds but allow Sandstorm mixing only\n"
+            "\nUnlock the wallet for 60 seconds but allow Darksend mixing only\n"
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\" 60 true") +
             "\nLock the wallet again (before 60 seconds)\n"
             + HelpExampleCli("walletlock", "") +
@@ -1877,10 +1877,10 @@ Value encryptwallet(const Array& params, bool fHelp)
             "\nExamples:\n"
             "\nEncrypt you wallet\n"
             + HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
-            "\nNow set the passphrase to use the wallet, such as for signing or sending DarkSilk\n"
+            "\nNow set the passphrase to use the wallet, such as for signing or sending Fantom\n"
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
             "\nNow we can so something like sign\n"
-            + HelpExampleCli("signmessage", "\"darksilkaddress\" \"test message\"") +
+            + HelpExampleCli("signmessage", "\"fantomaddress\" \"test message\"") +
             "\nNow lock the wallet again by removing the passphrase\n"
             + HelpExampleCli("walletlock", "") +
             "\nAs a json rpc call\n"
@@ -1910,7 +1910,7 @@ Value encryptwallet(const Array& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; DarkSilk server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
+    return "wallet encrypted; Fantom server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
 }
 
 
@@ -1998,7 +1998,7 @@ Value repairwallet(const Array& params, bool fHelp)
     return result;
 }
 
-// DarkSilk: resend unconfirmed wallet transactions
+// Fantom: resend unconfirmed wallet transactions
 Value resendtx(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -2042,7 +2042,7 @@ Value settxfee(const Array& params, bool fHelp)
             "settxfee amount\n"
             "\nSet the transaction fee per kB.\n"
             "\nArguments:\n"
-            "1. amount         (numeric, required) The transaction fee in DRKSLK/kB rounded to the nearest 0.00000001\n"
+            "1. amount         (numeric, required) The transaction fee in FNX/kB rounded to the nearest 0.00000001\n"
             "\nResult\n"
             "true|false        (boolean) Returns true if successful\n"
             "\nExamples:\n"
@@ -2062,7 +2062,7 @@ Value getnewstealthaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewstealthaddress [label]\n"
-            "Returns a new DarkSilk stealth address for receiving payments anonymously.  ");
+            "Returns a new Fantom stealth address for receiving payments anonymously.  ");
     
     if (pwalletMain->IsLocked())
         throw runtime_error("Failed: Wallet must be unlocked.");
@@ -2267,7 +2267,7 @@ Value sendtostealthaddress(const Array& params, bool fHelp)
     
     if (!sxAddr.SetEncoded(sEncoded))
     {
-        result.push_back(Pair("result", "Invalid DarkSilk stealth address."));
+        result.push_back(Pair("result", "Invalid Fantom stealth address."));
         return result;
     };
     

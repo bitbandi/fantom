@@ -3,7 +3,7 @@
 
 #include "addresstablemodel.h"
 #include "optionsmodel.h"
-#include "darksilkgui.h"
+#include "fantomgui.h"
 #include "editaddressdialog.h"
 #include "csvmodelwriter.h"
 #include "guiutil.h"

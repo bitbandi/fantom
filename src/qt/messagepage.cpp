@@ -4,7 +4,7 @@
 #include "sendmessagesdialog.h"
 #include "mrichtextedit.h"
 #include "messagemodel.h"
-#include "darksilkgui.h"
+#include "fantomgui.h"
 #include "csvmodelwriter.h"
 #include "guiutil.h"
 

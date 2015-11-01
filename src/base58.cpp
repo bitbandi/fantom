@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The DarkSilk developers
+// Copyright (c) 2014 The Fantom developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -187,11 +187,11 @@ int CBase58Data::CompareTo(const CBase58Data& b58) const {
 
 namespace {
 
-    class CDarkSilkAddressVisitor : public boost::static_visitor<bool> {
+    class CFantomAddressVisitor : public boost::static_visitor<bool> {
     private:
-        CDarkSilkAddress *addr;
+        CFantomAddress *addr;
     public:
-        CDarkSilkAddressVisitor(CDarkSilkAddress *addrIn) : addr(addrIn) { }
+        CFantomAddressVisitor(CFantomAddress *addrIn) : addr(addrIn) { }
         bool operator()(const CKeyID &id) const { return addr->Set(id); }
         bool operator()(const CScriptID &id) const { return addr->Set(id); }
         bool operator()(const CNoDestination &no) const { return false; }
@@ -200,28 +200,28 @@ namespace {
 
 } // anon namespace
 
-bool CDarkSilkAddress::Set(const CKeyID &id) {
+bool CFantomAddress::Set(const CKeyID &id) {
     SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);
     return true;
 }
 
-bool CDarkSilkAddress::Set(const CScriptID &id) {
+bool CFantomAddress::Set(const CScriptID &id) {
     SetData(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS), &id, 20);
     return true;
 }
 
-bool CDarkSilkAddress::Set(const CTxDestination &dest) {
-    return boost::apply_visitor(CDarkSilkAddressVisitor(this), dest);
+bool CFantomAddress::Set(const CTxDestination &dest) {
+    return boost::apply_visitor(CFantomAddressVisitor(this), dest);
 }
 
-bool CDarkSilkAddress::IsValid() const {
+bool CFantomAddress::IsValid() const {
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
     return fCorrectSize && fKnownVersion;
 }
 
-CTxDestination CDarkSilkAddress::Get() const {
+CTxDestination CFantomAddress::Get() const {
     if (!IsValid())
         return CNoDestination();
     uint160 id;
@@ -234,7 +234,7 @@ CTxDestination CDarkSilkAddress::Get() const {
         return CNoDestination();
 }
 
-bool CDarkSilkAddress::GetKeyID(CKeyID &keyID) const {
+bool CFantomAddress::GetKeyID(CKeyID &keyID) const {
     if (!IsValid() || vchVersion != Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return false;
     uint160 id;
@@ -243,34 +243,34 @@ bool CDarkSilkAddress::GetKeyID(CKeyID &keyID) const {
     return true;
 }
 
-bool CDarkSilkAddress::IsScript() const {
+bool CFantomAddress::IsScript() const {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
 }
 
-void CDarkSilkSecret::SetKey(const CKey& vchSecret) {
+void CFantomSecret::SetKey(const CKey& vchSecret) {
     assert(vchSecret.IsValid());
     SetData(Params().Base58Prefix(CChainParams::SECRET_KEY), vchSecret.begin(), vchSecret.size());
     if (vchSecret.IsCompressed())
         vchData.push_back(1);
 }
 
-CKey CDarkSilkSecret::GetKey() {
+CKey CFantomSecret::GetKey() {
     CKey ret;
     assert(vchData.size() >= 32);
     ret.Set(vchData.begin(), vchData.begin() + 32, vchData.size() > 32 && vchData[32] == 1);
     return ret;
 }
 
-bool CDarkSilkSecret::IsValid() const {
+bool CFantomSecret::IsValid() const {
     bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
     bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
     return fExpectedFormat && fCorrectVersion;
 }
 
-bool CDarkSilkSecret::SetString(const char* pszSecret) {
+bool CFantomSecret::SetString(const char* pszSecret) {
     return CBase58Data::SetString(pszSecret) && IsValid();
 }
 
-bool CDarkSilkSecret::SetString(const std::string& strSecret) {
+bool CFantomSecret::SetString(const std::string& strSecret) {
     return SetString(strSecret.c_str());
 }

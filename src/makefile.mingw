@@ -10,14 +10,14 @@ INCLUDEPATHS= \
  -I"C:\Develop\deps\boost_1_59_0" \
  -I"C:\Develop\deps\db-4.8.30.NC\build_unix" \
  -I"C:\Develop\deps\openssl-1.0.2d\include" \
- -I"C:\Develop\deps\secp256k1-darksilk\include" \
+ -I"C:\Develop\deps\secp256k1-fantom\include" \
  -I"$(abspath obj)"
 
 LIBPATHS= \
  -L"C:\Develop\deps\boost_1_59_0\bin.v2\libs" \
  -L"C:\Develop\deps\db-4.8.30.NC\build_unix" \
  -L"C:\Develop\deps\openssl-1.0.2d\lib" \
- -L"C:\Develop\deps\secp256k1-darksilk\.libs"
+ -L"C:\Develop\deps\secp256k1-fantom\.libs"
 
 LIBS= \
  -l boost_system-mgw49-mt-s-1_59 \
@@ -65,7 +65,7 @@ OBJS= \
     obj/key.o \
     obj/eckey.o \
     obj/init.o \
-    obj/darksilkd.o \
+    obj/fantomd.o \
     obj/keystore.o \
     obj/core.o \
     obj/main.o \
@@ -94,16 +94,16 @@ OBJS= \
     obj/scrypt-x86_64.o \
     obj/chainparams.o \
     obj/stealth.o \
-    obj/activestormnode.o \
-    obj/sandstorm.o \
-    obj/sandstorm-relay.o \
+    obj/activeblanknode.o \
+    obj/zerosend.o \
+    obj/zerosend-relay.o \
     obj/eccryptoverify.o \
     obj/instantx.o \
-    obj/stormnodeconfig.o \
-    obj/stormnodeman.o \
-    obj/stormnode.o \
-    obj/stormnode-pos.o \
-    obj/rpcsandstorm.o \
+    obj/blanknodeconfig.o \
+    obj/blanknodeman.o \
+    obj/blanknode.o \
+    obj/blanknode-pos.o \
+    obj/rpczerosend.o \
     obj/spork.o \
     obj/crypto/hmac_sha256.o \
     obj/crypto/hmac_sha512.o \
@@ -128,7 +128,7 @@ ifeq (${USE_WALLET}, 1)
         obj/walletdb.o
 endif
 
-all: darksilkd.exe
+all: fantomd.exe
 
 LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
@@ -150,9 +150,9 @@ DEFS += -DHAVE_BUILD_INFO
 obj/%.o: %.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
 
-darksilkd.exe: $(OBJS:obj/%=obj/%)
+fantomd.exe: $(OBJS:obj/%=obj/%)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS) -lshlwapi
-	strip darksilkd.exe
+	strip fantomd.exe
 
 obj/scrypt-x86.o: scrypt-x86.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
@@ -164,7 +164,7 @@ obj/scrypt-arm.o: scrypt-arm.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 clean:
 	-rm -f obj/*.o
-	-rm -f darksilkd.exe
+	-rm -f fantomd.exe
 	-rm -f obj/build.h
 	cd leveldb && TARGET_OS=NATIVE_WINDOWS $(MAKE) clean && cd ..
 

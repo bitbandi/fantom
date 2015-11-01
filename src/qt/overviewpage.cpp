@@ -2,10 +2,10 @@
 #include "ui_overviewpage.h"
 
 #include "clientmodel.h"
-#include "sandstorm.h"
-#include "sandstormconfig.h"
+#include "zerosend.h"
+#include "zerosendconfig.h"
 #include "walletmodel.h"
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "optionsmodel.h"
 #include "transactiontablemodel.h"
 #include "transactionfilterproxy.h"
@@ -26,7 +26,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(DarkSilkUnits::DRKSLK)
+    TxViewDelegate(): QAbstractItemDelegate(), unit(FantomUnits::FNX)
     {
 
     }
@@ -73,14 +73,14 @@ public:
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
-        QString amountText = DarkSilkUnits::formatWithUnit(unit, amount, true);
+        QString amountText = FantomUnits::formatWithUnit(unit, amount, true);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(fUseBlackTheme ? QColor(80, 0, 120) : option.palette.color(QPalette::Text));
+        painter->setPen(fUseBlackTheme ? QColor(248, 248, 255) : option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -110,7 +110,7 @@ OverviewPage::OverviewPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->frameSandstorm->setVisible(true);
+    ui->frameZerosend->setVisible(true);
 
     QScroller::grabGesture(ui->scrollArea, QScroller::LeftMouseButtonGesture);
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -132,28 +132,28 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->labelWalletStatus->setText("(" + tr("out of sync") + ")");
     ui->labelTransactionsStatus->setText("(" + tr("out of sync") + ")");
 
-    showingSandStormMessage = 0;
-    sandstormActionCheck = 0;
+    showingZeroSendMessage = 0;
+    zerosendActionCheck = 0;
     lastNewBlock = 0;
 
     if(fLiteMode){
-        ui->frameSandstorm->setVisible(true);
+        ui->frameZerosend->setVisible(true);
     } else {
-	qDebug() << "Sandstorm Status Timer";
+	qDebug() << "Zerosend Status Timer";
         timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(sandStormStatus()));
+        connect(timer, SIGNAL(timeout()), this, SLOT(zeroSendStatus()));
         timer->start(60000);
     }
 
-    if(fStormNode || fLiteMode){
-        ui->toggleSandstorm->setText("(" + tr("Disabled") + ")");
-        ui->sandstormAuto->setText("(" + tr("Disabled") + ")");
-        ui->sandstormReset->setText("(" + tr("Disabled") + ")");
-        ui->toggleSandstorm->setEnabled(false);
-    }else if(!fEnableSandstorm){
-        ui->toggleSandstorm->setText(tr("Start Sandstorm"));
+    if(fBlankNode || fLiteMode){
+        ui->toggleZerosend->setText("(" + tr("Disabled") + ")");
+        ui->zerosendAuto->setText("(" + tr("Disabled") + ")");
+        ui->zerosendReset->setText("(" + tr("Disabled") + ")");
+        ui->toggleZerosend->setEnabled(false);
+    }else if(!fEnableZerosend){
+        ui->toggleZerosend->setText(tr("Start Zerosend"));
     } else {
-        ui->toggleSandstorm->setText(tr("Stop Sandstorm"));
+        ui->toggleZerosend->setText(tr("Stop Zerosend"));
     }
 
     // start with displaying the "out of sync" warnings
@@ -178,7 +178,7 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 
 OverviewPage::~OverviewPage()
 {
-    if (!fLiteMode && !fStormNode) disconnect(timer, SIGNAL(timeout()), this, SLOT(sandStormStatus()));
+    if (!fLiteMode && !fBlankNode) disconnect(timer, SIGNAL(timeout()), this, SLOT(zeroSendStatus()));
     delete ui;
 }
 
@@ -190,12 +190,12 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     currentUnconfirmedBalance = unconfirmedBalance;
     currentImmatureBalance = immatureBalance;
     currentAnonymizedBalance = anonymizedBalance;
-    ui->labelBalance->setText(DarkSilkUnits::formatWithUnit(unit, balance));
-    ui->labelStake->setText(DarkSilkUnits::formatWithUnit(unit, stake));
-    ui->labelUnconfirmed->setText(DarkSilkUnits::formatWithUnit(unit, unconfirmedBalance));
-    ui->labelImmature->setText(DarkSilkUnits::formatWithUnit(unit, immatureBalance));
-    ui->labelTotal->setText(DarkSilkUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
-    ui->labelAnonymized->setText(DarkSilkUnits::formatWithUnit(unit, anonymizedBalance));
+    ui->labelBalance->setText(FantomUnits::formatWithUnit(unit, balance));
+    ui->labelStake->setText(FantomUnits::formatWithUnit(unit, stake));
+    ui->labelUnconfirmed->setText(FantomUnits::formatWithUnit(unit, unconfirmedBalance));
+    ui->labelImmature->setText(FantomUnits::formatWithUnit(unit, immatureBalance));
+    ui->labelTotal->setText(FantomUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
+    ui->labelAnonymized->setText(FantomUnits::formatWithUnit(unit, anonymizedBalance));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
@@ -243,12 +243,12 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
-        connect(ui->sandstormAuto, SIGNAL(clicked()), this, SLOT(sandstormAuto()));
-        connect(ui->sandstormReset, SIGNAL(clicked()), this, SLOT(sandstormReset()));
-        connect(ui->toggleSandstorm, SIGNAL(clicked()), this, SLOT(toggleSandstorm()));
+        connect(ui->zerosendAuto, SIGNAL(clicked()), this, SLOT(zerosendAuto()));
+        connect(ui->zerosendReset, SIGNAL(clicked()), this, SLOT(zerosendReset()));
+        connect(ui->toggleZerosend, SIGNAL(clicked()), this, SLOT(toggleZerosend()));
     }
 
-    // update the display unit, to not use the default ("DRKSLK")
+    // update the display unit, to not use the default ("FNX")
     updateDisplayUnit();
 }
 
@@ -280,18 +280,18 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 
 
 
-void OverviewPage::updateSandstormProgress()
+void OverviewPage::updateZerosendProgress()
 {
-    qDebug() << "updateSandstormProgress()";
+    qDebug() << "updateZerosendProgress()";
     if(IsInitialBlockDownload()) return;
     
-    qDebug() << "updateSandstormProgress() getbalance";
+    qDebug() << "updateZerosendProgress() getbalance";
     int64_t nBalance = pwalletMain->GetBalance();
     if(nBalance == 0)
     {
-        ui->sandstormProgress->setValue(0);
+        ui->zerosendProgress->setValue(0);
         QString s(tr("No inputs detected"));
-        ui->sandstormProgress->setToolTip(s);
+        ui->zerosendProgress->setToolTip(s);
         return;
     }
 
@@ -299,12 +299,12 @@ void OverviewPage::updateSandstormProgress()
     if(pwalletMain->GetDenominatedBalance(true, true) > 0)
     {
         QString s(tr("Found unconfirmed denominated outputs, will wait till they confirm to recalculate."));
-        ui->sandstormProgress->setToolTip(s);
+        ui->zerosendProgress->setToolTip(s);
         return;
     }
 
     //Get the anon threshold
-    int64_t nMaxToAnonymize = nAnonymizeDarkSilkAmount*COIN;
+    int64_t nMaxToAnonymize = nAnonymizeFantomAmount*COIN;
 
     // If it's more than the wallet amount, limit to that.
     if(nMaxToAnonymize > nBalance) nMaxToAnonymize = nBalance;
@@ -335,161 +335,161 @@ void OverviewPage::updateSandstormProgress()
     int progress = 80 * denomPart + 20 * anonPart;
     if(progress >= 100) progress = 100;
 
-    ui->sandstormProgress->setValue(progress);
+    ui->zerosendProgress->setValue(progress);
 
     std::ostringstream convert;
-    convert << "Progress: " << progress << "%, inputs have an average of " << pwalletMain->GetAverageAnonymizedRounds() << " of " << nSandstormRounds << " rounds";
+    convert << "Progress: " << progress << "%, inputs have an average of " << pwalletMain->GetAverageAnonymizedRounds() << " of " << nZerosendRounds << " rounds";
     QString s(convert.str().c_str());
-    ui->sandstormProgress->setToolTip(s);
+    ui->zerosendProgress->setToolTip(s);
 }
 
 
-void OverviewPage::sandStormStatus()
+void OverviewPage::zeroSendStatus()
 {
     int nBestHeight = pindexBest->nHeight;
 
-    if(nBestHeight != sandStormPool.cachedNumBlocks)
+    if(nBestHeight != zeroSendPool.cachedNumBlocks)
     {
         //we we're processing lots of blocks, we'll just leave
         if(GetTime() - lastNewBlock < 10) return;
         lastNewBlock = GetTime();
 
-        updateSandstormProgress();
+        updateZerosendProgress();
 
         QString strSettings(" " + tr("Rounds"));
-        strSettings.prepend(QString::number(nSandstormRounds)).prepend(" / ");
-        strSettings.prepend(DarkSilkUnits::formatWithUnit(
+        strSettings.prepend(QString::number(nZerosendRounds)).prepend(" / ");
+        strSettings.prepend(FantomUnits::formatWithUnit(
             walletModel->getOptionsModel()->getDisplayUnit(),
-            nAnonymizeDarkSilkAmount * COIN)
+            nAnonymizeFantomAmount * COIN)
         );
 
         ui->labelAmountRounds->setText(strSettings);
     }
 
-    if(!fEnableSandstorm) {
-        if(nBestHeight != sandStormPool.cachedNumBlocks)
+    if(!fEnableZerosend) {
+        if(nBestHeight != zeroSendPool.cachedNumBlocks)
         {
-            sandStormPool.cachedNumBlocks = nBestHeight;
+            zeroSendPool.cachedNumBlocks = nBestHeight;
 
-            ui->sandstormEnabled->setText(tr("Disabled"));
-            ui->sandstormStatus->setText("");
-            ui->toggleSandstorm->setText(tr("Start Sandstorm"));
+            ui->zerosendEnabled->setText(tr("Disabled"));
+            ui->zerosendStatus->setText("");
+            ui->toggleZerosend->setText(tr("Start Zerosend"));
         }
 
         return;
     }
 
-    // check sandstorm status and unlock if needed
-    if(nBestHeight != sandStormPool.cachedNumBlocks)
+    // check zerosend status and unlock if needed
+    if(nBestHeight != zeroSendPool.cachedNumBlocks)
     {
         // Balance and number of transactions might have changed
-        sandStormPool.cachedNumBlocks = nBestHeight;
+        zeroSendPool.cachedNumBlocks = nBestHeight;
 
         /* *******************************************************/
 
-        ui->sandstormEnabled->setText(tr("Enabled"));
+        ui->zerosendEnabled->setText(tr("Enabled"));
     }
 
-    int state = sandStormPool.GetState();
-    int entries = sandStormPool.GetEntriesCount();
-    int accepted = sandStormPool.GetLastEntryAccepted();
+    int state = zeroSendPool.GetState();
+    int entries = zeroSendPool.GetEntriesCount();
+    int accepted = zeroSendPool.GetLastEntryAccepted();
 
     /* ** @TODO this string creation really needs some clean ups ---vertoe ** */
     std::ostringstream convert;
 
     if(state == POOL_STATUS_IDLE) {
-        convert << tr("Sandstorm is idle.").toStdString();
+        convert << tr("Darksend is idle.").toStdString();
     } else if(state == POOL_STATUS_ACCEPTING_ENTRIES) {
         if(entries == 0) {
-            if(sandStormPool.strAutoDenomResult.size() == 0){
+            if(zeroSendPool.strAutoDenomResult.size() == 0){
                 convert << tr("Mixing in progress...").toStdString();
             } else {
-                convert << sandStormPool.strAutoDenomResult;
+                convert << zeroSendPool.strAutoDenomResult;
             }
-            showingSandStormMessage = 0;
+            showingZeroSendMessage = 0;
         } else if (accepted == 1) {
-            convert << tr("Sandstorm request complete: Your transaction was accepted into the pool!").toStdString();
-            if(showingSandStormMessage % 10 > 8) {
-                sandStormPool.lastEntryAccepted = 0;
-                showingSandStormMessage = 0;
+            convert << tr("Zerosend request complete: Your transaction was accepted into the pool!").toStdString();
+            if(showingZeroSendMessage % 10 > 8) {
+                zeroSendPool.lastEntryAccepted = 0;
+                showingZeroSendMessage = 0;
             }
         } else {
-            if(showingSandStormMessage % 70 <= 40) convert << tr("Submitted following entries to stormnode:").toStdString() << " " << entries << "/" << sandStormPool.GetMaxPoolTransactions();
-            else if(showingSandStormMessage % 70 <= 50) convert << tr("Submitted to stormnode, waiting for more entries").toStdString() << " (" << entries << "/" << sandStormPool.GetMaxPoolTransactions() << " ) .";
-            else if(showingSandStormMessage % 70 <= 60) convert << tr("Submitted to stormnode, waiting for more entries").toStdString() << " (" << entries << "/" << sandStormPool.GetMaxPoolTransactions() << " ) ..";
-            else if(showingSandStormMessage % 70 <= 70) convert << tr("Submitted to stormnode, waiting for more entries").toStdString() << " (" << entries << "/" << sandStormPool.GetMaxPoolTransactions() << " ) ...";
+            if(showingZeroSendMessage % 70 <= 40) convert << tr("Submitted following entries to blanknode:").toStdString() << " " << entries << "/" << zeroSendPool.GetMaxPoolTransactions();
+            else if(showingZeroSendMessage % 70 <= 50) convert << tr("Submitted to blanknode, waiting for more entries").toStdString() << " (" << entries << "/" << zeroSendPool.GetMaxPoolTransactions() << " ) .";
+            else if(showingZeroSendMessage % 70 <= 60) convert << tr("Submitted to blanknode, waiting for more entries").toStdString() << " (" << entries << "/" << zeroSendPool.GetMaxPoolTransactions() << " ) ..";
+            else if(showingZeroSendMessage % 70 <= 70) convert << tr("Submitted to blanknode, waiting for more entries").toStdString() << " (" << entries << "/" << zeroSendPool.GetMaxPoolTransactions() << " ) ...";
         }
     } else if(state == POOL_STATUS_SIGNING) {
-        if(showingSandStormMessage % 70 <= 10) convert << tr("Found enough users, signing ...").toStdString();
-        else if(showingSandStormMessage % 70 <= 20) convert << tr("Found enough users, signing ( waiting").toStdString() << ". )";
-        else if(showingSandStormMessage % 70 <= 30) convert << tr("Found enough users, signing ( waiting").toStdString() << ".. )";
-        else if(showingSandStormMessage % 70 <= 40) convert << tr("Found enough users, signing ( waiting").toStdString() << "... )";
+        if(showingZeroSendMessage % 70 <= 10) convert << tr("Found enough users, signing ...").toStdString();
+        else if(showingZeroSendMessage % 70 <= 20) convert << tr("Found enough users, signing ( waiting").toStdString() << ". )";
+        else if(showingZeroSendMessage % 70 <= 30) convert << tr("Found enough users, signing ( waiting").toStdString() << ".. )";
+        else if(showingZeroSendMessage % 70 <= 40) convert << tr("Found enough users, signing ( waiting").toStdString() << "... )";
     } else if(state == POOL_STATUS_TRANSMISSION) {
         convert << tr("Transmitting final transaction.").toStdString();
     } else if (state == POOL_STATUS_IDLE) {
-        convert << tr("Sandstorm is idle.").toStdString();
+        convert << tr("Zerosend is idle.").toStdString();
     } else if (state == POOL_STATUS_FINALIZE_TRANSACTION) {
         convert << tr("Finalizing transaction.").toStdString();
     } else if(state == POOL_STATUS_ERROR) {
-        convert << tr("Sandstorm request incomplete:").toStdString() << " " << sandStormPool.lastMessage << ". " << tr("Will retry...").toStdString();
+        convert << tr("Zerosend request incomplete:").toStdString() << " " << zeroSendPool.lastMessage << ". " << tr("Will retry...").toStdString();
     } else if(state == POOL_STATUS_SUCCESS) {
-        convert << tr("Sandstorm request complete:").toStdString() << " " << sandStormPool.lastMessage;
+        convert << tr("Zerosend request complete:").toStdString() << " " << zeroSendPool.lastMessage;
     } else if(state == POOL_STATUS_QUEUE) {
-        if(showingSandStormMessage % 70 <= 50) convert << tr("Submitted to stormnode, waiting in queue").toStdString() << ". )";
-        else if(showingSandStormMessage % 70 <= 60) convert << tr("Submitted to stormnode, waiting in queue").toStdString() << ".. )";
-        else if(showingSandStormMessage % 70 <= 70) convert << tr("Submitted to stormnode, waiting in queue").toStdString() << "... )";
+        if(showingZeroSendMessage % 70 <= 50) convert << tr("Submitted to blanknode, waiting in queue").toStdString() << ". )";
+        else if(showingZeroSendMessage % 70 <= 60) convert << tr("Submitted to blanknode, waiting in queue").toStdString() << ".. )";
+        else if(showingZeroSendMessage % 70 <= 70) convert << tr("Submitted to blanknode, waiting in queue").toStdString() << "... )";
     } else {
         convert << tr("Unknown state:").toStdString() << " id = " << state;
     }
 
-    if(state == POOL_STATUS_ERROR || state == POOL_STATUS_SUCCESS) sandStormPool.Check();
+    if(state == POOL_STATUS_ERROR || state == POOL_STATUS_SUCCESS) zeroSendPool.Check();
 
     QString s(convert.str().c_str());
-    s = tr("Last Sandstorm message:\n") + s;
+    s = tr("Last Zerosend message:\n") + s;
 
-    if(s != ui->sandstormStatus->text())
-        LogPrintf("Last Sandstorm message: %s\n", convert.str().c_str());
+    if(s != ui->zerosendStatus->text())
+        LogPrintf("Last Zerosend message: %s\n", convert.str().c_str());
 
-    ui->sandstormStatus->setText(s);
+    ui->zerosendStatus->setText(s);
 
-    if(sandStormPool.sessionDenom == 0){
+    if(zeroSendPool.sessionDenom == 0){
         ui->labelSubmittedDenom->setText(tr("N/A"));
     } else {
         std::string out;
-        sandStormPool.GetDenominationsToString(sandStormPool.sessionDenom, out);
+        zeroSendPool.GetDenominationsToString(zeroSendPool.sessionDenom, out);
         QString s2(out.c_str());
         ui->labelSubmittedDenom->setText(s2);
     }
 
-    showingSandStormMessage++;
-    sandstormActionCheck++;
+    showingZeroSendMessage++;
+    zerosendActionCheck++;
 
-    // Get SandStorm Denomination Status
+    // Get ZeroSend Denomination Status
 }
 
-void OverviewPage::sandstormAuto(){
-    sandStormPool.DoAutomaticDenominating();
+void OverviewPage::zerosendAuto(){
+    zeroSendPool.DoAutomaticDenominating();
 }
 
-void OverviewPage::sandstormReset(){
-    sandStormPool.Reset();
+void OverviewPage::zerosendReset(){
+    zeroSendPool.Reset();
 
-    QMessageBox::warning(this, tr("Sandstorm"),
-        tr("Sandstorm was successfully reset."),
+    QMessageBox::warning(this, tr("Zerosend"),
+        tr("Zerosend was successfully reset."),
         QMessageBox::Ok, QMessageBox::Ok);
 }
 
-void OverviewPage::toggleSandstorm(){
-    if(!fEnableSandstorm){
+void OverviewPage::toggleZerosend(){
+    if(!fEnableZerosend){
         int64_t balance = pwalletMain->GetBalance();
         float minAmount = 1.49 * COIN;
         if(balance < minAmount){
             QString strMinAmount(
-                DarkSilkUnits::formatWithUnit(
+                FantomUnits::formatWithUnit(
                     walletModel->getOptionsModel()->getDisplayUnit(),
                     minAmount));
-            QMessageBox::warning(this, tr("Sandstorm"),
-                tr("Sandstorm requires at least %1 to use.").arg(strMinAmount),
+            QMessageBox::warning(this, tr("Zerosend"),
+                tr("Zerosend requires at least %1 to use.").arg(strMinAmount),
                 QMessageBox::Ok, QMessageBox::Ok);
             return;
         }
@@ -501,33 +501,33 @@ void OverviewPage::toggleSandstorm(){
             if(!ctx.isValid())
             {
                 //unlock was cancelled
-                sandStormPool.cachedNumBlocks = 0;
-                QMessageBox::warning(this, tr("Sandstorm"),
-                    tr("Wallet is locked and user declined to unlock. Disabling Sandstorm."),
+                zeroSendPool.cachedNumBlocks = 0;
+                QMessageBox::warning(this, tr("Zerosend"),
+                    tr("Wallet is locked and user declined to unlock. Disabling Zerosend."),
                     QMessageBox::Ok, QMessageBox::Ok);
-                if (fDebug) LogPrintf("Wallet is locked and user declined to unlock. Disabling Sandstorm.\n");
+                if (fDebug) LogPrintf("Wallet is locked and user declined to unlock. Disabling Zerosend.\n");
                 return;
             }
         }
 
     }
 
-    sandStormPool.cachedNumBlocks = 0;
-    fEnableSandstorm = !fEnableSandstorm;
+    zeroSendPool.cachedNumBlocks = 0;
+    fEnableZerosend = !fEnableZerosend;
 
-    if(!fEnableSandstorm){
-        ui->toggleSandstorm->setText(tr("Start Sandstorm"));
+    if(!fEnableZerosend){
+        ui->toggleZerosend->setText(tr("Start Zerosend"));
     } else {
-        ui->toggleSandstorm->setText(tr("Stop Sandstorm"));
+        ui->toggleZerosend->setText(tr("Stop Zerosend"));
 
-        /* show sandstorm configuration if client has defaults set */
+        /* show zerosend configuration if client has defaults set */
 
-        if(nAnonymizeDarkSilkAmount == 0){
-            SandstormConfig dlg(this);
+        if(nAnonymizeFantomAmount == 0){
+            ZerosendConfig dlg(this);
             dlg.setModel(walletModel);
             dlg.exec();
         }
 
-        sandStormPool.DoAutomaticDenominating();
+        zeroSendPool.DoAutomaticDenominating();
     }
 }

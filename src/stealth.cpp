@@ -85,7 +85,7 @@ std::string CStealthAddress::Encoded() const
 };
 
 
-uint32_t DarkSilkChecksum(uint8_t* p, uint32_t nBytes)
+uint32_t FantomChecksum(uint8_t* p, uint32_t nBytes)
 {
     if (!p || nBytes == 0)
         return 0;
@@ -103,7 +103,7 @@ uint32_t DarkSilkChecksum(uint8_t* p, uint32_t nBytes)
 
 void AppendChecksum(data_chunk& data)
 {
-    uint32_t checksum = DarkSilkChecksum(&data[0], data.size());
+    uint32_t checksum = FantomChecksum(&data[0], data.size());
     
     // -- to_little_endian
     std::vector<uint8_t> tmp(4);
@@ -125,7 +125,7 @@ bool VerifyChecksum(const data_chunk& data)
     
     uint32_t checksum = from_little_endian<uint32_t>(data.end() - 4);
     
-    return DarkSilkChecksum((uint8_t*)&data[0], data.size()-4) == checksum;
+    return FantomChecksum((uint8_t*)&data[0], data.size()-4) == checksum;
 };
 
 

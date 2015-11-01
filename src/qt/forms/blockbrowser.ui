@@ -478,8 +478,8 @@
          </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
          </property>
          <property name="text">
           <string>Decode Transaction</string>
@@ -2413,8 +2413,8 @@ alternate-background-color: rgb(86, 0, 120);</string>
          </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
          </property>
          <property name="text">
           <string>Jump to Block</string>

@@ -15,7 +15,7 @@ QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-/** Dialog for sending darksilks */
+/** Dialog for sending fantoms */
 class SendCoinsDialog : public QDialog
 {
     Q_OBJECT

@@ -2,7 +2,7 @@
 #include "ui_sendcoinsentry.h"
 
 #include "guiutil.h"
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "addressbookpage.h"
 #include "walletmodel.h"
 #include "optionsmodel.h"
@@ -25,7 +25,7 @@ SendCoinsEntry::SendCoinsEntry(QWidget *parent) :
 #if QT_VERSION >= 0x040700
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
     ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book"));
-    ui->payTo->setPlaceholderText(tr("Enter a DarkSilk address (e.g. D7fjE4R4r2RoEdqYk3QsAqFckyf9pRHN6i))"));
+    ui->payTo->setPlaceholderText(tr("Enter a Fantom address (e.g. FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1))"));
 #endif
     setFocusPolicy(Qt::TabFocus);
     setFocusProxy(ui->payTo);
@@ -90,7 +90,7 @@ void SendCoinsEntry::clear()
     ui->addAsLabel->clear();
     ui->payAmount->clear();
     ui->payTo->setFocus();
-    // update the display unit, to not use the default ("DRKSLK")
+    // update the display unit, to not use the default ("FNX")
     updateDisplayUnit();
 }
 

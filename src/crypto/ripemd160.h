@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_CRYPTO_RIPEMD160_H
-#define DARKSILK_CRYPTO_RIPEMD160_H
+#ifndef FANTOM_CRYPTO_RIPEMD160_H
+#define FANTOM_CRYPTO_RIPEMD160_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,4 +25,4 @@ public:
     CRIPEMD160& Reset();
 };
 
-#endif // DARKSILK_CRYPTO_RIPEMD160_H
+#endif // FANTOM_CRYPTO_RIPEMD160_H

@@ -419,7 +419,7 @@ void SellsPage::LoadBuyRequests(QString q)
 		}
 		
 		QTableWidgetItem *statusItem = new QTableWidgetItem(QString::fromStdString(statusText));
-		QTableWidgetItem *buyerItem = new QTableWidgetItem(QString::fromStdString(CDarkSilkAddress(p.second.buyerKey.GetID()).ToString()));
+		QTableWidgetItem *buyerItem = new QTableWidgetItem(QString::fromStdString(CFantomAddress(p.second.buyerKey.GetID()).ToString()));
 		QTableWidgetItem *itemItem = new QTableWidgetItem(QString::fromStdString(mapListings[p.second.listingId].listing.sTitle));
 		QTableWidgetItem *itemIdItem = new QTableWidgetItem(QString::fromStdString(mapListings[p.second.listingId].GetHash().ToString()));
 		QTableWidgetItem *requestIdItem = new QTableWidgetItem(QString::fromStdString(p.second.requestId.ToString()));

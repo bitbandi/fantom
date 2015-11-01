@@ -269,8 +269,8 @@ void DEBUGConsole::setClientModel(ClientModel *model)
         setNumBlocks(model->getNumBlocks());
         connect(model, SIGNAL(numBlocksChanged(int)), this, SLOT(setNumBlocks(int)));
 
-        setStormnodeCount(model->getStormnodeCountString());
-        connect(model, SIGNAL(strStormnodesChanged(QString)), this, SLOT(setStormnodeCount(QString)));
+        setBlanknodeCount(model->getBlanknodeCountString());
+        connect(model, SIGNAL(strBlanknodesChanged(QString)), this, SLOT(setBlanknodeCount(QString)));
 
         updateTrafficStats(model->getTotalBytesRecv(), model->getTotalBytesSent());
         connect(model, SIGNAL(bytesChanged(quint64,quint64)), this, SLOT(updateTrafficStats(quint64, quint64)));
@@ -325,7 +325,7 @@ void DEBUGConsole::clear()
                 "b { color: #500078; } "
                 );
 
-    message(CMD_REPLY, (tr("Welcome to the DarkSilk RPC console.") + "<br>" +
+    message(CMD_REPLY, (tr("Welcome to the Fantom RPC console.") + "<br>" +
                         tr("Use up and down arrows to navigate history, and <b>Ctrl-L</b> to clear screen.") + "<br>" +
                         tr("Type <b>help</b> for an overview of available commands.")), true);
 }
@@ -358,9 +358,9 @@ void DEBUGConsole::setNumBlocks(int count)
         ui->lastBlockTime->setText(clientModel->getLastBlockDate().toString());
 }
 
-void DEBUGConsole::setStormnodeCount(const QString &strStormnodes)
+void DEBUGConsole::setBlanknodeCount(const QString &strBlanknodes)
 {
-    ui->stormnodeCount->setText(strStormnodes);
+    ui->blanknodeCount->setText(strBlanknodes);
 }
 
 

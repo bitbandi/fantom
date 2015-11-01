@@ -1,9 +1,9 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DARKSILK_CHECKPOINT_H
-#define  DARKSILK_CHECKPOINT_H
+#ifndef FANTOM_CHECKPOINT_H
+#define  FANTOM_CHECKPOINT_H
 
 #include <map>
 #include "net.h"

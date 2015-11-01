@@ -9,7 +9,7 @@ class CCoinControl
 public:
     CTxDestination destChange;
 
-    bool useSandStorm;
+    bool useZeroSend;
     bool useInstantX;
 
     CCoinControl()
@@ -22,7 +22,7 @@ public:
         destChange = CNoDestination();
         setSelected.clear();
         useInstantX = false;
-        useSandStorm = true;
+        useZeroSend = true;
     }
     
     bool HasSelected() const

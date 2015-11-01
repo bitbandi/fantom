@@ -3,11 +3,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_SUPPORT_CLEANSE_H
-#define DARKSILK_SUPPORT_CLEANSE_H
+#ifndef FANTOM_SUPPORT_CLEANSE_H
+#define FANTOM_SUPPORT_CLEANSE_H
 
 #include <stdlib.h>
 
 void memory_cleanse(void *ptr, size_t len);
 
-#endif // DARKSILK_SUPPORT_CLEANSE_H
+#endif // FANTOM_SUPPORT_CLEANSE_H

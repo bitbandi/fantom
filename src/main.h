@@ -1,10 +1,10 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DARKSILK_MAIN_H
-#define DARKSILK_MAIN_H
+#ifndef FANTOM_MAIN_H
+#define FANTOM_MAIN_H
 
 #include "core.h"
 #include "bignum.h"
@@ -13,26 +13,25 @@
 #include "net.h"
 #include "script.h"
 #include "scrypt.h"
+#include "crypto/hash/velvet.h"
 
 #include <list>
 
 class CValidationState;
 
-static const int64_t STORMNODE_COLLATERAL = 42000; //Stormnode Collateral Amount
+static const int BLANKNODE_PAYMENT_START = 10500;
+static const int TESTNET_BLANKNODE_PAYMENT_START = 10000;
 
-static const int STORMNODE_PAYMENT_START = 420; // Block 420
-static const int TESTNET_STORMNODE_PAYMENT_START = 100; // Block 100
-
-static const int64_t SANDSTORM_COLLATERAL = (0.01*COIN);
-static const int64_t SANDSTORM_POOL_MAX = (999.99*COIN);
-
-static const int64_t STATIC_POS_REWARD = COIN * 1; // Static Reward of 1 DRKSLK 
+static const int64_t BLANKNODE_COLLATERAL = (512*COIN);
+static const int64_t ZEROSEND_COLLATERAL = (0.5*COIN);
+static const int64_t ZEROSEND_POOL_MAX = (1024.15*COIN);
 
 /*
-    At 15 signatures, 1/2 of the stormnode network can be owned by
+    At 15 signatures, 1/2 of the blanknode network can be owned by
     one party without comprimising the security of InstantX
     (1000/2150.0)**15 = 1.031e-05
 */
+
 #define INSTANTX_SIGNATURES_REQUIRED          15
 #define INSTANTX_SIGNATURES_TOTAL             20
 
@@ -46,7 +45,7 @@ class CWallet;
 
 
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
-static const unsigned int MAX_BLOCK_SIZE = 50000000; // 50MB Maximum Block Size (50x Bitcoin Core)
+static const unsigned int MAX_BLOCK_SIZE = 20000000; 
 /** The maximum size for mined blocks */
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 /** The maximum size for transactions we're willing to relay/mine **/
@@ -64,25 +63,19 @@ static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 7500;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 50000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
-static const int64_t MIN_TX_FEE = 10000; // 0.0001DRKSLK Minimum Transaction Fee
+static const int64_t MIN_TX_FEE = 100;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 /** No amount larger than this (in satoshi) is valid */
-static const int64_t MAX_MONEY = 90000000 * COIN; // 45,000,000 instamined from blocks 1 & 2 for Weaver Collateral (main.cpp lines 1129-1143) | 1,679,958 PoW Generated Coins  
+static const int64_t MAX_MONEY = 10000000 * COIN; 
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov 5th 00:53:20 1985 UTC
 
-static const unsigned int POW_TARGET_SPACING = 1 * 60; // 60 seconds
-static const unsigned int POS_TARGET_SPACING = 1 * 64; // 64 seconds
-static const int64_t POW_DRIFT = 10 * 60; // 600 seconds
-static const int64_t POS_DRIFT = 10 * 64; // 640 seconds
-
-inline int64_t FutureDrift(int64_t nTime, bool fProofOfStake=false) { return nTime + (fProofOfStake ? POS_DRIFT : POW_DRIFT); }
+inline int64_t FutureDrift(int64_t nTime, bool fProofOfStake=false) { return nTime + (fProofOfStake ? 28 : 28); }
 
 /** "reject" message codes **/
 static const unsigned char REJECT_INVALID = 0x10;
-
 
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
@@ -158,6 +151,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 int64_t GetProofOfWorkReward(int64_t nFees);
+int64_t GetProofOfStakeReward(int64_t nFees);
 bool IsInitialBlockDownload();
 bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
 std::string GetWarnings(std::string strFor);
@@ -181,7 +175,7 @@ bool AbortNode(const std::string &msg, const std::string &userMessage="");
 /** Increase a node's misbehavior score. */
 void Misbehaving(NodeId nodeid, int howmuch);
 
-int64_t GetStormnodePayment(int nHeight, int64_t blockValue);
+int64_t GetBlanknodePayment(int nHeight, int64_t blockValue);
 
 
 /** Position on disk for a particular transaction. */
@@ -316,7 +310,7 @@ public:
     // Compute priority, given priority of inputs and (optionally) tx size
     double ComputePriority(double dPriorityInputs, unsigned int nTxSize=0) const;
 
-    /** Amount of darksilks spent by this transaction.
+    /** Amount of fantoms spent by this transaction.
         @return sum of all outputs (note: does not include fees)
      */
     int64_t GetValueOut() const
@@ -331,7 +325,7 @@ public:
         return nValueOut;
     }
 
-    /** Amount of darksilks coming in to this transaction
+    /** Amount of fantoms coming in to this transaction
         Note that lightweight clients may not know anything besides the hash of previous transactions,
         so may not be able to calculate this.
 
@@ -699,7 +693,7 @@ public:
 
     uint256 GetPoWHash() const
     {
-        return scrypt_blockhash(CVOIDBEGIN(nVersion));
+        return VelvetHash(BEGIN(nVersion), END(nNonce), nNonce);
     }
 
     int64_t GetBlockTime() const

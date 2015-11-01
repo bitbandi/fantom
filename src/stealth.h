@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_STEALTH_H
-#define DARKSILK_STEALTH_H
+#ifndef FANTOM_STEALTH_H
+#define FANTOM_STEALTH_H
 
 #include "util.h"
 #include "serialize.h"
@@ -115,5 +115,5 @@ int StealthSharedToSecretSpend(ec_secret& sharedS, ec_secret& spendSecret, ec_se
 bool IsStealthAddress(const std::string& encodedAddress);
 
 
-#endif  // DARKSILK_STEALTH_H
+#endif  // FANTOM_STEALTH_H
 

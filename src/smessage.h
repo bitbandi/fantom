@@ -165,7 +165,7 @@ public:
 
 
 // -- get at the data
-class CDarkSilkAddress_B : public CDarkSilkAddress
+class CFantomAddress_B : public CFantomAddress
 {
 public:
     uint8_t getVersion()

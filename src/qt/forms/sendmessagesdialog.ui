@@ -490,7 +490,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../darksilk.qrc">
+           <iconset resource="../fantom.qrc">
             <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
           </property>
           <property name="shortcut">
@@ -507,7 +507,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../darksilk.qrc">
+           <iconset resource="../fantom.qrc">
             <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
           </property>
           <property name="shortcut">
@@ -573,14 +573,14 @@
         <string>Send to multiple recipients at once</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(80, 0, 120);
+        <string notr="true">background-color: rgb(248, 248, 255);
 color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
         <string>Add &amp;Recipient</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
        </property>
        <property name="autoDefault">
@@ -600,14 +600,14 @@ color: rgb(255, 255, 255);</string>
         <string>Remove all transaction fields</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(80, 0, 120);
+        <string notr="true">background-color: rgb(248, 248, 255);
 color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
         <string>Clear &amp;All</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
        <property name="autoRepeatDelay">
@@ -643,14 +643,14 @@ color: rgb(255, 255, 255);</string>
         <string>Confirm the send action</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(80, 0, 120);
+        <string notr="true">background-color: rgb(248, 248, 255);
 color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
         <string>S&amp;end</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
        </property>
        <property name="default">
@@ -661,14 +661,14 @@ color: rgb(255, 255, 255);</string>
      <item>
       <widget class="QPushButton" name="closeButton">
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(80, 0, 120);
+        <string notr="true">background-color: rgb(248, 248, 255);
 color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/quit</normaloff>:/icons/quit</iconset>
        </property>
       </widget>
@@ -685,7 +685,7 @@ color: rgb(255, 255, 255);</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,7 +28,7 @@ namespace Checkpoints {
     //
     static MapCheckpoints mapCheckpoints =
         boost::assign::map_list_of
-        ( 0, uint256("0xdcc5e22e275eff273799a4c06493f8364316d032813c22845602f05ff13d7ec7") )
+        ( 0, uint256("0x") )
     ;
 
     // TestNet has no checkpoints

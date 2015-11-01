@@ -1,6 +1,6 @@
 #include "guiutil.h"
 #include "guiconstants.h"
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "optionsmodel.h"
 #include "walletmodel.h"
 #include "messagemodel.h"
@@ -330,7 +330,7 @@ MessageModel::~MessageModel()
 
 bool MessageModel::getAddressOrPubkey(QString &address, QString &pubkey) const
 {
-    CDarkSilkAddress addressParsed(address.toStdString());
+    CFantomAddress addressParsed(address.toStdString());
 
     if(addressParsed.IsValid()) {
         CKeyID  destinationAddress;
@@ -398,7 +398,7 @@ MessageModel::StatusCode MessageModel::sendMessages(const QList<SendMessagesReci
 
         // Add addresses / update labels that we've sent to to the address book
         std::string strAddress = rcp.address.toStdString();
-        CTxDestination dest = CDarkSilkAddress(strAddress).Get();
+        CTxDestination dest = CFantomAddress(strAddress).Get();
         std::string strLabel = rcp.label.toStdString();
         {
             LOCK(wallet->cs_wallet);

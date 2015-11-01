@@ -1,6 +1,6 @@
 #include "optionsmodel.h"
 
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "init.h"
 #include "wallet.h"
 #include "walletdb.h"
@@ -110,7 +110,7 @@ void OptionsModel::Init()
     QSettings settings;
 
     // These are Qt-only settings:
-    nDisplayUnit = settings.value("nDisplayUnit", DarkSilkUnits::DRKSLK).toInt();
+    nDisplayUnit = settings.value("nDisplayUnit", FantomUnits::FNX).toInt();
     fMinimizeToTray = settings.value("fMinimizeToTray", false).toBool();
     fMinimizeOnClose = settings.value("fMinimizeOnClose", false).toBool();
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
@@ -119,16 +119,16 @@ void OptionsModel::Init()
     language = settings.value("language", "").toString();
     fUseBlackTheme = settings.value("fUseBlackTheme", true).toBool();
 
-    if (!settings.contains("nSandstormRounds"))
-        settings.setValue("nSandstormRounds", 2);
+    if (!settings.contains("nZerosendRounds"))
+        settings.setValue("nZerosendRounds", 2);
 
-    if (!settings.contains("nAnonymizeDarkSilkAmount"))
-        settings.setValue("nAnonymizeDarkSilkAmount", 1000);
+    if (!settings.contains("nAnonymizeFantomAmount"))
+        settings.setValue("nAnonymizeFantomAmount", 1000);
 
-    nSandstormRounds = settings.value("nSandstormRounds").toLongLong();
-    nAnonymizeDarkSilkAmount = settings.value("nAnonymizeDarkSilkAmount").toLongLong();
+    nZerosendRounds = settings.value("nZerosendRounds").toLongLong();
+    nAnonymizeFantomAmount = settings.value("nAnonymizeFantomAmount").toLongLong();
 
-    // These are shared with core DarkSilk; we want
+    // These are shared with core Fantom; we want
     // command-line options to override the GUI settings:
     if (settings.contains("fUseUPnP"))
         SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool());
@@ -139,10 +139,10 @@ void OptionsModel::Init()
     if (!language.isEmpty())
         SoftSetArg("-lang", language.toStdString());
 
-    if (settings.contains("nSandstormRounds"))
-        SoftSetArg("-sandstormrounds", settings.value("nSandstormRounds").toString().toStdString());
-    if (settings.contains("nAnonymizeDarkSilkAmount"))
-        SoftSetArg("-anonymizedarksilkamount", settings.value("nAnonymizeDarkSilkAmount").toString().toStdString());
+    if (settings.contains("nZerosendRounds"))
+        SoftSetArg("-zerosendrounds", settings.value("nZerosendRounds").toString().toStdString());
+    if (settings.contains("nAnonymizeFantomAmount"))
+        SoftSetArg("-anonymizefantomamount", settings.value("nAnonymizeFantomAmount").toString().toStdString());
 
 #ifdef USE_NATIVE_I2P
     ScopeGroupHelper s(settings, I2P_OPTIONS_SECTION_NAME);
@@ -246,10 +246,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("language", "");
         case CoinControlFeatures:
             return QVariant(fCoinControlFeatures);
-        case SandstormRounds:
-            return QVariant(nSandstormRounds);
-        case AnonymizeDarkSilkAmount:
-            return QVariant(nAnonymizeDarkSilkAmount);
+        case ZerosendRounds:
+            return QVariant(nZerosendRounds);
+        case AnonymizeFantomAmount:
+            return QVariant(nAnonymizeFantomAmount);
         case MinimizeCoinAge:
             return settings.value("fMinimizeCoinAge", GetBoolArg("-minimizecoinage", false));
         case UseBlackTheme:
@@ -396,15 +396,15 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             fUseBlackTheme = value.toBool();
             settings.setValue("fUseBlackTheme", fUseBlackTheme);
             break;
-        case SandstormRounds:
-            nSandstormRounds = value.toInt();
-            settings.setValue("nSandstormRounds", nSandstormRounds);
-            emit sandstormRoundsChanged(nSandstormRounds);
+        case ZerosendRounds:
+            nZerosendRounds = value.toInt();
+            settings.setValue("nZerosendRounds", nZerosendRounds);
+            emit zerosendRoundsChanged(nZerosendRounds);
             break;
-        case AnonymizeDarkSilkAmount:
-            nAnonymizeDarkSilkAmount = value.toInt();
-            settings.setValue("nAnonymizeDarkSilkAmount", nAnonymizeDarkSilkAmount);
-            emit AnonymizeDarkSilkAmountChanged(nAnonymizeDarkSilkAmount);
+        case AnonymizeFantomAmount:
+            nAnonymizeFantomAmount = value.toInt();
+            settings.setValue("nAnonymizeFantomAmount", nAnonymizeFantomAmount);
+            emit AnonymizeFantomAmountChanged(nAnonymizeFantomAmount);
             break;
 #ifdef USE_NATIVE_I2P
         case I2PUseI2POnly:

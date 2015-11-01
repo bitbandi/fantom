@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_ECCRYPTOVERIFY_H
-#define DARKSILK_ECCRYPTOVERIFY_H
+#ifndef FANTOM_ECCRYPTOVERIFY_H
+#define FANTOM_ECCRYPTOVERIFY_H
 
 #include <vector>
 #include <cstdlib>
@@ -18,4 +18,4 @@ bool CheckSignatureElement(const unsigned char *vch, int len, bool half);
 
 } // eccrypto namespace
 
-#endif // DARKSILK_ECCRYPTOVERIFY_H
+#endif // FANTOM_ECCRYPTOVERIFY_H

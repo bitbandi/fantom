@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2013 The DarkSilk developers
+// Copyright (c) 2009-2013 The Fantom developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,8 +11,8 @@
 // - E-mail usually won't line-break if there's no punctuation to break at.
 // - Double-clicking selects the whole number as one word if it's all alphanumeric.
 //
-#ifndef DARKSILK_BASE58_H
-#define DARKSILK_BASE58_H
+#ifndef FANTOM_BASE58_H
+#define FANTOM_BASE58_H
 
 #include "chainparams.h"
 #include "key.h"
@@ -101,17 +101,17 @@ public:
  * Script-hash-addresses have version 5 (or 196 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
  */
-class CDarkSilkAddress : public CBase58Data {
+class CFantomAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
 
-    CDarkSilkAddress() {}
-    CDarkSilkAddress(const CTxDestination &dest) { Set(dest); }
-    CDarkSilkAddress(const std::string& strAddress) { SetString(strAddress); }
-    CDarkSilkAddress(const char* pszAddress) { SetString(pszAddress); }
+    CFantomAddress() {}
+    CFantomAddress(const CTxDestination &dest) { Set(dest); }
+    CFantomAddress(const std::string& strAddress) { SetString(strAddress); }
+    CFantomAddress(const char* pszAddress) { SetString(pszAddress); }
 
 
     CTxDestination Get() const;
@@ -122,7 +122,7 @@ public:
 /**
  * A base58-encoded secret key
  */
-class CDarkSilkSecret : public CBase58Data
+class CFantomSecret : public CBase58Data
 {
 public:
     void SetKey(const CKey& vchSecret);
@@ -131,11 +131,11 @@ public:
     bool SetString(const char* pszSecret);
     bool SetString(const std::string& strSecret);
 
-    CDarkSilkSecret(const CKey& vchSecret) { SetKey(vchSecret); }
-    CDarkSilkSecret() {}
+    CFantomSecret(const CKey& vchSecret) { SetKey(vchSecret); }
+    CFantomSecret() {}
 };
 
-template<typename K, int Size, CChainParams::Base58Type Type> class CDarkSilkExtKeyBase : public CBase58Data
+template<typename K, int Size, CChainParams::Base58Type Type> class CFantomExtKeyBase : public CBase58Data
 {
 public:
     void SetKey(const K &key) {
@@ -150,14 +150,14 @@ public:
         return ret;
     }
 
-    CDarkSilkExtKeyBase(const K &key) {
+    CFantomExtKeyBase(const K &key) {
         SetKey(key);
     }
 
-    CDarkSilkExtKeyBase() {}
+    CFantomExtKeyBase() {}
 };
 
-typedef CDarkSilkExtKeyBase<CExtKey, 74, CChainParams::EXT_SECRET_KEY> CDarkSilkExtKey;
-typedef CDarkSilkExtKeyBase<CExtPubKey, 74, CChainParams::EXT_PUBLIC_KEY> CDarkSilkExtPubKey;
+typedef CFantomExtKeyBase<CExtKey, 74, CChainParams::EXT_SECRET_KEY> CFantomExtKey;
+typedef CFantomExtKeyBase<CExtPubKey, 74, CChainParams::EXT_PUBLIC_KEY> CFantomExtPubKey;
 
-#endif // DARKSILK_BASE58_H
+#endif // FANTOM_BASE58_H

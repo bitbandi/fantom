@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -73,20 +73,20 @@ namespace boost {
 using namespace std;
 
 //Dark  features
-bool fStormNode = false;
-string strStormNodePrivKey = "";
-string strStormNodeAddr = "";
+bool fBlankNode = false;
+string strBlankNodePrivKey = "";
+string strBlankNodeAddr = "";
 bool fLiteMode = false;
 int nInstantXDepth = 1;
-int nSandstormRounds = 2;
-int nAnonymizeDarkSilkAmount = 1000;
+int nZerosendRounds = 2;
+int nAnonymizeFantomAmount = 1000;
 int nLiquidityProvider = 0;
 /** Spork enforcement enabled time */
-int64_t enforceStormnodePaymentsTime = 4085657524;
+int64_t enforceBlanknodePaymentsTime = 4085657524;
 bool fSucessfullyLoaded = false;
-bool fEnableSandstorm = false;
-/** All denominations used by sandstorm */
-std::vector<int64_t> sandStormDenominations;
+bool fEnableZerosend = false;
+/** All denominations used by zerosend */
+std::vector<int64_t> zeroSendDenominations;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -1044,7 +1044,7 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "darksilk";
+    const char* pszModule = "fantom";
 #endif
     if (pex)
         return strprintf(
@@ -1074,13 +1074,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\DarkSilk
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\DarkSilk
-    // Mac: ~/Library/Application Support/DarkSilk
-    // Unix: ~/.darksilk
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Fantom
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Fantom
+    // Mac: ~/Library/Application Support/Fantom
+    // Unix: ~/.fantom
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "DarkSilk";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Fantom";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -1092,10 +1092,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "DarkSilk";
+    return pathRet / "Fantom";
 #else
     // Unix
-    return pathRet / ".darksilk";
+    return pathRet / ".fantom";
 #endif
 #endif
 }
@@ -1144,14 +1144,14 @@ void ClearDatadirCache()
 
 boost::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "darksilk.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-conf", "fantom.conf"));
     if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir() / pathConfigFile;
     return pathConfigFile;
 }
 
-boost::filesystem::path GetStormnodeConfigFile()
+boost::filesystem::path GetBlanknodeConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-snconf", "stormnode.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-snconf", "blanknode.conf"));
     if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir() / pathConfigFile;
     return pathConfigFile;
 }
@@ -1161,7 +1161,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()){
-        // Create empty darksilk.conf if it does not excist
+        // Create empty fantom.conf if it does not excist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
         if (configFile != NULL)
             fclose(configFile);
@@ -1173,7 +1173,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
     for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
     {
-        // Don't overwrite existing settings so command line settings override darksilk.conf
+        // Don't overwrite existing settings so command line settings override fantom.conf
         string strKey = string("-") + it->string_key;
         if (mapSettingsRet.count(strKey) == 0)
         {
@@ -1189,7 +1189,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "darksilkd.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "fantomd.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
@@ -1328,7 +1328,7 @@ std::string FormatI2PNativeFullVersion()
 }
 #endif
 
-// Format the subversion field according to BIP 14 spec (https://en.darksilk.it/wiki/BIP_0014)
+// Format the subversion field according to BIP 14 spec (https://en.fantom.it/wiki/BIP_0014)
 std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments)
 {
     std::ostringstream ss;

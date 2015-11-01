@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -106,7 +106,7 @@ public:
         obj.push_back(Pair("hex", HexStr(subscript.begin(), subscript.end())));
         Array a;
         BOOST_FOREACH(const CTxDestination& addr, addresses)
-            a.push_back(CDarkSilkAddress(addr).ToString());
+            a.push_back(CFantomAddress(addr).ToString());
         obj.push_back(Pair("addresses", a));
         if (whichType == TX_MULTISIG)
             obj.push_back(Pair("sigsrequired", nRequired));
@@ -125,10 +125,10 @@ Value validateaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "validateaddress <darksilkaddress>\n"
-            "Return information about <darksilkaddress>.");
+            "validateaddress <fantomaddress>\n"
+            "Return information about <fantomaddress>.");
 
-    CDarkSilkAddress address(params[0].get_str());
+    CFantomAddress address(params[0].get_str());
     bool isValid = address.IsValid();
 
     Object ret;
@@ -156,8 +156,8 @@ Value validatepubkey(const Array& params, bool fHelp)
 {
     if (fHelp || !params.size() || params.size() > 2)
         throw runtime_error(
-            "validatepubkey <darksilkpubkey>\n"
-            "Return information about <darksilkpubkey>.");
+            "validatepubkey <fantompubkey>\n"
+            "Return information about <fantompubkey>.");
 
     std::vector<unsigned char> vchPubKey = ParseHex(params[0].get_str());
     CPubKey pubKey(vchPubKey);
@@ -166,7 +166,7 @@ Value validatepubkey(const Array& params, bool fHelp)
     bool isCompressed = pubKey.IsCompressed();
     CKeyID keyID = pubKey.GetID();
 
-    CDarkSilkAddress address;
+    CFantomAddress address;
     address.Set(keyID);
 
     Object ret;
@@ -195,14 +195,14 @@ Value verifymessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "verifymessage <darksilkaddress> <signature> <message>\n"
+            "verifymessage <fantomaddress> <signature> <message>\n"
             "Verify a signed message");
 
     string strAddress  = params[0].get_str();
     string strSign     = params[1].get_str();
     string strMessage  = params[2].get_str();
 
-    CDarkSilkAddress addr(strAddress);
+    CFantomAddress addr(strAddress);
     if (!addr.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
 

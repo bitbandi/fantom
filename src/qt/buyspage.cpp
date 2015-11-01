@@ -80,7 +80,7 @@ statusText = "UNKNOWN";
 break;
 }
 QTableWidgetItem *statusItem = new QTableWidgetItem(QString::fromStdString(statusText));
-QTableWidgetItem *vendorItem = new QTableWidgetItem(QString::fromStdString(CDarkSilkAddress(mapListings[p.second.listingId].listing.sellerKey.GetID()).ToString()));
+QTableWidgetItem *vendorItem = new QTableWidgetItem(QString::fromStdString(CFantomAddress(mapListings[p.second.listingId].listing.sellerKey.GetID()).ToString()));
 QTableWidgetItem *itemItem = new QTableWidgetItem(QString::fromStdString(mapListings[p.second.listingId].listing.sTitle));
 QTableWidgetItem *itemIdItem = new QTableWidgetItem(QString::fromStdString(mapListings[p.second.listingId].GetHash().ToString()));
 QTableWidgetItem *requestIdItem = new QTableWidgetItem(QString::fromStdString(p.second.requestId.ToString()));

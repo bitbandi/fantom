@@ -24,10 +24,10 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
 #if (QT_VERSION >= 0x040700)
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->addressIn_SM->setPlaceholderText(tr("Enter a DarkSilk address (e.g. D7fjE4R4r2RoEdqYk3QsAqFckyf9pRHN6i"));
+    ui->addressIn_SM->setPlaceholderText(tr("Enter a Fantom address (e.g. FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1"));
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
-    ui->addressIn_VM->setPlaceholderText(tr("Enter a DarkSilk address (e.g. D7fjE4R4r2RoEdqYk3QsAqFckyf9pRHN6i"));
-    ui->signatureIn_VM->setPlaceholderText(tr("Enter DarkSilk signature"));
+    ui->addressIn_VM->setPlaceholderText(tr("Enter a Fantom address (e.g. FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1"));
+    ui->signatureIn_VM->setPlaceholderText(tr("Enter Fantom signature"));
 #endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
@@ -40,8 +40,8 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
     ui->messageIn_VM->installEventFilter(this);
     ui->signatureIn_VM->installEventFilter(this);
 
-    ui->signatureOut_SM->setFont(GUIUtil::darksilkAddressFont());
-    ui->signatureIn_VM->setFont(GUIUtil::darksilkAddressFont());
+    ui->signatureOut_SM->setFont(GUIUtil::fantomAddressFont());
+    ui->signatureIn_VM->setFont(GUIUtil::fantomAddressFont());
 }
 
 SignVerifyMessageDialog::~SignVerifyMessageDialog()
@@ -107,7 +107,7 @@ void SignVerifyMessageDialog::on_signMessageButton_SM_clicked()
     /* Clear old signature to ensure users don't get confused on error with an old signature displayed */
     ui->signatureOut_SM->clear();
 
-    CDarkSilkAddress addr(ui->addressIn_SM->text().toStdString());
+    CFantomAddress addr(ui->addressIn_SM->text().toStdString());
     if (!addr.IsValid())
     {
         ui->addressIn_SM->setValid(false);
@@ -188,7 +188,7 @@ void SignVerifyMessageDialog::on_addressBookButton_VM_clicked()
 
 void SignVerifyMessageDialog::on_verifyMessageButton_VM_clicked()
 {
-    CDarkSilkAddress addr(ui->addressIn_VM->text().toStdString());
+    CFantomAddress addr(ui->addressIn_VM->text().toStdString());
     if (!addr.IsValid())
     {
         ui->addressIn_VM->setValid(false);
@@ -229,7 +229,7 @@ void SignVerifyMessageDialog::on_verifyMessageButton_VM_clicked()
         return;
     }
 
-    if (!(CDarkSilkAddress(pubkey.GetID()) == addr))
+    if (!(CFantomAddress(pubkey.GetID()) == addr))
     {
         ui->statusLabel_VM->setStyleSheet("QLabel { color: red; }");
         ui->statusLabel_VM->setText(QString("<nobr>") + tr("Message verification failed.") + QString("</nobr>"));

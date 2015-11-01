@@ -1,4 +1,4 @@
-// Copyright (c) 2015 The DarkSilk Developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 #ifndef PBKDF2_H
 #define PBKDF2_H
 

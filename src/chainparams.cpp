@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -65,50 +65,43 @@ public:
         vAlertPubKey = ParseHex("");
         nDefaultPort = 31000;
         nRPCPort = 31500;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20); // PoW starting difficulty = 0.0002441
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 12); // PoW starting difficulty = 0.0002441
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         
-        const char* pszTimestamp = "2015 DarkSilk is Born";
-        std::vector<CTxIn> vin;
-        vin.resize(1);
-        vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
-        std::vector<CTxOut> vout;
-        vout.resize(1);
-        vout[0].SetEmpty();
-        CTransaction txNew(1, 1444948732, vin, vout, 0);
+        const char* pszTimestamp = "Prince Harry meets Obamas, gives royal push for Invictus Games for Troops";
+        CTransaction txNew;
+		txNew.nTime = 1446489000;
+        txNew.vin.resize(1);
+        txNew.vout.resize(1);
+        txNew.vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+        txNew.vout[0].nValue = 8250 * COIN;
+        txNew.vout[0].scriptPubKey = CScript() << ParseHex("0435807e4107407bbe2894c27cdc12b73c81c692a705bcefe57bf048a9fb9b071c173f39ca15735981a47eca5e2504fb812fc36c9f4fe4565a62c5ad7523996dd6") << OP_CHECKSIG; // FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1444948732; //Change to current UNIX Time of generated genesis
-        genesis.nBits    = 0x1e0ffff0;
-        genesis.nNonce   = 763220;
+        genesis.nTime    = 1446489000; //Change to current UNIX Time of generated genesis
+        genesis.nBits    = bnProofOfWorkLimit.GetCompact();
+        genesis.nNonce   = 4222;
 
         hashGenesisBlock = genesis.GetHash(); 
-
-        //// debug print
-        /*
-        printf("Gensis Hash: %s\n", genesis.GetHash().ToString().c_str());
-        printf("Gensis Hash Merkle: %s\n", genesis.hashMerkleRoot.ToString().c_str());
-        printf("Gensis nTime: %u\n", genesis.nTime);
-        printf("Gensis nBits: %08x\n", genesis.nBits);
-        printf("Gensis Nonce: %u\n\n\n", genesis.nNonce);
-        */
-
-        assert(hashGenesisBlock == uint256("0xdcc5e22e275eff273799a4c06493f8364316d032813c22845602f05ff13d7ec7"));
-        assert(genesis.hashMerkleRoot == uint256("0xfed7550a453e532c460fac58d438740235c380f9908cae2d602b705ca2c2f0a6"));
         
-        base58Prefixes[PUBKEY_ADDRESS] = list_of(30);                     //DarkSilk addresses start with 'D'
-        base58Prefixes[SCRIPT_ADDRESS] = list_of(10);                     //DarkSilk script addresses start with '5'
-        base58Prefixes[SECRET_KEY] =     list_of(140);                    //DarkSilk private keys start with 'y'              
-        base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x02)(0xFE)(0x52)(0x7D); //DarkSilk BIP32 pubkeys start with 'drks'
-        base58Prefixes[EXT_SECRET_KEY] = list_of(0x02)(0xFE)(0x52)(0x8C); //DarkSilk BIP32 prvkeys start with 'drky'
+        assert(hashGenesisBlock == uint256("0x00023849a06b0457577455af0636c8ff17386c18b86a86b6f2fb3595b414f627"));
+        assert(genesis.hashMerkleRoot == uint256("0x6ef161b6a21f9b9fdf67ddf63e6e7c644331aff731a7b6ba0efd919d5575214c"));
+        
+        hashGenesisBlock = uint256("0x00023849a06b0457577455af0636c8ff17386c18b86a86b6f2fb3595b414f627");
+        	        
+        base58Prefixes[PUBKEY_ADDRESS] = list_of(36);                     //Fantom addresses start with 'D'
+        base58Prefixes[SCRIPT_ADDRESS] = list_of(75);                     //Fantom script addresses start with '5'
+        base58Prefixes[SECRET_KEY] =     list_of(76);                    //Fantom private keys start with 'y'              
+        base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x88)(0x52)(0xFE)(0xC8); //Fantom BIP32 pubkeys start with 'drks'
+        base58Prefixes[EXT_SECRET_KEY] = list_of(0x88)(0x52)(0x9C)(0x2C); //Fantom BIP32 prvkeys start with 'drky'
 
         convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
-        nLastPOWBlock = 42002;
+        nLastPOWBlock = 8500000;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -138,29 +131,26 @@ public:
         pchMessageStart[1] = 0x22;
         pchMessageStart[2] = 0x05;
         pchMessageStart[3] = 0x30;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20); // PoW starting difficulty = 0.0002441
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 12); // PoW starting difficulty = 0.0002441
         vAlertPubKey = ParseHex("");
         nDefaultPort = 31750;
         nRPCPort = 31800;
         strDataDir = "testnet";
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1438578972;
-        genesis.nBits  = 0; 
+        genesis.nTime = 1446489500;
+        genesis.nBits  = bnProofOfWorkLimit.GetCompact(); 
         genesis.nNonce = 0;
         hashGenesisBlock = genesis.GetHash(); 
-
-        //printf("Test Genesis Hash: %s\n", genesis.GetHash().ToString().c_str());
-        assert(hashGenesisBlock == uint256("0xf788ac4ae46429468897b4b9758651cb8a642a6e01f16968134a75078905e24d"));
-
-        vFixedSeeds.clear();
+        
+		vFixedSeeds.clear();
         vSeeds.clear();
 
-        base58Prefixes[PUBKEY_ADDRESS] = list_of(30);                     //DarkSilk addresses start with 'D'
-        base58Prefixes[SCRIPT_ADDRESS] = list_of(10);                     //DarkSilk script addresses start with '5'
-        base58Prefixes[SECRET_KEY] =     list_of(140);                    //DarkSilk private keys start with 'y'              
-        base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x02)(0xFE)(0x52)(0x7D); //DarkSilk BIP32 pubkeys start with 'drks'
-        base58Prefixes[EXT_SECRET_KEY] = list_of(0x02)(0xFE)(0x52)(0x8C); //DarkSilk BIP32 prvkeys start with 'drky'
+        base58Prefixes[PUBKEY_ADDRESS] = list_of(36);                     //Fantom addresses start with 'D'
+        base58Prefixes[SCRIPT_ADDRESS] = list_of(10);                     //Fantom script addresses start with '5'
+        base58Prefixes[SECRET_KEY] =     list_of(140);                    //Fantom private keys start with 'y'              
+        base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x02)(0xFE)(0x52)(0x7D); //Fantom BIP32 pubkeys start with 'drks'
+        base58Prefixes[EXT_SECRET_KEY] = list_of(0x02)(0xFE)(0x52)(0x8C); //Fantom BIP32 prvkeys start with 'drky'
 
         convertSeeds(vFixedSeeds, pnTestnetSeed, ARRAYLEN(pnTestnetSeed), nDefaultPort);
 

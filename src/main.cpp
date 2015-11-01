@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -20,8 +20,8 @@
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "instantx.h"
-#include "sandstorm.h"
-#include "stormnodeman.h"
+#include "zerosend.h"
+#include "blanknodeman.h"
 #include "spork.h"
 #include "smessage.h"
 #include "market.h"
@@ -80,7 +80,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "DarkSilk Signed Message:\n";
+const string strMessageMagic = "Fantom Signed Message:\n";
 
 std::set<uint256> setValidatedTx;
 
@@ -926,10 +926,9 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
     }
 
 
-    /*LogPrint("mempool", "AcceptableInputs : accepted %s (poolsz %u)\n",
+    /* LogPrint("mempool", "AcceptableInputs : accepted %s (poolsz %u)\n",
            hash.ToString(),
-           pool.mapTx.size());
-    */
+           pool.mapTx.size());*/
     return true;
 }
 
@@ -1218,18 +1217,78 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-    if (pindexBest->nHeight == 0) {
-        int64_t nSubsidy = 45000000 * COIN; // Weaver Collateral
-        LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
-        return nSubsidy + nFees;
+	int64_t nSubsidy = 5 * COIN;
+	
+    if (pindexBest->nHeight == 0) { // Premine of 8250 Coins
+        nSubsidy = 8250 * COIN;
     }
-    else
+    else if(pindexBest->nHeight < 5000)
     {
-        int64_t nSubsidy = 42 * COIN;
-        LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
-        return nSubsidy + nFees;
-    }
+		nSubsidy = 80 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*2)
+    {
+		nSubsidy = 70 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*3)
+    {
+		nSubsidy = 60 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*4)
+    {
+		nSubsidy = 50 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*5)
+    {
+		nSubsidy = 40 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*6)
+    {
+		nSubsidy = 30 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*7)
+    {
+		nSubsidy = 20 * COIN;
+	}
+    else if(pindexBest->nHeight < 5000*8)
+    {
+		nSubsidy = 10 * COIN;
+	}
+	
+    LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
+    return nSubsidy + nFees;
 }
+
+int64_t GetProofOfStakeReward(int64_t nFees)
+{
+	int64_t nSubsidy = 0.5 * COIN;
+	
+
+    if(pindexBest->nHeight < 1000)
+    {
+		nSubsidy = 0.01 * COIN;
+	}
+    else if(pindexBest->nHeight < 10000)
+    {
+		nSubsidy = 0.1 * COIN;
+	}
+    else if(pindexBest->nHeight < 20000)
+    {
+		nSubsidy = 1 * COIN;
+	}
+    else if(pindexBest->nHeight < 50000)
+    {
+		nSubsidy = 2 * COIN;
+	}
+    else if(pindexBest->nHeight < 85000)
+    {
+		nSubsidy = 1 * COIN;
+	}
+
+    LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
+    return nSubsidy + nFees;
+}
+
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
@@ -1253,7 +1312,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     if (pindexPrevPrev->pprev == NULL)
         return bnTargetLimit.GetCompact(); // second block
 
-    int64_t nTargetSpacing = fProofOfStake ? POS_TARGET_SPACING : POW_TARGET_SPACING;
+    int64_t nTargetSpacing = fProofOfStake ? 28 : 28;
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
 
     if (nActualSpacing < 0) {
@@ -1519,7 +1578,7 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs, map<uint256, CTx
 {
     // Take over previous transactions' spent pointers
     // fBlock is true when this is called from AcceptBlock when a new best-block is added to the blockchain
-    // fMiner is true when called from the internal darksilk miner
+    // fMiner is true when called from the internal fantom miner
     // ... both are false when called from CTransaction::AcceptToMemoryPool
     if (!IsCoinBase())
     {
@@ -1892,7 +1951,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     }
     if (IsProofOfStake())
     {
-        int64_t nCalculatedStakeReward = STATIC_POS_REWARD + nFees;
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nFees);
 
         if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
@@ -2401,30 +2460,30 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     }
 
 
-    // ----------- stormnode payments -----------
+    // ----------- blanknode payments -----------
 
-    bool StormnodePayments = false;
+    bool BlanknodePayments = false;
 
 
-    if(pindexBest->nHeight+1 >= STORMNODE_PAYMENT_START) StormnodePayments = true;
+    if(pindexBest->nHeight+1 >= BLANKNODE_PAYMENT_START) BlanknodePayments = true;
     
 
-    if(!IsSporkActive(SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT)){
-        StormnodePayments = false;
-        if(fDebug) LogPrintf("CheckBlock() : Stormnode payment enforcement is off\n");
+    if(!IsSporkActive(SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT)){
+        BlanknodePayments = false;
+        if(fDebug) LogPrintf("CheckBlock() : Blanknode payment enforcement is off\n");
     }
 
-    if(StormnodePayments)
+    if(BlanknodePayments)
     {
         LOCK2(cs_main, mempool.cs);
 
         CBlockIndex *pindex = pindexBest;
         if(pindex != NULL){
             if(pindex->GetBlockHash() == hashPrevBlock){
-                CAmount stormnodePaymentAmount = GetStormnodePayment(pindex->nHeight+1, vtx[0].GetValueOut());
+                CAmount blanknodePaymentAmount = GetBlanknodePayment(pindex->nHeight+1, vtx[0].GetValueOut());
                 bool fIsInitialDownload = IsInitialBlockDownload();
 
-                // If we don't already have its previous block, skip stormnode payment step
+                // If we don't already have its previous block, skip blanknode payment step
                 if (!fIsInitialDownload && pindex != NULL)
                 {
                     bool foundPaymentAmount = false;
@@ -2432,43 +2491,43 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     bool foundPaymentAndPayee = false;
 
                     CScript payee;
-                    if(!stormnodePayments.GetBlockPayee(pindexBest->nHeight+1, payee) || payee == CScript()){
+                    if(!blanknodePayments.GetBlockPayee(pindexBest->nHeight+1, payee) || payee == CScript()){
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
-                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific stormnode payments %d\n", pindexBest->nHeight+1); }
+                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific blanknode payments %d\n", pindexBest->nHeight+1); }
                     }
 
                     for (unsigned int i = 0; i < vtx[0].vout.size(); i++) {
-                        if(vtx[0].vout[i].nValue == stormnodePaymentAmount )
+                        if(vtx[0].vout[i].nValue == blanknodePaymentAmount )
                             foundPaymentAmount = true;
                         if(vtx[0].vout[i].scriptPubKey == payee )
                             foundPayee = true;
-                        if(vtx[0].vout[i].nValue == stormnodePaymentAmount && vtx[0].vout[i].scriptPubKey == payee)
+                        if(vtx[0].vout[i].nValue == blanknodePaymentAmount && vtx[0].vout[i].scriptPubKey == payee)
                             foundPaymentAndPayee = true;
                     }
 
                     CTxDestination address1;
                     ExtractDestination(payee, address1);
-                    CDarkSilkAddress address2(address1);
+                    CFantomAddress address2(address1);
 
                     if(!foundPaymentAndPayee) {
-                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find stormnode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, stormnodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
-                        return DoS(100, error("CheckBlock() : Couldn't find stormnode payment or payee"));
+                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find blanknode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, blanknodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
+                        return DoS(100, error("CheckBlock() : Couldn't find blanknode payment or payee"));
                     } else {
-                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, stormnodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
+                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, blanknodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                     }
                 } else {
-                    if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping stormnode payment check %d\n", pindexBest->nHeight+1); }
+                    if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping blanknode payment check %d\n", pindexBest->nHeight+1); }
                 }
             } else {
-                if(fDebug) { LogPrintf("CheckBlock() : Skipping stormnode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
+                if(fDebug) { LogPrintf("CheckBlock() : Skipping blanknode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
             }
         } else {
-            if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping stormnode payment check\n"); }
+            if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping blanknode payment check\n"); }
         }
     } else {
-        if(fDebug) { LogPrintf("CheckBlock() : skipping stormnode payment checks\n"); }
+        if(fDebug) { LogPrintf("CheckBlock() : skipping blanknode payment checks\n"); }
     }
 
 
@@ -2775,9 +2834,9 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
     if(!fLiteMode){
         if (!fImporting && !fReindex && pindexBest->nHeight > Checkpoints::GetTotalBlocksEstimate()){
-            sandStormPool.NewBlock();
-            stormnodePayments.ProcessBlock(GetHeight()+10);
-            snscan.DoStormnodePOSChecks();
+            zeroSendPool.NewBlock();
+            blanknodePayments.ProcessBlock(GetHeight()+10);
+            snscan.DoBlanknodePOSChecks();
         }
     }
 
@@ -2787,7 +2846,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 }
 
 #ifdef ENABLE_WALLET
-// darksilk: attempt to generate suitable proof-of-stake
+// fantom: attempt to generate suitable proof-of-stake
 bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
 {
     // if we are trying to sign
@@ -3135,7 +3194,7 @@ struct CImportingNow
 
 void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 {
-    RenameThread("darksilk-loadblk");
+    RenameThread("fantom-loadblk");
 
     CImportingNow imp;
 
@@ -3254,8 +3313,8 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
         return mapTxLockVote.count(inv.hash);
     case MSG_SPORK:
         return mapSporks.count(inv.hash);
-    case MSG_STORMNODE_WINNER:
-        return mapSeenStormnodeVotes.count(inv.hash);
+    case MSG_BLANKNODE_WINNER:
+        return mapSeenBlanknodeVotes.count(inv.hash);
     }
     // Don't know what it is, just say we already got one
     return true;
@@ -3323,14 +3382,14 @@ void static ProcessGetData(CNode* pfrom)
                    string txHash = inv.hash.ToString().c_str();
                    if(fDebug) LogPrintf("ProcessGetData -- txHash %d \n", txHash);
 
-                    if(mapSandstormBroadcastTxes.count(inv.hash)){
+                    if(mapZerosendBroadcastTxes.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
                         ss <<
-                            mapSandstormBroadcastTxes[inv.hash].tx <<
-                            mapSandstormBroadcastTxes[inv.hash].vin <<
-                            mapSandstormBroadcastTxes[inv.hash].vchSig <<
-                            mapSandstormBroadcastTxes[inv.hash].sigTime;
+                            mapZerosendBroadcastTxes[inv.hash].tx <<
+                            mapZerosendBroadcastTxes[inv.hash].vin <<
+                            mapZerosendBroadcastTxes[inv.hash].vchSig <<
+                            mapZerosendBroadcastTxes[inv.hash].sigTime;
 
                         pfrom->PushMessage("sstx", ss);
                         pushed = true;
@@ -3372,20 +3431,20 @@ void static ProcessGetData(CNode* pfrom)
                         pushed = true;
                     }
                 }
-                if (!pushed && inv.type == MSG_STORMNODE_WINNER) {
-                    if(mapSeenStormnodeVotes.count(inv.hash)){
+                if (!pushed && inv.type == MSG_BLANKNODE_WINNER) {
+                    if(mapSeenBlanknodeVotes.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
-                        ss << mapSeenStormnodeVotes[inv.hash];
+                        ss << mapSeenBlanknodeVotes[inv.hash];
                         pfrom->PushMessage("snw", ss);
                         pushed = true;
                     }
                 }
-                if (!pushed && inv.type == MSG_STORMNODE_SCANNING_ERROR) {
-                    if(mapStormnodeScanningErrors.count(inv.hash)){
+                if (!pushed && inv.type == MSG_BLANKNODE_SCANNING_ERROR) {
+                    if(mapBlanknodeScanningErrors.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
-                        ss << mapStormnodeScanningErrors[inv.hash];
+                        ss << mapBlanknodeScanningErrors[inv.hash];
                         pfrom->PushMessage("snse", ss);
                         pushed = true;
                     }
@@ -3766,7 +3825,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         vector<uint256> vEraseQueue;
         CTransaction tx;
 
-        //stormnode signed transaction
+        //blanknode signed transaction
         bool allowFree = false;
         CTxIn vin;
         vector<unsigned char> vchSig;
@@ -3778,37 +3837,37 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             //these allow sasternodes to publish a limited amount of free transactions
             vRecv >> tx >> vin >> vchSig >> sigTime;
 
-            CStormnode* psn = snodeman.Find(vin);
+            CBlanknode* psn = snodeman.Find(vin);
                 if(psn != NULL)
                 {
                     if(!psn->allowFreeTx){
-                        //multiple peers can send us a valid stormnode transaction
-                        if(fDebug) LogPrintf("sstx: Stormnode sending too many transactions %s\n", tx.GetHash().ToString().c_str());
+                        //multiple peers can send us a valid blanknode transaction
+                        if(fDebug) LogPrintf("sstx: Blanknode sending too many transactions %s\n", tx.GetHash().ToString().c_str());
                         return true;
                     }
 
                     std::string strMessage = tx.GetHash().ToString() + boost::lexical_cast<std::string>(sigTime);
 
                     std::string errorMessage = "";
-                    if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage)){
-                        LogPrintf("sstx: Got bad stormnode address signature %s \n", vin.ToString().c_str());
+                    if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage)){
+                        LogPrintf("sstx: Got bad blanknode address signature %s \n", vin.ToString().c_str());
                         //pfrom->Misbehaving(20);
                         return false;
                     }
 
-                    LogPrintf("sstx: Got Stormnode transaction %s\n", tx.GetHash().ToString().c_str());
+                    LogPrintf("sstx: Got Blanknode transaction %s\n", tx.GetHash().ToString().c_str());
 
                     allowFree = true;
                     psn->allowFreeTx = false;
 
-                    if(!mapSandstormBroadcastTxes.count(tx.GetHash())){
-                        CSandstormBroadcastTx sstx;
+                    if(!mapZerosendBroadcastTxes.count(tx.GetHash())){
+                        CZerosendBroadcastTx sstx;
                         sstx.tx = tx;
                         sstx.vin = vin;
                         sstx.vchSig = vchSig;
                         sstx.sigTime = sigTime;
 
-                        mapSandstormBroadcastTxes.insert(make_pair(tx.GetHash(), sstx));
+                        mapZerosendBroadcastTxes.insert(make_pair(tx.GetHash(), sstx));
                 }
             }
         }
@@ -4042,12 +4101,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     else
     {   
         MarketProcessMessage(pfrom, strCommand, vRecv);
-        sandStormPool.ProcessMessageSandstorm(pfrom, strCommand, vRecv);
+        zeroSendPool.ProcessMessageZerosend(pfrom, strCommand, vRecv);
         snodeman.ProcessMessage(pfrom, strCommand, vRecv);
-        ProcessMessageStormnodePayments(pfrom, strCommand, vRecv);
+        ProcessMessageBlanknodePayments(pfrom, strCommand, vRecv);
         ProcessMessageInstantX(pfrom, strCommand, vRecv);
         ProcessSpork(pfrom, strCommand, vRecv);
-        ProcessMessageStormnodePOS(pfrom, strCommand, vRecv);
+        ProcessMessageBlanknodePOS(pfrom, strCommand, vRecv);
     if (fSecMsgEnabled)
         SecureMsgReceiveData(pfrom, strCommand, vRecv);
         // Ignore unknown commands for extensibility
@@ -4372,7 +4431,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 
 
-int64_t GetStormnodePayment(int nHeight, int64_t blockValue)
+int64_t GetBlanknodePayment(int nHeight, int64_t blockValue)
 {
     int64_t ret = blockValue * 2/3; //67%
 

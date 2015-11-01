@@ -28,10 +28,10 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
-    void updateSandstormProgress();
+    void updateZerosendProgress();
 
 public slots:
-    void sandStormStatus();
+    void zeroSendStatus();
     void setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance, qint64 anonymizedBalance);
 
 signals:
@@ -50,16 +50,16 @@ private:
     qint64 cachedTxLocks;
     qint64 lastNewBlock;
 
-    int showingSandStormMessage;
-    int sandstormActionCheck;
+    int showingZeroSendMessage;
+    int zerosendActionCheck;
     int cachedNumBlocks;
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
 
 private slots:
-    void toggleSandstorm();
-    void sandstormAuto();
-    void sandstormReset();
+    void toggleZerosend();
+    void zerosendAuto();
+    void zerosendReset();
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);

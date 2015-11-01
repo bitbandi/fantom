@@ -58,8 +58,8 @@ bool AddMultisigAddress(CPubKey sellerKey, CPubKey buyerKey, std::string& escrow
 	return false;
     }
 
-    pwalletMain->SetAddressBookName(innerID, "DarkSilkMarket Escrow");
-    escrowAddress = CDarkSilkAddress(innerID).ToString();
+    pwalletMain->SetAddressBookName(innerID, "FantomMarket Escrow");
+    escrowAddress = CFantomAddress(innerID).ToString();
     return true;
 }
 
@@ -81,7 +81,7 @@ bool CreateEscrowLockTx(std::string escrowAddress, int64_t nValue, std::string& 
     }
 
     // Parse Bitcoin address
-    CDarkSilkAddress address(escrowAddress);
+    CFantomAddress address(escrowAddress);
     CScript scriptPubKey;
     scriptPubKey.SetDestination(address.Get());
 
@@ -111,8 +111,8 @@ std::string RefundEscrow(uint256 buyerTxHash, uint256 sellerTxHash, CPubKey sell
     CTxIn inseller(COutPoint(sellerTxHash, nAmount));
     rawTx.vin.push_back(inbuyer);
     rawTx.vin.push_back(inseller);
-    CDarkSilkAddress buyerAddress(buyerKey.GetID());
-    CDarkSilkAddress sellerAddress(sellerKey.GetID());
+    CFantomAddress buyerAddress(buyerKey.GetID());
+    CFantomAddress sellerAddress(sellerKey.GetID());
     CScript scriptBuyerPubKey;
     scriptBuyerPubKey.SetDestination(buyerAddress.Get());
     CScript scriptSellerPubKey;
@@ -141,7 +141,7 @@ std::string PayEscrow(uint256 buyerTxHash, uint256 sellerTxHash, CPubKey sellerK
     CTxIn inseller(COutPoint(sellerTxHash, nAmount / 2));
     rawTx.vin.push_back(inbuyer);
     rawTx.vin.push_back(inseller);
-    CDarkSilkAddress sellerAddress(sellerKey.GetID());
+    CFantomAddress sellerAddress(sellerKey.GetID());
     CScript scriptSellerPubKey;
     scriptSellerPubKey.SetDestination(sellerAddress.Get());
     CTxOut outseller(nAmount, scriptSellerPubKey);

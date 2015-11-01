@@ -6,7 +6,7 @@ they can be picked up by Qt linguist.
 from subprocess import Popen, PIPE
 import glob
 
-OUT_CPP="src/qt/darksilkstrings.cpp"
+OUT_CPP="src/qt/fantomstrings.cpp"
 EMPTY=['""']
 
 def parse_po(text):
@@ -62,9 +62,9 @@ f.write("""#include <QtGlobal>
 #define UNUSED
 #endif
 """)
-f.write('static const char UNUSED *darksilk_strings[] = {')
+f.write('static const char UNUSED *fantom_strings[] = {')
 for (msgid, msgstr) in messages:
     if msgid != EMPTY:
-        f.write('QT_TRANSLATE_NOOP("darksilk-core", %s),\n' % ('\n'.join(msgid)))
+        f.write('QT_TRANSLATE_NOOP("fantom-core", %s),\n' % ('\n'.join(msgid)))
 f.write('};')
 f.close()

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 The DarkSilk Developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 
 #include <string.h>
 #include "pbkdf2.h"

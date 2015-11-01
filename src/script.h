@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef H_DARKSILK_SCRIPT
-#define H_DARKSILK_SCRIPT
+#ifndef H_FANTOM_SCRIPT
+#define H_FANTOM_SCRIPT
 
 #include <string>
 #include <vector>
@@ -181,7 +181,7 @@ public:
  *  * CNoDestination: no destination set
  *  * CKeyID: TX_PUBKEYHASH destination
  *  * CScriptID: TX_SCRIPTHASH destination
- *  A CTxDestination is the internal data type encoded in a CDarkSilkAddress
+ *  A CTxDestination is the internal data type encoded in a CFantomAddress
  */
 typedef boost::variant<CNoDestination, CKeyID, CScriptID, CStealthAddress> CTxDestination;
 

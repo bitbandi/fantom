@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -108,6 +108,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getaddednodeinfo", 0 },
     { "sendtoaddress", 1 },
     { "settxfee", 0 },
+    { "setgenerate", 0},
+    { "setgenerate", 1},
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
     { "listreceivedbyaddress", 0 },

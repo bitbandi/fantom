@@ -22,7 +22,7 @@ alternate-background-color: rgb(0, 0, 0);</string>
    <item>
     <widget class="QLabel" name="labelExplanation">
      <property name="text">
-      <string>These are your DarkSilk addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</string>
+      <string>These are your Fantom addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -70,8 +70,8 @@ alternate-background-color: rgb(0, 0, 0);</string>
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -87,8 +87,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -101,8 +101,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -113,13 +113,13 @@ alternate-background-color: rgb(86, 0, 120);
      <item>
       <widget class="QPushButton" name="signMessage">
        <property name="toolTip">
-        <string>Sign a message to prove you own a DarkSilk address</string>
+        <string>Sign a message to prove you own a Fantom address</string>
        </property>
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -130,13 +130,13 @@ alternate-background-color: rgb(86, 0, 120);
      <item>
       <widget class="QPushButton" name="verifyMessage">
        <property name="toolTip">
-        <string>Verify a message to ensure it was signed with a specified DarkSilk address</string>
+        <string>Verify a message to ensure it was signed with a specified Fantom address</string>
        </property>
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -152,8 +152,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="text">
@@ -185,8 +185,8 @@ alternate-background-color: rgb(86, 0, 120);
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 255, 255);
 gridline-color: rgb(251, 184, 5);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);
 </string>
        </property>
        <property name="standardButtons">
@@ -199,7 +199,7 @@ alternate-background-color: rgb(86, 0, 120);
   </layout>
  </widget>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

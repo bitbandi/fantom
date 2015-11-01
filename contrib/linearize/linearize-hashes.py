@@ -16,7 +16,7 @@ import sys
 
 settings = {}
 
-class DarkSilkRPC:
+class FantomRPC:
 	OBJID = 1
 
 	def __init__(self, host, port, username, password):
@@ -59,7 +59,7 @@ class DarkSilkRPC:
 		return self.rpc('getblockhash', [index])
 
 def get_block_hashes(settings):
-	rpc = DarkSilkRPC(settings['host'], settings['port'],
+	rpc = FantomRPC(settings['host'], settings['port'],
 			 settings['rpcuser'], settings['rpcpassword'])
 
 	for height in xrange(settings['min_height'], settings['max_height']+1):

@@ -1,8 +1,8 @@
 // Copyright (c) 2012-2015 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DARKSILK_VERSION_H
-#define DARKSILK_VERSION_H
+#ifndef FANTOM_VERSION_H
+#define FANTOM_VERSION_H
 
 #include "clientversion.h"
 #include <string>
@@ -41,14 +41,14 @@ static const int PROTOCOL_VERSION = 60020;
 static const int INIT_PROTO_VERSION = 60020;
 
 // disconnect from peers older than this proto version
-static const int MIN_SANDSTORM_PROTO_VERSION = 60020;
+static const int MIN_ZEROSEND_PROTO_VERSION = 60020;
 
 // disconnect from peers older than this proto version
 static const int MIN_PEER_PROTO_VERSION = 60020;
 
 static const int MIN_INSTANTX_PROTO_VERSION = 60020;
 
-//disconnect from Stormnodes older than this proto version
+//disconnect from Blanknodes older than this proto version
 static const int MIN_SN_PROTO_VERSION = 60020;
 
 // nTime field added to CAddress, starting with this version;

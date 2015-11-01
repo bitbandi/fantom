@@ -2,9 +2,9 @@
 
 #include "guiutil.h"
 
-#include "darksilkaddressvalidator.h"
+#include "fantomaddressvalidator.h"
 #include "walletmodel.h"
-#include "darksilkunits.h"
+#include "fantomunits.h"
 
 #include "util.h"
 #include "init.h"
@@ -54,7 +54,7 @@ QString dateTimeStr(qint64 nTime)
     return dateTimeStr(QDateTime::fromTime_t((qint32)nTime));
 }
 
-QFont darksilkAddressFont()
+QFont fantomAddressFont()
 {
     QFont font("Monospace");
 #if QT_VERSION >= 0x040800
@@ -67,9 +67,9 @@ QFont darksilkAddressFont()
 
 void setupAddressWidget(QLineEdit *widget, QWidget *parent)
 {
-    widget->setMaxLength(DarkSilkAddressValidator::MaxAddressLength);
-    widget->setValidator(new DarkSilkAddressValidator(parent));
-    widget->setFont(darksilkAddressFont());
+    widget->setMaxLength(FantomAddressValidator::MaxAddressLength);
+    widget->setValidator(new FantomAddressValidator(parent));
+    widget->setFont(fantomAddressFont());
 }
 
 void setupAmountWidget(QLineEdit *widget, QWidget *parent)
@@ -81,10 +81,10 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
     widget->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
 }
 
-bool parseDarkSilkURI(const QUrl &uri, SendCoinsRecipient *out)
+bool parseFantomURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // DarkSilk: check prefix
-    if(uri.scheme() != QString("darksilk"))
+    // Fantom: check prefix
+    if(uri.scheme() != QString("fantom"))
         return false;
 
     SendCoinsRecipient rv;
@@ -109,7 +109,7 @@ bool parseDarkSilkURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!DarkSilkUnits::parse(DarkSilkUnits::DRKSLK, i->second, &rv.amount))
+                if(!FantomUnits::parse(FantomUnits::FNX, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -127,18 +127,18 @@ bool parseDarkSilkURI(const QUrl &uri, SendCoinsRecipient *out)
     return true;
 }
 
-bool parseDarkSilkURI(QString uri, SendCoinsRecipient *out)
+bool parseFantomURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert darksilk:// to darksilk:
+    // Convert fantom:// to fantom:
     //
-    //    Cannot handle this later, because darksilk:// will cause Qt to see the part after // as host,
+    //    Cannot handle this later, because fantom:// will cause Qt to see the part after // as host,
     //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("darksilk://"))
+    if(uri.startsWith("fantom://"))
     {
-        uri.replace(0, 12, "darksilk:");
+        uri.replace(0, 12, "fantom:");
     }
     QUrl uriInstance(uri);
-    return parseDarkSilkURI(uriInstance, out);
+    return parseFantomURI(uriInstance, out);
 }
 
 QString HtmlEscape(const QString& str, bool fMultiLine)
@@ -280,12 +280,12 @@ bool ToolTipToRichTextFilter::eventFilter(QObject *obj, QEvent *evt)
 #ifdef WIN32
 boost::filesystem::path static StartupShortcutPath()
 {
-    return GetSpecialFolderPath(CSIDL_STARTUP) / "DarkSilk.lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / "Fantom.lnk";
 }
 
 bool GetStartOnSystemStartup()
 {
-    // check for DarkSilk.lnk
+    // check for Fantom.lnk
     return boost::filesystem::exists(StartupShortcutPath());
 }
 
@@ -362,7 +362,7 @@ boost::filesystem::path static GetAutostartDir()
 
 boost::filesystem::path static GetAutostartFilePath()
 {
-    return GetAutostartDir() / "darksilk.desktop";
+    return GetAutostartDir() / "fantom.desktop";
 }
 
 bool GetStartOnSystemStartup()
@@ -400,10 +400,10 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         boost::filesystem::ofstream optionFile(GetAutostartFilePath(), std::ios_base::out|std::ios_base::trunc);
         if (!optionFile.good())
             return false;
-        // Write a darksilk.desktop file to the autostart directory:
+        // Write a fantom.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
-        optionFile << "Name=DarkSilk\n";
+        optionFile << "Name=Fantom\n";
         optionFile << "Exec=" << pszExePath << " -min\n";
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";
@@ -424,10 +424,10 @@ bool SetStartOnSystemStartup(bool fAutoStart) { return false; }
 HelpMessageBox::HelpMessageBox(QWidget *parent) :
     QMessageBox(parent)
 {
-    header = tr("DarkSilk-Qt") + " " + tr("version") + " " +
+    header = tr("Fantom-Qt") + " " + tr("version") + " " +
         QString::fromStdString(FormatFullVersion()) + "\n\n" +
         tr("Usage:") + "\n" +
-        "  darksilk-qt [" + tr("command-line options") + "]                     " + "\n";
+        "  fantom-qt [" + tr("command-line options") + "]                     " + "\n";
 
     coreOptions = QString::fromStdString(HelpMessage());
 
@@ -436,7 +436,7 @@ HelpMessageBox::HelpMessageBox(QWidget *parent) :
         "  -min                   " + tr("Start minimized") + "\n" +
         "  -splash                " + tr("Show splash screen on startup (default: 1)") + "\n";
 
-    setWindowTitle(tr("DarkSilk-Qt"));
+    setWindowTitle(tr("Fantom-Qt"));
     setTextFormat(Qt::PlainText);
     // setMinimumWidth is ignored for QMessageBox so put in non-breaking spaces to make it wider.
     setText(header + QString(QChar(0x2003)).repeated(50));
@@ -479,40 +479,35 @@ void ClickableLabel::mouseReleaseEvent ( QMouseEvent * event )
 
 void SetBlackThemeQSS(QApplication& app)
 {
-    app.setStyleSheet("QTableView { background: rgb(0,0,0); color: rgb(255,255,255); border: 1px inset white; border-radius: 3px; margin: 0px; }"
-                      "QWidget        { background-color: rgb(0,0,0); alternate-background-color: rgb(0,0,0); color: rgb(255,255,255);}"
+    app.setStyleSheet("QWidget        { background: rgb(41,44,48); }"
                       "QFrame         { border: none; }"
-                      "QCheckBox      { color: rgb(0,0,0); background-color: rgb(255,255,255);}"
-                      "QComboBox      { background-color: rgb(0,0,0); color: rgb(255,255,255); }"
+                      "QComboBox      { color: rgb(255,255,255); }"
                       "QComboBox QAbstractItemView::item { color: rgb(255,255,255); }"
-                      "QPushButton    { background: rgb(86,0,120); alternate-background-color: rgb(86,0,120); color: rgb(255,255,255); }"
-                      "QDoubleSpinBox { background: rgb(0,0,0); color: rgb(255,255,255); border-color: rgb(255,0,0); }"
-                      "QLineEdit      { background: rgb(0,0,0); color: rgb(255,255,255); border-color: rgb(255,0,0); }"
-                      "QTextEdit      { background: rgb(0,0,0); color: rgb(255,255,255); border: 1px inset white; border-radius: 3px; margin: 0px; }"
-                      "QPlainTextEdit { background: rgb(0,0,0); color: rgb(255,255,255); }"
-                      "QMenuBar       { background: rgb(0,0,0); alternate-background-color: rgb(0,0,0); color: rgb(255,255,255); border-color: rgb(0,0,0); }"
-                      "QMenuBar::item {background-color: rgb(0,0,0); }"
-                      "QMenu::item:selected { background-color: rgb(86,0,120); }"
-                      "QLabel         { color: rgb(255,255,255); }"
+                      "QPushButton    { background: rgb(226,189,121); color: rgb(21,21,21); }"
+                      "QDoubleSpinBox { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
+                      "QLineEdit      { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
+                      "QTextEdit      { background: rgb(63,67,72); color: rgb(255,255,255); }"
+                      "QPlainTextEdit { background: rgb(63,67,72); color: rgb(255,255,255); }"
+                      "QMenuBar       { background: rgb(41,44,48); color: rgb(110,116,126); }"
+                      "QMenu          { background: rgb(30,32,36); color: rgb(222,222,222); }"
+                      "QMenu::item:selected { background-color: rgb(48,140,198); }"
+                      "QLabel         { color: rgb(120,127,139); }"
                       "QScrollBar     { color: rgb(255,255,255); }"
-                      "QCheckBox      { color: rgb(0,0,0); background-color: rgb(255,255,255); }"
-                      "QRadioButton   { color: rgb(0,0,0); }"
-                      "QTabBar::tab   { color: rgb(255,255,255); border: 1px solid rgb(255,255,255); border-bottom: none; padding: 5px; }"
-                      "QTabBar::tab:selected  { background-color: rgb(86,0,120); }"
-                      "QTabBar::tab:!selected { background-color: rgb(0,0,0); margin-top: 2px; }"
-                      "QTabWidget::pane { border: 1px solid rgb(0,0,0); }"
-                      "QToolButton    { background: rgb(0,0,0); color: rgb(232,234,236); border: none; border-left-color: rgb(0,0,0); border-left-style: solid; border-left-width: 6px; margin-top: 8px; margin-bottom: 8px; }"
-                      "QToolButton:checked { color: rgb(255,255,255); border: none; border-left-color: rgb(86,0,120); border-left-style: solid; border-left-width: 6px; }"
-                      "QProgressBar   { color: rgb(255,255,255); border: 1px inset white; border-radius: 3px; margin: 0px; }"
-                      "QProgressBar::chunk { background: rgb(86,0,120); }"
-                      "QTreeView::item { background: rgb(86,0,120); color: rgb(255,255,255); }"
-                      "QTreeView::item:selected { background-color: rgb(138,138,138); }"
-                      "QHeaderView::section { background-color: rgb(0,0,0); color: rgb(255,255,255); }"
-                      "QToolBar       { background: rgb(0,0,0); border: rgb(0,0,0); }"
-                      "QTextEdit      { background-color: rgb(0,0,0); color: rgb(255,255,255); }"
-                      "QPlainTextEdit { background-color: rgb(0,0,0); color: rgb(255,255,255); }"
-                      "QProgressBar { background-color: rgb(0,0,0); border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #500078, stop: 1 #500078); border-radius: 7px; margin: 0px; }"
-                      );
+                      "QCheckBox      { color: rgb(120,127,139); }"
+                      "QRadioButton   { color: rgb(120,127,139); }"
+                      "QTabBar::tab   { color: rgb(120,127,139); border: 1px solid rgb(78,79,83); border-bottom: none; padding: 5px; }"
+                      "QTabBar::tab:selected  { background: rgb(41,44,48); }"
+                      "QTabBar::tab:!selected { background: rgb(24,26,30); margin-top: 2px; }"
+                      "QTabWidget::pane { border: 1px solid rgb(78,79,83); }"
+                      "QToolButton    { background: rgb(30,32,36); color: rgb(116,122,134); border: none; border-left-color: rgb(30,32,36); border-left-style: solid; border-left-width: 6px; margin-top: 8px; margin-bottom: 8px; }"
+                      "QToolButton:checked { color: rgb(255,255,255); border: none; border-left-color: rgb(215,173,94); border-left-style: solid; border-left-width: 6px; }"
+                      "QProgressBar   { color: rgb(149,148,148); border-color: rgb(255,255,255); border-width: 3px; border-style: solid; }"
+                      "QProgressBar::chunk { background: rgb(255,255,255); }"
+                      "QTreeView::item { background: rgb(41,44,48); color: rgb(212,213,213); }"
+                      "QTreeView::item:selected { background-color: rgb(48,140,198); }"
+                      "QTableView     { background: rgb(66,71,78); color: rgb(212,213,213); gridline-color: rgb(157,160,165); }"
+                      "QHeaderView::section { background: rgb(29,34,39); color: rgb(255,255,255); }"
+                      "QToolBar       { background: rgb(30,32,36); border: none; }");
 }
 
 } // namespace GUIUtil

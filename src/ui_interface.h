@@ -3,8 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_UI_INTERFACE_H
-#define DARKSILK_UI_INTERFACE_H
+#ifndef FANTOM_UI_INTERFACE_H
+#define FANTOM_UI_INTERFACE_H
 
 #include <boost/signals2/last_value.hpp>
 #include <boost/signals2/signal.hpp>
@@ -16,7 +16,7 @@
 class CBasicKeyStore;
 class CWallet;
 class uint256;
-class CStormNodeConfig;
+class CBlankNodeConfig;
 class CSignedMarketListing;
 class CBuyRequest;
 
@@ -105,7 +105,7 @@ public:
      */
     boost::signals2::signal<void (const uint256 &hash, ChangeType status)> NotifyAlertChanged;
 
-    boost::signals2::signal<void (CStormNodeConfig nodeConfig)> NotifyStormNodeChanged;
+    boost::signals2::signal<void (CBlankNodeConfig nodeConfig)> NotifyBlankNodeChanged;
 
     boost::signals2::signal<void (std::string category)> NotifyMarketCategory;
 

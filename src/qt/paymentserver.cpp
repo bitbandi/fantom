@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,8 +23,8 @@
 
 using namespace boost;
 
-const int DARKSILK_IPC_CONNECT_TIMEOUT = 1000; // milliseconds
-const QString DARKSILK_IPC_PREFIX("darksilk:");
+const int FANTOM_IPC_CONNECT_TIMEOUT = 1000; // milliseconds
+const QString FANTOM_IPC_PREFIX("fantom:");
 
 //
 // Create a name that is unique for:
@@ -33,7 +33,7 @@ const QString DARKSILK_IPC_PREFIX("darksilk:");
 //
 static QString ipcServerName()
 {
-    QString name("SilkQt");
+    QString name("FantomQt");
 
     // Append a simple hash of the datadir
     // Note that GetDataDir(true) returns a different path
@@ -64,7 +64,7 @@ bool PaymentServer::ipcSendCommandLine()
     const QStringList& args = qApp->arguments();
     for (int i = 1; i < args.size(); i++)
     {
-        if (!args[i].startsWith(DARKSILK_IPC_PREFIX, Qt::CaseInsensitive))
+        if (!args[i].startsWith(FANTOM_IPC_PREFIX, Qt::CaseInsensitive))
             continue;
         savedPaymentRequests.append(args[i]);
     }
@@ -73,7 +73,7 @@ bool PaymentServer::ipcSendCommandLine()
     {
         QLocalSocket* socket = new QLocalSocket();
         socket->connectToServer(ipcServerName(), QIODevice::WriteOnly);
-        if (!socket->waitForConnected(DARKSILK_IPC_CONNECT_TIMEOUT))
+        if (!socket->waitForConnected(FANTOM_IPC_CONNECT_TIMEOUT))
             return false;
 
         QByteArray block;
@@ -84,7 +84,7 @@ bool PaymentServer::ipcSendCommandLine()
         socket->write(block);
         socket->flush();
 
-        socket->waitForBytesWritten(DARKSILK_IPC_CONNECT_TIMEOUT);
+        socket->waitForBytesWritten(FANTOM_IPC_CONNECT_TIMEOUT);
         socket->disconnectFromServer();
         delete socket;
         fResult = true;
@@ -94,7 +94,7 @@ bool PaymentServer::ipcSendCommandLine()
 
 PaymentServer::PaymentServer(QApplication* parent) : QObject(parent), saveURIs(true)
 {
-    // Install global event filter to catch QFileOpenEvents on the mac (sent when you click darksilk: links)
+    // Install global event filter to catch QFileOpenEvents on the mac (sent when you click fantom: links)
     parent->installEventFilter(this);
 
     QString name = ipcServerName();
@@ -105,14 +105,14 @@ PaymentServer::PaymentServer(QApplication* parent) : QObject(parent), saveURIs(t
     uriServer = new QLocalServer(this);
 
     if (!uriServer->listen(name))
-        qDebug() << tr("Cannot start darksilk: click-to-pay handler");
+        qDebug() << tr("Cannot start fantom: click-to-pay handler");
     else
         connect(uriServer, SIGNAL(newConnection()), this, SLOT(handleURIConnection()));
 }
 
 bool PaymentServer::eventFilter(QObject *object, QEvent *event)
 {
-    // clicking on darksilk: URLs creates FileOpen events on the Mac:
+    // clicking on fantom: URLs creates FileOpen events on the Mac:
     if (event->type() == QEvent::FileOpen)
     {
         QFileOpenEvent* fileEvent = static_cast<QFileOpenEvent*>(event);

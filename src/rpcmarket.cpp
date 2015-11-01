@@ -50,7 +50,7 @@ Value marketalllistings(const Array& params, bool fHelp)
             obj.push_back(Pair("title", item.listing.sTitle));
             obj.push_back(Pair("category", item.listing.sCategory));
             obj.push_back(Pair("itemId", item.GetHash().ToString()));
-            obj.push_back(Pair("vendorId", CDarkSilkAddress(item.listing.sellerKey.GetID()).ToString()));
+            obj.push_back(Pair("vendorId", CFantomAddress(item.listing.sellerKey.GetID()).ToString()));
             obj.push_back(Pair("price", lexical_cast<string>((item.listing.nPrice / COIN, 'f', 8))));
             obj.push_back(Pair("status", item.listing.nStatus));
             obj.push_back(Pair("urlImage1", item.listing.sImageOneUrl));
@@ -113,7 +113,7 @@ Value marketsearchlistings(const Array& params, bool fHelp)
             obj.push_back(Pair("title", item.listing.sTitle));
             obj.push_back(Pair("category", item.listing.sCategory));
             obj.push_back(Pair("itemId", item.GetHash().ToString()));
-            obj.push_back(Pair("vendorId", CDarkSilkAddress(item.listing.sellerKey.GetID()).ToString()));
+            obj.push_back(Pair("vendorId", CFantomAddress(item.listing.sellerKey.GetID()).ToString()));
             obj.push_back(Pair("price", lexical_cast<string>((item.listing.nPrice / COIN, 'f', 8))));
             obj.push_back(Pair("status", item.listing.nStatus));
             obj.push_back(Pair("urlImage1", item.listing.sImageOneUrl));
@@ -250,7 +250,7 @@ Value marketmylistings(const Array& params, bool fHelp)
             obj.push_back(Pair("title", item.listing.sTitle));
             obj.push_back(Pair("category", item.listing.sCategory));
             obj.push_back(Pair("itemId", item.GetHash().ToString()));
-            obj.push_back(Pair("vendorId", CDarkSilkAddress(item.listing.sellerKey.GetID()).ToString()));
+            obj.push_back(Pair("vendorId", CFantomAddress(item.listing.sellerKey.GetID()).ToString()));
             obj.push_back(Pair("price", lexical_cast<string>((item.listing.nPrice / COIN, 'f', 8))));
             obj.push_back(Pair("status", item.listing.nStatus));
             obj.push_back(Pair("urlImage1", item.listing.sImageOneUrl));
@@ -370,7 +370,7 @@ Value marketbuyrequests(const Array& params, bool fHelp)
                     obj.push_back(Pair("title", item.sTitle));
                     obj.push_back(Pair("category", item.sCategory));
                     obj.push_back(Pair("itemId", item.GetHash().ToString()));
-                    obj.push_back(Pair("vendorId", CDarkSilkAddress(item.sellerKey.GetID()).ToString()));
+                    obj.push_back(Pair("vendorId", CFantomAddress(item.sellerKey.GetID()).ToString()));
                     obj.push_back(Pair("price", lexical_cast<string>((item.nPrice / COIN, 'f', 8))));
                     obj.push_back(Pair("status", statusText));
                     obj.push_back(Pair("urlImage1", item.sImageOneUrl));
@@ -449,7 +449,7 @@ Value marketmybuys(const Array& params, bool fHelp)
             obj.push_back(Pair("title", item.sTitle));
             obj.push_back(Pair("category", item.sCategory));
             obj.push_back(Pair("itemId", item.GetHash().ToString()));
-            obj.push_back(Pair("vendorId", CDarkSilkAddress(item.sellerKey.GetID()).ToString()));
+            obj.push_back(Pair("vendorId", CFantomAddress(item.sellerKey.GetID()).ToString()));
             obj.push_back(Pair("price", lexical_cast<string>((item.nPrice / COIN, 'f', 8))));
             obj.push_back(Pair("status", statusText));
             obj.push_back(Pair("urlImage1", item.sImageOneUrl));

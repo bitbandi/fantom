@@ -156,7 +156,7 @@ private:
     qint64 cachedAnonymizedBalance;
     qint64 cachedNumTransactions;
     int cachedTxLocks;
-    int cachedSandstormRounds;
+    int cachedZerosendRounds;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 

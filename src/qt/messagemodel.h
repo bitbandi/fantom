@@ -67,7 +67,7 @@ struct MessageTableEntry
     }
 };
 
-/** Interface to DarkSilk Secure Messaging from Qt view code. */
+/** Interface to Fantom Secure Messaging from Qt view code. */
 class MessageModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -93,8 +93,8 @@ public:
         SentDateTime = 1, /**< Time Sent */
         ReceivedDateTime = 2, /**< Time Received */
         Label = 3,   /**< User specified label */
-        ToAddress = 4, /**< To DarkSilk address */
-        FromAddress = 5, /**< From DarkSilk address */
+        ToAddress = 4, /**< To Fantom address */
+        FromAddress = 5, /**< From Fantom address */
         Message = 6, /**< Plaintext */
         TypeInt = 7, /**< Plaintext */
         Key = 8, /**< chKey */

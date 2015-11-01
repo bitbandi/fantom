@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2015 The ShadowCoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -168,7 +168,7 @@ Value smsglocalkeys(const Array& params, bool fHelp)
                 && !it->fReceiveEnabled)
                 continue;
             
-            CDarkSilkAddress coinAddress(it->sAddress);
+            CFantomAddress coinAddress(it->sAddress);
             if (!coinAddress.IsValid())
                 continue;
             
@@ -307,7 +307,7 @@ Value smsglocalkeys(const Array& params, bool fHelp)
             if (!IsMine(*pwalletMain, entry.first))
                 continue;
             
-            CDarkSilkAddress coinAddress(entry.first);
+            CFantomAddress coinAddress(entry.first);
             if (!coinAddress.IsValid())
                 continue;
             
@@ -462,7 +462,7 @@ Value smsggetpubkey(const Array& params, bool fHelp)
             return result;
     };
     
-    CDarkSilkAddress coinAddress(address);
+    CFantomAddress coinAddress(address);
     
     
     CKeyID keyID;

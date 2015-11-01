@@ -1,7 +1,7 @@
 #include "qrcodedialog.h"
 #include "ui_qrcodedialog.h"
 
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
@@ -44,7 +44,7 @@ void QRCodeDialog::setModel(OptionsModel *model)
     if (model)
         connect(model, SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
-    // update the display unit, to not use the default ("DRKSLK")
+    // update the display unit, to not use the default ("FNX")
     updateDisplayUnit();
 }
 
@@ -83,7 +83,7 @@ void QRCodeDialog::genCode()
 
 QString QRCodeDialog::getURI()
 {
-    QString ret = QString("darksilk:%1").arg(address);
+    QString ret = QString("fantom:%1").arg(address);
     int paramCount = 0;
 
     ui->outUri->clear();
@@ -92,8 +92,8 @@ QString QRCodeDialog::getURI()
     {
         if (ui->lnReqAmount->validate())
         {
-            // even if we allow a non DRKSLK unit input in lnReqAmount, we generate the URI with DRKSLK as unit (as defined in BIP21)
-            ret += QString("?amount=%1").arg(DarkSilkUnits::format(DarkSilkUnits::DRKSLK, ui->lnReqAmount->value()));
+            // even if we allow a non FNX unit input in lnReqAmount, we generate the URI with FNX as unit (as defined in BIP21)
+            ret += QString("?amount=%1").arg(FantomUnits::format(FantomUnits::FNX, ui->lnReqAmount->value()));
             paramCount++;
         }
         else

@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -69,7 +69,7 @@ Value getstakesubsidy(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
     }
 
-    return (uint64_t)STATIC_POS_REWARD;
+    return (uint64_t)GetProofOfStakeReward(0);
 }
 
 Value getmininginfo(const Array& params, bool fHelp)
@@ -121,7 +121,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
-    uint64_t nExpectedTime = staking ? (POS_TARGET_SPACING * nNetworkWeight / nWeight) : 0;
+    uint64_t nExpectedTime = staking ? (28 * nNetworkWeight / nWeight) : 0;
 
     Object obj;
 
@@ -158,10 +158,10 @@ Value checkkernel(const Array& params, bool fHelp)
     bool fCreateBlockTemplate = params.size() > 1 ? params[1].get_bool() : false;
 
     if (vNodes.empty())
-        throw JSONRPCError(-9, "DarkSilk is not connected!");
+        throw JSONRPCError(-9, "Fantom is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(-10, "DarkSilk is downloading blocks...");
+        throw JSONRPCError(-10, "Fantom is downloading blocks...");
 
     COutPoint kernel;
     CBlockIndex* pindexPrev = pindexBest;
@@ -239,10 +239,10 @@ Value getworkex(const Array& params, bool fHelp)
         );
 
     if (vNodes.empty())
-        throw JSONRPCError(-9, "DarkSilk is not connected!");
+        throw JSONRPCError(-9, "Fantom is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(-10, "DarkSilk is downloading blocks...");
+        throw JSONRPCError(-10, "Fantom is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -373,10 +373,10 @@ Value getwork(const Array& params, bool fHelp)
             "If [data] is specified, tries to solve the block and returns true if it was successful.");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DarkSilk is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Fantom is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DarkSilk is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Fantom is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -502,8 +502,8 @@ Value getblocktemplate(const Array& params, bool fHelp)
             "        { ... }                       (json object) vote candidate\n"
             "        ,...\n"
             "  ],\n"
-            "  \"stormnode_payments\" : true|false,         (boolean) true, if stormnode payments are enabled"
-            "  \"enforce_stormnode_payments\" : true|false  (boolean) true, if stormnode payments are enforced");
+            "  \"blanknode_payments\" : true|false,         (boolean) true, if blanknode payments are enabled"
+            "  \"enforce_blanknode_payments\" : true|false  (boolean) true, if blanknode payments are enforced");
 
     std::string strMode = "template";
     if (params.size() > 0)
@@ -524,10 +524,10 @@ Value getblocktemplate(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid mode");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DarkSilk is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Fantom is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DarkSilk is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Fantom is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -648,7 +648,7 @@ Value submitblock(const Array& params, bool fHelp)
             "submitblock <hex data> [optional-params-obj]\n"
             "[optional-params-obj] parameter is currently ignored.\n"
             "Attempts to submit new block to network.\n"
-            "See https://en.darksilk.it/wiki/BIP_0022 for full specification.");
+            "See https://en.fantom.it/wiki/BIP_0022 for full specification.");
 
     vector<unsigned char> blockData(ParseHex(params[0].get_str()));
     CDataStream ssBlock(blockData, SER_NETWORK, PROTOCOL_VERSION);
@@ -698,4 +698,32 @@ Value submitblock(const Array& params, bool fHelp)
 
     return Value::null;
 }
+
+
+Value setgenerate(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "setgenerate <generate> [genproclimit]\n"
+            "<generate> is true or false to turn generation on or off.\n"
+            "Generation is limited to [genproclimit] processors, -1 is unlimited.");
+
+    bool fGenerate = true;
+    if (params.size() > 0)
+        fGenerate = params[0].get_bool();
+
+    int nGenProcLimit = 1;
+    if (params.size() > 1)
+    {
+        nGenProcLimit = params[1].get_int();
+        mapArgs["-genproclimit"] = itostr(nGenProcLimit);
+        if (nGenProcLimit == 0)
+            fGenerate = false;
+    }
+    mapArgs["-gen"] = (fGenerate ? "1" : "0");
+
+    GenerateBitcoins(fGenerate, pwalletMain, nGenProcLimit);
+    return Value::null;
+}
+
 

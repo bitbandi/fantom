@@ -471,7 +471,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
        </property>
        <property name="shortcut">
@@ -491,7 +491,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
        </property>
        <property name="shortcut">
@@ -511,7 +511,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../darksilk.qrc">
+        <iconset resource="../fantom.qrc">
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
       </widget>
@@ -634,7 +634,7 @@ color: rgb(255, 255, 255);</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

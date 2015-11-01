@@ -8,7 +8,7 @@ namespace Ui {
 }
 class ClientModel;
 
-/** Local DarkSilk RPC console. */
+/** Local Fantom RPC console. */
 class DEBUGConsole: public QDialog
 {
     Q_OBJECT
@@ -35,7 +35,7 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
     void on_openDebugLogfileButton_clicked();
-    /** display messagebox with program parameters (same as darksilk-qt --help) */
+    /** display messagebox with program parameters (same as fantom-qt --help) */
     void on_showCLOptionsButton_clicked();
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
@@ -51,8 +51,8 @@ public slots:
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
     void setNumBlocks(int count);
-    /** Set number of stormnodes shown in the UI */
-    void setStormnodeCount(const QString &strStormnodes);
+    /** Set number of blanknodes shown in the UI */
+    void setBlanknodeCount(const QString &strBlanknodes);
     /** Go forward or back in history */
     void browseHistory(int offset);
     /** Scroll console view to end */

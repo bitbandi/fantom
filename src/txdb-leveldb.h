@@ -3,8 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DARKSILK_LEVELDB_H
-#define DARKSILK_LEVELDB_H
+#ifndef FANTOM_LEVELDB_H
+#define FANTOM_LEVELDB_H
 
 #include "main.h"
 
@@ -205,4 +205,4 @@ private:
 };
 
 
-#endif // DARKSILK_DB_H
+#endif // FANTOM_DB_H

@@ -3,27 +3,27 @@
 <plist version="0.9">
 <dict>
 	<key>CFBundleIconFile</key>
-	<string>darksilk.icns</string>
+	<string>fantom.icns</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>DarkSilk-Qt</string>
+	<string>Fantom-Qt</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>DarkSilk-Qt</string>
+	<string>Fantom-Qt</string>
 	<key>CFBundleIdentifier</key>
-	<string>co.darksilk.DarkSilk-Qt</string>
+	<string>co.fantom.Fantom-Qt</string>
         <key>CFBundleURLTypes</key>
         <array>
           <dict>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
-            <string>co.darksilk.SilkPayment</string>
+            <string>co.fantom.FantomPayment</string>
             <key>CFBundleURLSchemes</key>
             <array>
-              <string>darksilk</string>
+              <string>fantom</string>
             </array>
           </dict>
         </array>

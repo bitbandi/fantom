@@ -5,7 +5,7 @@
 
 extern bool fUseBlackTheme;
 
-/** Interface from Qt to configuration data structure for DarkSilk client.
+/** Interface from Qt to configuration data structure for Fantom client.
    To Qt, the options are presented as a list with the different options
    laid out vertically.
    This can be changed to a tree once the settings become sufficiently
@@ -28,13 +28,13 @@ public:
         ProxyPort,         // int
         Fee,               // qint64
         ReserveBalance,    // qint64
-        DisplayUnit,       // DarkSilkUnits::Unit
+        DisplayUnit,       // FantomUnits::Unit
         Language,          // QString
         CoinControlFeatures, // bool
         MinimizeCoinAge,   // bool
         UseBlackTheme,     // bool
-        SandstormRounds,    // int
-        AnonymizeDarkSilkAmount, //int
+        ZerosendRounds,    // int
+        AnonymizeFantomAmount, //int
 #ifdef USE_NATIVE_I2P
         I2PUseI2POnly,              // bool
         I2PSAMHost,                 // QString
@@ -102,8 +102,8 @@ signals:
     void transactionFeeChanged(qint64);
     void reserveBalanceChanged(qint64);
     void coinControlFeaturesChanged(bool);
-    void sandstormRoundsChanged(int);
-    void AnonymizeDarkSilkAmountChanged(int);
+    void zerosendRoundsChanged(int);
+    void AnonymizeFantomAmountChanged(int);
 };
 
 #endif // OPTIONSMODEL_H

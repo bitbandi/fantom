@@ -34,7 +34,7 @@ SendMessagesDialog::SendMessagesDialog(Mode mode, Type type, QWidget *parent) :
 #if QT_VERSION >= 0x040700
      /* Do not move this to the XML file, Qt before 4.7 will choke on it */
     if(mode == SendMessagesDialog::Encrypted)
-        ui->addressFrom->setPlaceholderText(tr("Enter a DarkSilk address (e.g. D6f2HnKGapfyWv9RqLXTvJV8qjDvRCqyLK)"));
+        ui->addressFrom->setPlaceholderText(tr("Enter a Fantom address (e.g. D6f2HnKGapfyWv9RqLXTvJV8qjDvRCqyLK)"));
  #endif
     addEntry();
 

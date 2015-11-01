@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -77,18 +77,18 @@ bool CWalletDB::ReadStealthAddress(CStealthAddress& sxAddr)
     return Read(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey), sxAddr);
 }
 
-bool CWalletDB::WriteStormNodeConfig(std::string sAlias, const CStormNodeConfig& nodeConfig)
+bool CWalletDB::WriteBlankNodeConfig(std::string sAlias, const CBlankNodeConfig& nodeConfig)
 {
     nWalletDBUpdated++;
     return Write(std::make_pair(std::string("storm"), sAlias), nodeConfig, true);
 }
 
-bool CWalletDB::ReadStormNodeConfig(std::string sAlias, CStormNodeConfig& nodeConfig)
+bool CWalletDB::ReadBlankNodeConfig(std::string sAlias, CBlankNodeConfig& nodeConfig)
 {
     return Read(std::make_pair(std::string("storm"), sAlias), nodeConfig);
 }
 
-bool CWalletDB::EraseStormNodeConfig(std::string sAlias)
+bool CWalletDB::EraseBlankNodeConfig(std::string sAlias)
 {
     nWalletDBUpdated++;
     return Erase(std::make_pair(std::string("storm"), sAlias));
@@ -374,7 +374,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             string strAddress;
             ssKey >> strAddress;
-            ssValue >> pwallet->mapAddressBook[CDarkSilkAddress(strAddress).Get()];
+            ssValue >> pwallet->mapAddressBook[CFantomAddress(strAddress).Get()];
         }
         else if (strType == "tx")
         {
@@ -614,9 +614,9 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 	{
 	    std::string sAlias;
 	    ssKey >> sAlias;
-	    CStormNodeConfig stormNodeConfig;
-	    ssValue >> stormNodeConfig;
-	    pwallet->mapMyStormNodes.insert(make_pair(sAlias, stormNodeConfig));
+	    CBlankNodeConfig blankNodeConfig;
+	    ssValue >> blankNodeConfig;
+	    pwallet->mapMyBlankNodes.insert(make_pair(sAlias, blankNodeConfig));
 	}
     } catch (...)
     {
@@ -736,7 +736,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
 void ThreadFlushWalletDB(const string& strFile)
 {
     // Make this thread recognisable as the wallet flushing thread
-    RenameThread("darksilk-wallet");
+    RenameThread("fantom-wallet");
 
     static bool fOneThread;
     if (fOneThread)

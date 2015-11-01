@@ -16,7 +16,7 @@
   <property name="styleSheet">
    <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(0, 0, 0);
-alternate-background-color: rgb(86, 0, 120);</string>
+alternate-background-color: rgb(15,55,126);</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -36,11 +36,6 @@ alternate-background-color: rgb(86, 0, 120);</string>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
-     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

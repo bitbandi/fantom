@@ -47,9 +47,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 sub.credit = txout.nValue;
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
-                    // Received by DarkSilk Address
+                    // Received by Fantom Address
                     sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = CDarkSilkAddress(address).ToString();
+                    sub.address = CFantomAddress(address).ToString();
                 }
                 else
                 {
@@ -119,9 +119,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 CTxDestination address;
                 if (ExtractDestination(txout.scriptPubKey, address))
                 {
-                    // Sent to DarkSilk Address
+                    // Sent to Fantom Address
                     sub.type = TransactionRecord::SendToAddress;
-                    sub.address = CDarkSilkAddress(address).ToString();
+                    sub.address = CFantomAddress(address).ToString();
                 }
                 else
                 {

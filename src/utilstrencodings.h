@@ -6,8 +6,8 @@
 /**
  * Utilities for converting data from/to strings.
  */
-#ifndef DARKSILK_UTILSTRENCODINGS_H
-#define DARKSILK_UTILSTRENCODINGS_H
+#ifndef FANTOM_UTILSTRENCODINGS_H
+#define FANTOM_UTILSTRENCODINGS_H
 
 #include <stdint.h>
 #include <string>
@@ -107,4 +107,4 @@ bool TimingResistantEqual(const T& a, const T& b)
     return accumulator == 0;
 }
 
-#endif // DARKSILK_UTILSTRENCODINGS_H
+#endif // FANTOM_UTILSTRENCODINGS_H

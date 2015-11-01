@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>DarkSilk - Debug window</string>
+   <string>Fantom - Debug window</string>
   </property>
   <property name="styleSheet">
    <string notr="true">color: rgb(255, 255, 255);
@@ -38,7 +38,7 @@ alternate-background-color: rgb(0, 0, 0);</string>
           </font>
          </property>
          <property name="text">
-          <string>DarkSilk Core</string>
+          <string>Fantom Core</string>
          </property>
         </widget>
        </item>
@@ -199,12 +199,12 @@ alternate-background-color: rgb(0, 0, 0);</string>
        <item row="8" column="0">
         <widget class="QLabel" name="label_15">
          <property name="text">
-          <string>Number of Stormnodes</string>
+          <string>Number of Blanknodes</string>
          </property>
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QLabel" name="stormnodeCount">
+        <widget class="QLabel" name="blanknodeCount">
          <property name="cursor">
           <cursorShape>IBeamCursor</cursorShape>
          </property>
@@ -324,12 +324,12 @@ alternate-background-color: rgb(0, 0, 0);</string>
        <item row="15" column="0">
         <widget class="QPushButton" name="openDebugLogfileButton">
          <property name="toolTip">
-          <string>Open the DarkSilk debug log file from the current data directory. This can take a few seconds for large log files.</string>
+          <string>Open the Fantom debug log file from the current data directory. This can take a few seconds for large log files.</string>
          </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
          </property>
          <property name="text">
           <string>&amp;Open</string>
@@ -355,12 +355,12 @@ alternate-background-color: rgb(86, 0, 120);</string>
        <item row="17" column="0">
         <widget class="QPushButton" name="showCLOptionsButton">
          <property name="toolTip">
-          <string>Show the DarkSilk-Qt help message to get a list with possible DarkSilk command-line options.</string>
+          <string>Show the Fantom-Qt help message to get a list with possible Fantom command-line options.</string>
          </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(86, 0, 120);
-alternate-background-color: rgb(86, 0, 120);</string>
+background-color: rgb(15,55,126);
+alternate-background-color: rgb(15,55,126);</string>
          </property>
          <property name="text">
           <string>&amp;Show</string>
@@ -449,7 +449,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../darksilk.qrc">
+            <iconset resource="../fantom.qrc">
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
            </property>
            <property name="shortcut">
@@ -527,7 +527,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
            <item>
             <widget class="QPushButton" name="btnClearTrafficGraph">
              <property name="styleSheet">
-              <string notr="true">color: rgb(255, 255, 255); background-color: rgb(86, 0, 120);alternate-background-color: rgb(86, 0, 120);</string>
+              <string notr="true">color: rgb(255, 255, 255); background-color: rgb(15,55,126);alternate-background-color: rgb(15,55,126);</string>
              </property>
              <property name="text">
               <string>&amp;Clear</string>
@@ -1120,7 +1120,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../darksilk.qrc"/>
+  <include location="../fantom.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -5,7 +5,7 @@
 #include "addresstablemodel.h"
 #include "addressbookpage.h"
 
-#include "darksilkunits.h"
+#include "fantomunits.h"
 #include "addressbookpage.h"
 #include "optionsmodel.h"
 #include "sendcoinsentry.h"
@@ -36,7 +36,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 
 #if QT_VERSION >= 0x040700
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a DarkSilk address (e.g. D7fjE4R4r2RoEdqYk3QsAqFckyf9pRHN6i))"));
+    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a Fantom address (e.g. FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1))"));
 #endif
 
     addEntry();
@@ -45,11 +45,11 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 
     // Coin Control
-    ui->lineEditCoinControlChange->setFont(GUIUtil::darksilkAddressFont());
+    ui->lineEditCoinControlChange->setFont(GUIUtil::fantomAddressFont());
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
-    connect(ui->checkUseSandstorm, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
+    connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     connect(ui->checkInstantX, SIGNAL(stateChanged ( int )), this, SLOT(updateInstantX()));
 
     // Coin Control: clipboard actions
@@ -143,7 +143,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     QStringList formatted;
 
     foreach(const SendCoinsRecipient &rcp, recipients) {
-        formatted.append(tr("<b>%1</b> to %2 (%3)").arg(DarkSilkUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount), Qt::escape(rcp.label), rcp.address));
+        formatted.append(tr("<b>%1</b> to %2 (%3)").arg(FantomUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount), Qt::escape(rcp.label), rcp.address));
     }
 
     fNewRecipientAllowed = false;
@@ -194,7 +194,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     case WalletModel::AmountWithFeeExceedsBalance:
         QMessageBox::warning(this, tr("Send Coins"),
             tr("The total exceeds your balance when the %1 transaction fee is included.").
-            arg(DarkSilkUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), sendstatus.fee)),
+            arg(FantomUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), sendstatus.fee)),
             QMessageBox::Ok, QMessageBox::Ok);
         break;
     case WalletModel::DuplicateAddress:
@@ -341,9 +341,9 @@ bool SendCoinsDialog::handleURI(const QString &uri)
 {
     SendCoinsRecipient rv;
     // URI has to be valid
-    if (GUIUtil::parseDarkSilkURI(uri, &rv))
+    if (GUIUtil::parseFantomURI(uri, &rv))
     {
-        CDarkSilkAddress address(rv.address.toStdString());
+        CFantomAddress address(rv.address.toStdString());
         if (!address.IsValid())
             return false;
         pasteEntry(rv);
@@ -362,14 +362,14 @@ void SendCoinsDialog::setBalance(qint64 balance, qint64 stake, qint64 unconfirme
 
  if(model && model->getOptionsModel())
  {
- ui->labelBalance->setText(DarkSilkUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
+ ui->labelBalance->setText(FantomUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
  }
 }
 
 void SendCoinsDialog::updateDisplayUnit()
 {
     setBalance(model->getBalance(), 0, 0, 0, 0);
-    CoinControlDialog::coinControl->useSandStorm = ui->checkUseSandstorm->isChecked();
+    CoinControlDialog::coinControl->useZeroSend = ui->checkUseZerosend->isChecked();
     coinControlUpdateLabels();
 }
 
@@ -451,7 +451,7 @@ void SendCoinsDialog::coinControlChangeChecked(int state)
     if (model)
     {
         if (state == Qt::Checked)
-            CoinControlDialog::coinControl->destChange = CDarkSilkAddress(ui->lineEditCoinControlChange->text().toStdString()).Get();
+            CoinControlDialog::coinControl->destChange = CFantomAddress(ui->lineEditCoinControlChange->text().toStdString()).Get();
         else
             CoinControlDialog::coinControl->destChange = CNoDestination();
     }
@@ -465,16 +465,16 @@ void SendCoinsDialog::coinControlChangeEdited(const QString & text)
 {
     if (model)
     {
-        CoinControlDialog::coinControl->destChange = CDarkSilkAddress(text.toStdString()).Get();
+        CoinControlDialog::coinControl->destChange = CFantomAddress(text.toStdString()).Get();
 
         // label for the change address
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:black;}");
         if (text.isEmpty())
             ui->labelCoinControlChangeLabel->setText("");
-        else if (!CDarkSilkAddress(text.toStdString()).IsValid())
+        else if (!CFantomAddress(text.toStdString()).IsValid())
         {
             ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
-            ui->labelCoinControlChangeLabel->setText(tr("WARNING: Invalid DarkSilk address"));
+            ui->labelCoinControlChangeLabel->setText(tr("WARNING: Invalid Fantom address"));
         }
         else
         {
@@ -485,7 +485,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString & text)
             {
                 CPubKey pubkey;
                 CKeyID keyid;
-                CDarkSilkAddress(text.toStdString()).GetKeyID(keyid);   
+                CFantomAddress(text.toStdString()).GetKeyID(keyid);   
                 if (model->getPubKey(keyid, pubkey))
                     ui->labelCoinControlChangeLabel->setText(tr("(no label)"));
                 else

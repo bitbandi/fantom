@@ -1,11 +1,11 @@
 // Copyright (c) 2010-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef _DARKSILKALERT_H_
-#define _DARKSILKALERT_H_ 1
+#ifndef _FANTOMALERT_H_
+#define _FANTOMALERT_H_ 1
 
 #include "serialize.h"
 #include "sync.h"

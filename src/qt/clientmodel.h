@@ -13,7 +13,7 @@ class QDateTime;
 class QTimer;
 QT_END_NAMESPACE
 
-/** Model for DarkSilk network client. */
+/** Model for Fantom network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT
@@ -25,7 +25,7 @@ public:
     OptionsModel *getOptionsModel();
 
     int getNumConnections() const;
-    QString getStormnodeCountString() const;
+    QString getBlanknodeCountString() const;
     int getNumBlocks() const;
     int getNumBlocksAtStartup();
 
@@ -65,7 +65,7 @@ private:
 
     int cachedNumBlocks;
 
-    QString cachedStormnodeCountString;
+    QString cachedBlanknodeCountString;
 
     int numBlocksAtStartup;
 
@@ -82,7 +82,7 @@ signals:
     void numI2PConnectionsChanged(int count);
 #endif
     void numBlocksChanged(int count);
-    void strStormnodesChanged(const QString &strStormnodes);
+    void strBlanknodesChanged(const QString &strBlanknodes);
     void alertsChanged(const QString &warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 

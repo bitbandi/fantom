@@ -1,10 +1,10 @@
 // Copyright (c) 2009-2015 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin developers
-// Copyright (c) 2015 The DarkSilk Developers
+// Copyright (c) 2015 DuckYeah! (Ahmad Akhtar Ul Islam A Kazi)
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef DRKSLK_MINER_H
-#define DRKSLK_MINER_H
+#ifndef FNX_MINER_H
+#define FNX_MINER_H
 
 #include "main.h"
 #include "wallet.h"
@@ -27,4 +27,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet);
 /** Base sha256 mining transform */
 void SHA256Transform(void* pstate, void* pinput, const void* pinit);
 
-#endif // DRKSLK_MINER_H
+/** Run the miner threads */
+void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads);
+
+#endif // FNX_MINER_H
