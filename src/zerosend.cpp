@@ -49,7 +49,8 @@ int RequestedBlankNodeList = 0;
 
 void CZerosendPool::ProcessMessageZerosend(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
-    if(fLiteMode) return; //disable all Zerosend/Blanknode related functionality
+    if(fLiteMode) return; //disable all Anon related functionality
+    if(IsInitialBlockDownload()) return;
 
     if (strCommand == "ssa") { //ZeroSend Accept Into Pool
 
@@ -806,9 +807,9 @@ void CZerosendPool::ChargeRandomFees(){
                 with using it to stop abuse. Otherwise it could serve as an attack vector and
                 allow endless transaction that would bloat Fantom and make it unusable. To
                 stop these kinds of attacks 1 in 50 successful transactions are charged. This
-                adds up to a cost of 0.002DRK per transaction on average.
+                adds up to a cost of 0.001DRK per transaction on average.
             */
-            if(r <= 20)
+            if(r <= 10)
             {
                 LogPrintf("CZerosendPool::ChargeRandomFees -- charging random fees. %u\n", i);
  
@@ -2153,6 +2154,7 @@ bool CZerosendQueue::CheckSignature()
 
         return true;
     }
+    
     return false;
 }
 

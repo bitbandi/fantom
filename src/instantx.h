@@ -8,9 +8,7 @@
 #include "sync.h"
 #include "net.h"
 #include "key.h"
-//#include "primitives/transaction.h"
 #include "util.h"
-//#include "script/script.h"
 #include "script.h"
 #include "base58.h"
 #include "main.h"
@@ -63,16 +61,13 @@ public:
     bool SignatureValid();
     bool Sign();
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-	unsigned int nSerSize = 0;
+    IMPLEMENT_SERIALIZE
+    (
         READWRITE(txHash);
         READWRITE(vinBlanknode);
         READWRITE(vchBlankNodeSignature);
         READWRITE(nBlockHeight);
-    }
+    )
 };
 
 class CTransactionLock

@@ -370,9 +370,9 @@ bool ProcessConsensusVote(CConsensusVote& ctx)
 
 #ifdef ENABLE_WALLET
                 if(pwalletMain){
-                    pwalletMain->UpdatedTransaction((*i).second.txHash);
+                    if(pwalletMain->UpdatedTransaction((*i).second.txHash)){
                         nCompleteTXLocks++;
-                    
+                    }                    
                 }
 #endif
 

@@ -447,12 +447,12 @@ bool CBlanknodePayments::ProcessBlock(int nBlockHeight)
         newWinner.vin = psn->vin;
 
         if(psn->donationPercentage > 0 && (nHash % 100) <= (unsigned int)psn->donationPercentage) {
-            newWinner.payee.SetDestination(psn->pubkey.GetID());
+            newWinner.payee = psn->donationAddress;
         } else {
-            newWinner.payee.SetDestination(psn->donationAddress.GetID());
+            newWinner.payee = GetScriptForDestination(psn->pubkey.GetID());
         }
 
-        payeeSource.SetDestination(psn->pubkey.GetID());
+        payeeSource = GetScriptForDestination(psn->pubkey.GetID());
     }
 
     //if we can't find new SN to get paid, pick the first active SN counting back from the end of vecLastPayments list
@@ -473,12 +473,12 @@ bool CBlanknodePayments::ProcessBlock(int nBlockHeight)
                 newWinner.vin = psn->vin;
                 
                 if(psn->donationPercentage > 0 && (nHash % 100) <= (unsigned int)psn->donationPercentage) {
-                    newWinner.payee.SetDestination(psn->pubkey.GetID());
+                    newWinner.payee = psn->donationAddress;
                 } else {
-                    newWinner.payee.SetDestination(psn->pubkey.GetID());
+                    newWinner.payee = GetScriptForDestination(psn->pubkey.GetID());
                 }
 
-                payeeSource.SetDestination(psn->pubkey.GetID());
+                payeeSource = GetScriptForDestination(psn->pubkey.GetID());
 
                 break; // we found active SN
             }

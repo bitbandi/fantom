@@ -36,8 +36,6 @@ std::string CZeroSendRelay::ToString()
 
 bool CZeroSendRelay::Sign(std::string strSharedKey)
 {
-    if(!fBlankNode) return false;
-
     std::string strMessage = in.ToString() + out.ToString();
 
     CKey key2;

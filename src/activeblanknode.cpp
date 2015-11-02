@@ -308,9 +308,9 @@ bool CActiveBlanknode::Register(CTxIn vin, CService service, CKey keyCollateralA
     if(psn == NULL)
     {
         LogPrintf("CActiveBlanknode::Register() - Adding to Blanknode list service: %s - vin: %s\n", service.ToString().c_str(), vin.ToString().c_str());
-        CBlanknode mn(service, vin, pubKeyCollateralAddress, vchBlankNodeSignature, blankNodeSignatureTime, pubKeyBlanknode, PROTOCOL_VERSION, donationAddress, donationPercentage);
-        mn.UpdateLastSeen(blankNodeSignatureTime);
-        snodeman.Add(mn);
+        CBlanknode sn(service, vin, pubKeyCollateralAddress, vchBlankNodeSignature, blankNodeSignatureTime, pubKeyBlanknode, PROTOCOL_VERSION, donationAddress, donationPercentage);
+        sn.UpdateLastSeen(blankNodeSignatureTime);
+        snodeman.Add(sn);
     }
 
     //send to all peers
