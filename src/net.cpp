@@ -14,7 +14,6 @@
 #include "zerosend.h"
 #include "wallet.h"
 #include "market.h"
-#include "irc.h"
 
 #ifdef USE_NATIVE_I2P
 #include "i2p.h"
@@ -1881,9 +1880,6 @@ void StartNode(boost::thread_group& threadGroup)
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", USE_UPNP));
 #endif
-
-    // Get addresses from IRC and advertise ours
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "irc", &ThreadIRCSeed));
 
     // Send and receive from sockets, accept connections
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
