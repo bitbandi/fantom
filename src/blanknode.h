@@ -276,17 +276,13 @@ public:
         return n3;
     }
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion){
-	unsigned int nSerSize = 0;
+    IMPLEMENT_SERIALIZE(
         READWRITE(nBlockHeight);
         READWRITE(payee);
         READWRITE(vin);
         READWRITE(score);
         READWRITE(vchSig);
-     }
+     )
 };
 
 //
@@ -300,7 +296,6 @@ private:
     std::vector<CBlanknodePaymentWinner> vWinning;
     int nSyncedFromPeer;
     std::string strMasterPrivKey;
-    std::string strTestPubKey;
     std::string strMainPubKey;
     bool enabled;
     int nLastBlockHeight;
@@ -308,8 +303,7 @@ private:
 public:
 
     CBlanknodePayments() {
-        strMainPubKey = "0430a870a5a1e8a85b816c64cb86d6aa4955134efe72c458246fb84cfd5221c111ee84dfc0dbf160d339415044259519eae2840ab3ffe86368f3f9a93ec22e3f4d";
-        strTestPubKey = "0430a870a5a1e8a85b816c64cb86d6aa4955134efe72c458246fb84cfd5221c111ee84dfc0dbf160d339415044259519eae2840ab3ffe86368f3f9a93ec22e3f4d";
+        strMainPubKey = "";
         enabled = false;
     }
 

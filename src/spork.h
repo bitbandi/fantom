@@ -95,14 +95,12 @@ private:
     std::vector<unsigned char> vchSig;
 
     std::string strMasterPrivKey;
-    std::string strTestPubKey;
     std::string strMainPubKey;
 
 public:
 
     CSporkManager() {
         strMainPubKey = "";
-        strTestPubKey = "";
     }
 
     std::string GetSporkNameByID(int id);

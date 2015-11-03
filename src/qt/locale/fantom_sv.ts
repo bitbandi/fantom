@@ -1730,8 +1730,8 @@ Detta betyder att en avgift på minst %2 krävs.</translation>
         <location line="+86"/>
         <location line="+86"/>
         <location line="+32"/>
-        <source>0.00 BC</source>
-        <translation>123.456 BC {0.00 ?}</translation>
+        <source>0.00 DRKSLK</source>
+        <translation>123.456 DRKSLK {0.00 ?}</translation>
     </message>
     <message>
         <location line="-191"/>
@@ -1800,8 +1800,8 @@ Detta betyder att en avgift på minst %2 krävs.</translation>
     </message>
     <message>
         <location line="+16"/>
-        <source>123.456 BC</source>
-        <translation>123.456 BC</translation>
+        <source>123.456 DRKSLK</source>
+        <translation>123.456 DRKSLK</translation>
     </message>
     <message>
         <location line="+31"/>

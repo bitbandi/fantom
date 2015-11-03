@@ -65,7 +65,7 @@ bool CBlanknodeDB::Write(const CBlanknodeMan& snodemanToSave)
     catch (std::exception &e) {
         return error("%s : Serialize or I/O error - %s", __func__, e.what());
     }
-    FileCommit(fileout);
+//    FileCommit(fileout);
     fileout.fclose();
 
     LogPrintf("Written info to sncache.dat  %dms\n", GetTimeMillis() - nStart);

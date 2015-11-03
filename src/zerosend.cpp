@@ -1375,7 +1375,6 @@ void CZerosendPool::CompletedTransaction(bool error, std::string lastMessageNew)
         cachedLastSuccess = pindexBest->nHeight;
     }
     lastMessage = lastMessageNew;
-
     completedTransaction = true;
 }
 
@@ -1427,7 +1426,8 @@ bool CZerosendPool::DoAutomaticDenominating(bool fDryRun, bool ready)
     }
 
     // ** find the coins we'll use
-    std::vector<CTxIn> vCoins;    int64_t nValueMin = CENT;
+    std::vector<CTxIn> vCoins;    
+    int64_t nValueMin = CENT;
     int64_t nValueIn = 0;
 
     // should not be less than fees in ZEROSEND_COLLATERAL + few (lets say 5) smallest denoms
@@ -1546,8 +1546,6 @@ bool CZerosendPool::DoAutomaticDenominating(bool fDryRun, bool ready)
 
                 // connect to Blanknode and submit the queue request
                 if(ConnectNode((CAddress)addr, NULL, true)){
-                    
-
                     CNode* pNode = FindNode(addr);
                     if(pNode)
                     {
@@ -2144,7 +2142,7 @@ bool CZerosendQueue::Relay()
 bool CZerosendQueue::CheckSignature()
 {
     CBlanknode* psn = snodeman.Find(vin);
-    if(psn)
+    if(psn != NULL) 
     {
         std::string strMessage = vin.ToString() + boost::lexical_cast<std::string>(nDenom) + boost::lexical_cast<std::string>(time) + boost::lexical_cast<std::string>(ready);
         std::string errorMessage = "";
@@ -2169,7 +2167,6 @@ void CZerosendPool::RelayFinalTransaction(const int sessionID, const CTransactio
 
 void CZerosendPool::RelayIn(const std::vector<CTxSSIn>& vin, const int64_t& nAmount, const CTransaction& txCollateral, const std::vector<CTxSSOut>& vout)
 {
-    LOCK(cs_vNodes);
 
     std::vector<CTxIn> vin2;
     std::vector<CTxOut> vout2;
@@ -2180,6 +2177,7 @@ void CZerosendPool::RelayIn(const std::vector<CTxSSIn>& vin, const int64_t& nAmo
     BOOST_FOREACH(CTxSSOut out, vout)
         vout2.push_back(out);
 
+    LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes)
     {
         if(!pSubmittedToBlanknode) return;

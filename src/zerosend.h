@@ -197,7 +197,7 @@ public:
     bool GetProtocolVersion(int &protocolVersion)
     {
         CBlanknode* psn = snodeman.Find(vin);
-        if(psn)
+        if(psn != NULL)
         {
             protocolVersion = psn->protocolVersion;
             return true;
