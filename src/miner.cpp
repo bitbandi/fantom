@@ -7,7 +7,8 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
-#include "stormnodeman.h"
+#include "blanknodeman.h"
+#include "blanknode-payments.h"
 
 
 using namespace std;

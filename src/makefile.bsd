@@ -134,16 +134,17 @@ OBJS= \
     obj/scrypt-x86_64.o \
     obj/chainparams.o \
     obj/stealth.o \
-    obj/activestormnode.o \
-    obj/sandstorm.o \
-    obj/sandstorm-relay.o \
+    obj/activeblanknode.o \
+    obj/zerosend.o \
+    obj/zerosend-relay.o \
     obj/eccryptoverify.o \
     obj/instantx.o \
-    obj/stormnodeconfig.o \
-    obj/stormnodeman.o \
-    obj/stormnode.o \
-    obj/stormnode-pos.o \
-    obj/rpcsandstorm.o \
+    obj/blanknodeconfig.o \
+    obj/blanknodeman.o \
+    obj/blanknode.o \
+    obj/blanknode-payments.o \
+    obj/blanknode-pos.o \
+    obj/rpczerosend.o \
     obj/spork.o \
     obj/crypto/hmac_sha256.o \
     obj/crypto/hmac_sha512.o \

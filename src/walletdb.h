@@ -91,16 +91,16 @@ public:
 
 };
 
-class CStormNodeConfig
+class CBlankNodeConfig
 {
 public:
     int nVersion;
     std::string sAlias;
     std::string sAddress;
     std::string sCollateralAddress;
-    std::string sStormnodePrivKey;
+    std::string sBlanknodePrivKey;
 
-    CStormNodeConfig()
+    CBlankNodeConfig()
     {
 	nVersion = 0;
     }
@@ -110,7 +110,7 @@ public:
         READWRITE(sAlias);
         READWRITE(sAddress);
         READWRITE(sCollateralAddress);
-	READWRITE(sStormnodePrivKey);
+	READWRITE(sBlanknodePrivKey);
     )
 };
 
@@ -138,9 +138,9 @@ public:
     bool WriteStealthAddress(const CStealthAddress& sxAddr);    
     bool ReadStealthAddress(CStealthAddress& sxAddr);
 
-    bool WriteStormNodeConfig(std::string sAlias, const CStormNodeConfig& nodeConfig);
-    bool ReadStormNodeConfig(std::string sAlias, CStormNodeConfig& nodeConfig);
-    bool EraseStormNodeConfig(std::string sAlias);
+    bool WriteBlankNodeConfig(std::string sAlias, const CBlankNodeConfig& nodeConfig);
+    bool ReadBlankNodeConfig(std::string sAlias, CBlankNodeConfig& nodeConfig);
+    bool EraseBlankNodeConfig(std::string sAlias);
 
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);

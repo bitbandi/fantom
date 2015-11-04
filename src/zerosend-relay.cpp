@@ -1,19 +1,19 @@
 
-#include "sandstorm-relay.h"
+#include "zerosend-relay.h"
 
 
-CSandStormRelay::CSandStormRelay()
+CZeroSendRelay::CZeroSendRelay()
 {
-    vinStormnode = CTxIn();
+    vinBlanknode = CTxIn();
     nBlockHeight = 0;
     nRelayType = 0;
     in = CTxIn();
     out = CTxOut();
 }
 
-CSandStormRelay::CSandStormRelay(CTxIn& vinStormnodeIn, vector<unsigned char>& vchSigIn, int nBlockHeightIn, int nRelayTypeIn, CTxIn& in2, CTxOut& out2)
+CZeroSendRelay::CZeroSendRelay(CTxIn& vinBlanknodeIn, vector<unsigned char>& vchSigIn, int nBlockHeightIn, int nRelayTypeIn, CTxIn& in2, CTxOut& out2)
 {
-    vinStormnode = vinStormnodeIn;
+    vinBlanknode = vinBlanknodeIn;
     vchSig = vchSigIn;
     nBlockHeight = nBlockHeightIn;
     nRelayType = nRelayTypeIn;
@@ -21,11 +21,11 @@ CSandStormRelay::CSandStormRelay(CTxIn& vinStormnodeIn, vector<unsigned char>& v
     out = out2;
 }
 
-std::string CSandStormRelay::ToString()
+std::string CZeroSendRelay::ToString()
 {
     std::ostringstream info;
 
-    info << "vin: " << vinStormnode.ToString() <<
+    info << "vin: " << vinBlanknode.ToString() <<
         " nBlockHeight: " << (int)nBlockHeight <<
         " nRelayType: "  << (int)nRelayType <<
         " in " << in.ToString() <<
@@ -34,7 +34,7 @@ std::string CSandStormRelay::ToString()
     return info.str();   
 }
 
-bool CSandStormRelay::Sign(std::string strSharedKey)
+bool CZeroSendRelay::Sign(std::string strSharedKey)
 {
     std::string strMessage = in.ToString() + out.ToString();
 
@@ -42,28 +42,28 @@ bool CSandStormRelay::Sign(std::string strSharedKey)
     CPubKey pubkey2;
     std::string errorMessage = "";
 
-    if(!sandStormSigner.SetKey(strSharedKey, errorMessage, key2, pubkey2))
+    if(!zeroSendSigner.SetKey(strSharedKey, errorMessage, key2, pubkey2))
     {
-        LogPrintf("CSandStormRelay()::Sign - ERROR: Invalid shared key: '%s'\n", errorMessage.c_str());
+        LogPrintf("CZeroSendRelay()::Sign - ERROR: Invalid shared key: '%s'\n", errorMessage.c_str());
         return false;
     }
 
-    if(!sandStormSigner.SignMessage(strMessage, errorMessage, vchSig2, key2)) 
+    if(!zeroSendSigner.SignMessage(strMessage, errorMessage, vchSig2, key2)) 
     {
-        LogPrintf("CSandStormRelay():Sign - Sign message failed\n");
+        LogPrintf("CZeroSendRelay():Sign - Sign message failed\n");
         return false;
     }
 
-    if(!sandStormSigner.VerifyMessage(pubkey2, vchSig2, strMessage, errorMessage)) 
+    if(!zeroSendSigner.VerifyMessage(pubkey2, vchSig2, strMessage, errorMessage)) 
     {
-        LogPrintf("CSandStormRelay():Sign - Verify message failed\n");
+        LogPrintf("CZeroSendRelay():Sign - Verify message failed\n");
         return false;
     }
 
     return true;
 }
 
-bool CSandStormRelay::VerifyMessage(std::string strSharedKey)
+bool CZeroSendRelay::VerifyMessage(std::string strSharedKey)
 {
     std::string strMessage = in.ToString() + out.ToString();
 
@@ -71,20 +71,20 @@ bool CSandStormRelay::VerifyMessage(std::string strSharedKey)
     CPubKey pubkey2;
     std::string errorMessage = "";
 
-    if(!sandStormSigner.SetKey(strSharedKey, errorMessage, key2, pubkey2))
+    if(!zeroSendSigner.SetKey(strSharedKey, errorMessage, key2, pubkey2))
     {
-        LogPrintf("CSandStormRelay()::VerifyMessage - ERROR: Invalid shared key: '%s'\n", errorMessage.c_str());
+        LogPrintf("CZeroSendRelay()::VerifyMessage - ERROR: Invalid shared key: '%s'\n", errorMessage.c_str());
          return false;
     }
 
-    if(!sandStormSigner.VerifyMessage(pubkey2, vchSig2, strMessage, errorMessage)) {
-        LogPrintf("CSandStormRelay()::VerifyMessage - Verify message failed\n");
+    if(!zeroSendSigner.VerifyMessage(pubkey2, vchSig2, strMessage, errorMessage)) {
+        LogPrintf("CZeroSendRelay()::VerifyMessage - Verify message failed\n");
         return false;    }
 
     return true;
 }
 
-void CSandStormRelay::Relay()
+void CZeroSendRelay::Relay()
 {
     int nCount = std::min(snodeman.CountEnabled(), 20);
     int nRank1 = (rand() % nCount)+1; 
@@ -100,9 +100,9 @@ void CSandStormRelay::Relay()
     RelayThroughNode(nRank2);
 }
 
-void CSandStormRelay::RelayThroughNode(int nRank)
+void CZeroSendRelay::RelayThroughNode(int nRank)
 {
-    CStormnode* psn = snodeman.GetStormnodeByRank(nRank, nBlockHeight, MIN_SANDSTORM_PROTO_VERSION);
+    CBlanknode* psn = snodeman.GetBlanknodeByRank(nRank, nBlockHeight, MIN_ZEROSEND_PROTO_VERSION);
 
     if(psn != NULL){
         //printf("RelayThroughNode %s\n", psn->addr.ToString().c_str());

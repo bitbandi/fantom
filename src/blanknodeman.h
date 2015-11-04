@@ -3,8 +3,8 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef STORMNODEMAN_H
-#define STORMNODEMAN_H
+#ifndef BLANKNODEMAN_H
+#define BLANKNODEMAN_H
 
 #include "bignum.h"
 #include "sync.h"
@@ -15,24 +15,24 @@
 #include "script.h"
 #include "base58.h"
 #include "main.h"
-#include "stormnode.h"
+#include "blanknode.h"
 
-#define STORMNODES_DUMP_SECONDS               (15*60)
-#define STORMNODES_SSEG_SECONDS              (1*60*60)
+#define BLANKNODES_DUMP_SECONDS               (15*60)
+#define BLANKNODES_SSEG_SECONDS              (1*60*60)
 
 using namespace std;
 
-class CStormnodeMan;
+class CBlanknodeMan;
 
-extern CStormnodeMan snodeman;
+extern CBlanknodeMan snodeman;
 
-void DumpStormnodes();
+void DumpBlanknodes();
 
 /*
  Access to the SN database (sncache.dat) 
 */
  
-class CStormnodeDB
+class CBlanknodeDB
 {
 private:
     boost::filesystem::path pathSN;
@@ -48,102 +48,102 @@ public:
         IncorrectFormat
     };
 
-    CStormnodeDB();
-    bool Write(const CStormnodeMan &snodemanToSave);
-    ReadResult Read(CStormnodeMan& snodemanToLoad);
+    CBlanknodeDB();
+    bool Write(const CBlanknodeMan &snodemanToSave);
+    ReadResult Read(CBlanknodeMan& snodemanToLoad);
 };
 
-class CStormnodeMan
+class CBlanknodeMan
 {
 private:
     // critical section to protect the inner data structures
     mutable CCriticalSection cs;
 
     // map to hold all SNs
-    std::vector<CStormnode> vStormnodes;
-    // who's asked for the stormnode list and the last time
-    std::map<CNetAddr, int64_t> mAskedUsForStormnodeList;
-    // who we asked for the stormnode list and the last time
-    std::map<CNetAddr, int64_t> mWeAskedForStormnodeList;
-    // which stormnodes we've asked for
-    std::map<COutPoint, int64_t> mWeAskedForStormnodeListEntry;
+    std::vector<CBlanknode> vBlanknodes;
+    // who's asked for the blanknode list and the last time
+    std::map<CNetAddr, int64_t> mAskedUsForBlanknodeList;
+    // who we asked for the blanknode list and the last time
+    std::map<CNetAddr, int64_t> mWeAskedForBlanknodeList;
+    // which blanknodes we've asked for
+    std::map<COutPoint, int64_t> mWeAskedForBlanknodeListEntry;
 
 public:
-    // keep track of ssq count to prevent stormnodes from ganing Sandstorm queue
+    // keep track of ssq count to prevent blanknodes from ganing Zerosend queue
     int64_t nSsqCount;
 
     IMPLEMENT_SERIALIZE
     (
         // serialized format:
         // * version byte (currently 0)
-        // * stormnodes vector
+        // * blanknodes vector
         {
                 LOCK(cs);
                 unsigned char nVersion = 0;
                 READWRITE(nVersion);
-                READWRITE(vStormnodes);
-                READWRITE(mAskedUsForStormnodeList);
-                READWRITE(mWeAskedForStormnodeList);
-                READWRITE(mWeAskedForStormnodeListEntry);
+                READWRITE(vBlanknodes);
+                READWRITE(mAskedUsForBlanknodeList);
+                READWRITE(mWeAskedForBlanknodeList);
+                READWRITE(mWeAskedForBlanknodeListEntry);
                 READWRITE(nSsqCount);
         }
     )
 
-    CStormnodeMan();
-    CStormnodeMan(CStormnodeMan& other);
+    CBlanknodeMan();
+    CBlanknodeMan(CBlanknodeMan& other);
     
     // Add an entry
-    bool Add(CStormnode &sn);
+    bool Add(CBlanknode &sn);
 
-    // Check all stormnodes
+    // Check all blanknodes
     void Check();
 
-    // Check all stormnodes and remove inactive
+    // Check all blanknodes and remove inactive
     void CheckAndRemove();
 
-    // Clear stormnode vector
+    // Clear blanknode vector
     void Clear();
     
     int CountEnabled();
     
-    int CountStormnodesAboveProtocol(int protocolVersion);
+    int CountBlanknodesAboveProtocol(int protocolVersion);
 
     void SsegUpdate(CNode* pnode);
 
     // Find an entry
-    CStormnode* Find(const CTxIn& vin);
-    CStormnode* Find(const CPubKey& pubKeyStormnode);
+    CBlanknode* Find(const CTxIn& vin);
+    CBlanknode* Find(const CPubKey& pubKeyBlanknode);
 
     //Find an entry thta do not match every entry provided vector
-    CStormnode* FindOldestNotInVec(const std::vector<CTxIn> &vVins, int nMinimumAge, int nMinimumActiveSeconds);
+    CBlanknode* FindOldestNotInVec(const std::vector<CTxIn> &vVins, int nMinimumAge);
 
     // Find a random entry
-    CStormnode* FindRandom();
+    CBlanknode* FindRandom();
 
     // Get the current winner for this block
-    CStormnode* GetCurrentStormNode(int mod=1, int64_t nBlockHeight=0, int minProtocol=0);
+    CBlanknode* GetCurrentBlankNode(int mod=1, int64_t nBlockHeight=0, int minProtocol=0);
 
-    std::vector<CStormnode> GetFullStormnodeVector() { Check(); return vStormnodes; }
+    std::vector<CBlanknode> GetFullBlanknodeVector() { Check(); return vBlanknodes; }
 
-    std::vector<pair<int, CStormnode> > GetStormnodeRanks(int64_t nBlockHeight, int minProtocol=0);
-    int GetStormnodeRank(const CTxIn &vin, int64_t nBlockHeight, int minProtocol=0, bool fOnlyActive=true);
-    CStormnode* GetStormnodeByRank(int nRank, int64_t nBlockHeight, int minProtocol=0, bool fOnlyActive=true);
+    std::vector<pair<int, CBlanknode> > GetBlanknodeRanks(int64_t nBlockHeight, int minProtocol=0);
+    int GetBlanknodeRank(const CTxIn &vin, int64_t nBlockHeight, int minProtocol=0, bool fOnlyActive=true);
+    CBlanknode* GetBlanknodeByRank(int nRank, int64_t nBlockHeight, int minProtocol=0, bool fOnlyActive=true);
 
-    void ProcessStormnodeConnections();
+    void ProcessBlanknodeConnections();
 
     void ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
 
-    // Return the number of (unique) stormnodes
-    int size() { return vStormnodes.size(); }
+    // Return the number of (unique) blanknodes
+    int size() { return vBlanknodes.size(); }
 
     std::string ToString() const;
 
     //
-    // Relay Stormnode Messages
+    // Relay Blanknode Messages
     //
 
-    void RelayStormnodeEntry(const CTxIn vin, const CService addr, const std::vector<unsigned char> vchSig, const int64_t nNow, const CPubKey pubkey, const CPubKey pubkey2, const int count, const int current, const int64_t lastUpdated, const int protocolVersion, CScript donationAddress, int donationPercentage);
-    void RelayStormnodeEntryPing(const CTxIn vin, const std::vector<unsigned char> vchSig, const int64_t nNow, const bool stop);
+    void RelayBlanknodeEntry(const CTxIn vin, const CService addr, const std::vector<unsigned char> vchSig, const int64_t nNow, const CPubKey pubkey, const CPubKey pubkey2, const int count, const int current, const int64_t lastUpdated, const int protocolVersion, CScript donationAddress, int donationPercentage);
+    void RelayBlanknodeEntryPing(const CTxIn vin, const std::vector<unsigned char> vchSig, const int64_t nNow, const bool stop);
 
     void Remove(CTxIn vin);
     

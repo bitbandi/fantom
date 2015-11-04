@@ -8,39 +8,39 @@
 #include "script.h"
 #include "base58.h"
 #include "protocol.h"
-#include "activestormnode.h"
-#include "stormnodeman.h"
+#include "activeblanknode.h"
+#include "blanknodeman.h"
 #include "spork.h"
 #include <boost/lexical_cast.hpp>
-#include "stormnodeman.h"
+#include "blanknodeman.h"
 
 using namespace std;
 using namespace boost;
 
-std::map<uint256, CStormnodeScanningError> mapStormnodeScanningErrors;
-CStormnodeScanning snscan;
+std::map<uint256, CBlanknodeScanningError> mapBlanknodeScanningErrors;
+CBlanknodeScanning snscan;
 
 /* 
-    Stormnode - Proof of Service 
+    Blanknode - Proof of Service 
 
     -- What it checks
 
-    1.) Making sure Stormnodes have their ports open
+    1.) Making sure Blanknodes have their ports open
     2.) Are responding to requests made by the network
 
     -- How it works
 
-    When a block comes in, DoStormnodePOS is executed if the client is a 
-    stormnode. Using the deterministic ranking algorithm up to 1% of the stormnode 
+    When a block comes in, DoBlanknodePOS is executed if the client is a 
+    blanknode. Using the deterministic ranking algorithm up to 1% of the blanknode 
     network is checked each block. 
 
-    A port is opened from Stormnode A to Stormnode B, if successful then nothing happens. 
-    If there is an error, a CStormnodeScanningError object is propagated with an error code.
-    Errors are applied to the Stormnodes and a score is incremented within the stormnode object,
-    after a threshold is met, the stormnode goes into an error state. Each cycle the score is 
-    decreased, so if the stormnode comes back online it will return to the list. 
+    A port is opened from Blanknode A to Blanknode B, if successful then nothing happens. 
+    If there is an error, a CBlanknodeScanningError object is propagated with an error code.
+    Errors are applied to the Blanknodes and a score is incremented within the blanknode object,
+    after a threshold is met, the blanknode goes into an error state. Each cycle the score is 
+    decreased, so if the blanknode comes back online it will return to the list. 
 
-    Stormnodes in a error state do not receive payment. 
+    Blanknodes in a error state do not receive payment. 
 
     -- Future expansion
 
@@ -49,91 +49,91 @@ CStormnodeScanning snscan;
 
 */
 
-void ProcessMessageStormnodePOS(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
+void ProcessMessageBlanknodePOS(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
-    if(fLiteMode) return; //disable all sandstorm/stormnode related functionality
-    if(!IsSporkActive(SPORK_7_STORMNODE_SCANNING)) return;
+    if(fLiteMode) return; //disable all zerosend/blanknode related functionality
+    if(!IsSporkActive(SPORK_7_BLANKNODE_SCANNING)) return;
     if(IsInitialBlockDownload()) return;
 
-    if (strCommand == "snse") //Stormnode Scanning Error
+    if (strCommand == "snse") //Blanknode Scanning Error
     {
 
         CDataStream vMsg(vRecv);
-        CStormnodeScanningError snse;
+        CBlanknodeScanningError snse;
         vRecv >> snse;
 
-        CInv inv(MSG_STORMNODE_SCANNING_ERROR, snse.GetHash());
+        CInv inv(MSG_BLANKNODE_SCANNING_ERROR, snse.GetHash());
         pfrom->AddInventoryKnown(inv);
 
-        if(mapStormnodeScanningErrors.count(snse.GetHash())){
+        if(mapBlanknodeScanningErrors.count(snse.GetHash())){
             return;
         }
-        mapStormnodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
+        mapBlanknodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
 
         if(!snse.IsValid())
         {
-            LogPrintf("StormnodePOS::snse - Invalid object\n");   
+            LogPrintf("BlanknodePOS::snse - Invalid object\n");   
             return;
         }
 
-        CStormnode* psnA = snodeman.Find(snse.vinStormnodeA);
+        CBlanknode* psnA = snodeman.Find(snse.vinBlanknodeA);
         if(psnA == NULL) return;
-        if(psnA->protocolVersion < MIN_STORMNODE_POS_PROTO_VERSION) return;
+        if(psnA->protocolVersion < MIN_BLANKNODE_POS_PROTO_VERSION) return;
 
         int nBlockHeight = pindexBest->nHeight;
         if(nBlockHeight - snse.nBlockHeight > 10){
-            LogPrintf("StormnodePOS::snse - Too old\n");
+            LogPrintf("BlanknodePOS::snse - Too old\n");
             return;   
         }
 
-        // Lowest stormnodes in rank check the highest each block
-        int a = snodeman.GetStormnodeRank(snse.vinStormnodeA, snse.nBlockHeight, MIN_STORMNODE_POS_PROTO_VERSION);
+        // Lowest blanknodes in rank check the highest each block
+        int a = snodeman.GetBlanknodeRank(snse.vinBlanknodeA, snse.nBlockHeight, MIN_BLANKNODE_POS_PROTO_VERSION);
         if(a == -1 || a > GetCountScanningPerBlock())
         {
-            LogPrintf("StormnodePOS::snse - StormnodeA ranking is too high\n");
+            LogPrintf("BlanknodePOS::snse - BlanknodeA ranking is too high\n");
             return;
         }
 
-        int b = snodeman.GetStormnodeRank(snse.vinStormnodeB, snse.nBlockHeight, MIN_STORMNODE_POS_PROTO_VERSION, false);
-        if(b == -1 || b < snodeman.CountStormnodesAboveProtocol(MIN_STORMNODE_POS_PROTO_VERSION)-GetCountScanningPerBlock())
+        int b = snodeman.GetBlanknodeRank(snse.vinBlanknodeB, snse.nBlockHeight, MIN_BLANKNODE_POS_PROTO_VERSION, false);
+        if(b == -1 || b < snodeman.CountBlanknodesAboveProtocol(MIN_BLANKNODE_POS_PROTO_VERSION)-GetCountScanningPerBlock())
          {
-            LogPrintf("StormnodePOS::snse - StormnodeB ranking is too low\n");
+            LogPrintf("BlanknodePOS::snse - BlanknodeB ranking is too low\n");
             return;
         }
 
         if(!snse.SignatureValid()){
-            LogPrintf("StormnodePOS::snse - Bad stormnode message\n");
+            LogPrintf("BlanknodePOS::snse - Bad blanknode message\n");
             return;
         }
 
-        CStormnode* psnB = snodeman.Find(snse.vinStormnodeB);
+        CBlanknode* psnB = snodeman.Find(snse.vinBlanknodeB);
         if(psnB == NULL) return;
 
-        if(fDebug) LogPrintf("ProcessMessageStormnodePOS::snse - nHeight %d StormnodeA %s StormnodeB %s\n", snse.nBlockHeight, psnA->addr.ToString().c_str(), psnB->addr.ToString().c_str());
+        if(fDebug) LogPrintf("ProcessMessageBlanknodePOS::snse - nHeight %d BlanknodeA %s BlanknodeB %s\n", snse.nBlockHeight, psnA->addr.ToString().c_str(), psnB->addr.ToString().c_str());
 
         psnB->ApplyScanningError(snse);
         snse.Relay();
     }
 }
 
-// Returns how many stormnodes are allowed to scan each block
+// Returns how many blanknodes are allowed to scan each block
 int GetCountScanningPerBlock()
 {
-    return std::max(1, snodeman.CountStormnodesAboveProtocol(MIN_STORMNODE_POS_PROTO_VERSION)/100);
+    return std::max(1, snodeman.CountBlanknodesAboveProtocol(MIN_BLANKNODE_POS_PROTO_VERSION)/100);
 }
 
 
-void CStormnodeScanning::CleanStormnodeScanningErrors()
+void CBlanknodeScanning::CleanBlanknodeScanningErrors()
 {
     if(pindexBest == NULL) return;
 
-    std::map<uint256, CStormnodeScanningError>::iterator it = mapStormnodeScanningErrors.begin();
+    std::map<uint256, CBlanknodeScanningError>::iterator it = mapBlanknodeScanningErrors.begin();
 
-    while(it != mapStormnodeScanningErrors.end()) {
+    while(it != mapBlanknodeScanningErrors.end()) {
         if(GetTime() > it->second.nExpiration){ //keep them for an hour
-            LogPrintf("Removing old stormnode scanning error %s\n", it->second.GetHash().ToString().c_str());
+            LogPrintf("Removing old blanknode scanning error %s\n", it->second.GetHash().ToString().c_str());
 
-            mapStormnodeScanningErrors.erase(it++);
+            mapBlanknodeScanningErrors.erase(it++);
         } else {
             it++;
         }
@@ -141,54 +141,54 @@ void CStormnodeScanning::CleanStormnodeScanningErrors()
 
 }
 
-// Check other stormnodes to make sure they're running correctly
-void CStormnodeScanning::DoStormnodePOSChecks()
+// Check other blanknodes to make sure they're running correctly
+void CBlanknodeScanning::DoBlanknodePOSChecks()
 {
-    if(!fStormNode) return;
-    if(fLiteMode) return; //disable all sandstorm/stormnode related functionality
-    if(!IsSporkActive(SPORK_7_STORMNODE_SCANNING)) return;
+    if(!fBlankNode) return;
+    if(fLiteMode) return; //disable all zerosend/blanknode related functionality
+    if(!IsSporkActive(SPORK_7_BLANKNODE_SCANNING)) return;
     if(IsInitialBlockDownload()) return;
 
     int nBlockHeight = pindexBest->nHeight-5;
 
-    int a = snodeman.GetStormnodeRank(activeStormnode.vin, nBlockHeight, MIN_STORMNODE_POS_PROTO_VERSION);
+    int a = snodeman.GetBlanknodeRank(activeBlanknode.vin, nBlockHeight, MIN_BLANKNODE_POS_PROTO_VERSION);
     if(a == -1 || a > GetCountScanningPerBlock()){
         // we don't need to do anything this block
         return;
     }
 
-    // The lowest ranking nodes (Stormnode A) check the highest ranking nodes (Stormnode B)
-    CStormnode* psn = snodeman.GetStormnodeByRank(snodeman.CountStormnodesAboveProtocol(MIN_STORMNODE_POS_PROTO_VERSION)-a, nBlockHeight, MIN_STORMNODE_POS_PROTO_VERSION, false);
+    // The lowest ranking nodes (Blanknode A) check the highest ranking nodes (Blanknode B)
+    CBlanknode* psn = snodeman.GetBlanknodeByRank(snodeman.CountBlanknodesAboveProtocol(MIN_BLANKNODE_POS_PROTO_VERSION)-a, nBlockHeight, MIN_BLANKNODE_POS_PROTO_VERSION, false);
     if(psn == NULL) return;
 
     // -- first check : Port is open
 
     if(!ConnectNode((CAddress)psn->addr, NULL, true)){
         // we couldn't connect to the node, let's send a scanning error
-        CStormnodeScanningError snse(activeStormnode.vin, psn->vin, SCANNING_ERROR_NO_RESPONSE, nBlockHeight);
+        CBlanknodeScanningError snse(activeBlanknode.vin, psn->vin, SCANNING_ERROR_NO_RESPONSE, nBlockHeight);
         snse.Sign();
-        mapStormnodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
+        mapBlanknodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
         snse.Relay();
     }
 
     // success
-    CStormnodeScanningError snse(activeStormnode.vin, psn->vin, SCANNING_SUCCESS, nBlockHeight);
+    CBlanknodeScanningError snse(activeBlanknode.vin, psn->vin, SCANNING_SUCCESS, nBlockHeight);
     snse.Sign();
-    mapStormnodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
+    mapBlanknodeScanningErrors.insert(make_pair(snse.GetHash(), snse));
     snse.Relay();
 }
 
-bool CStormnodeScanningError::SignatureValid()
+bool CBlanknodeScanningError::SignatureValid()
 {
     std::string errorMessage;
-    std::string strMessage = vinStormnodeA.ToString() + vinStormnodeB.ToString() + 
+    std::string strMessage = vinBlanknodeA.ToString() + vinBlanknodeB.ToString() + 
         boost::lexical_cast<std::string>(nBlockHeight) + boost::lexical_cast<std::string>(nErrorType);
 
-    CStormnode* psn = snodeman.Find(vinStormnodeA);
+    CBlanknode* psn = snodeman.Find(vinBlanknodeA);
 
     if(psn == NULL)
     {
-        LogPrintf("CStormnodeScanningError::SignatureValid() - Unknown Stormnode\n");
+        LogPrintf("CBlanknodeScanningError::SignatureValid() - Unknown Blanknode\n");
         return false;
     }
 
@@ -198,26 +198,26 @@ bool CStormnodeScanningError::SignatureValid()
     ExtractDestination(pubkey, address1);
     CFantomAddress address2(address1);
 
-    if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchStormNodeSignature, strMessage, errorMessage)) {
-        LogPrintf("CStormnodeScanningError::SignatureValid() - Verify message failed\n");
+    if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchBlankNodeSignature, strMessage, errorMessage)) {
+        LogPrintf("CBlanknodeScanningError::SignatureValid() - Verify message failed\n");
         return false;
     }
 
     return true;
 }
 
-bool CStormnodeScanningError::Sign()
+bool CBlanknodeScanningError::Sign()
 {
     std::string errorMessage;
 
     CKey key2;
     CPubKey pubkey2;
-    std::string strMessage = vinStormnodeA.ToString() + vinStormnodeB.ToString() + 
+    std::string strMessage = vinBlanknodeA.ToString() + vinBlanknodeB.ToString() + 
         boost::lexical_cast<std::string>(nBlockHeight) + boost::lexical_cast<std::string>(nErrorType);
 
-    if(!sandStormSigner.SetKey(strStormNodePrivKey, errorMessage, key2, pubkey2))
+    if(!zeroSendSigner.SetKey(strBlankNodePrivKey, errorMessage, key2, pubkey2))
     {
-        LogPrintf("CStormnodeScanningError::Sign() - ERROR: Invalid stormnodeprivkey: '%s'\n", errorMessage.c_str());
+        LogPrintf("CBlanknodeScanningError::Sign() - ERROR: Invalid blanknodeprivkey: '%s'\n", errorMessage.c_str());
         return false;
     }
 
@@ -228,22 +228,22 @@ bool CStormnodeScanningError::Sign()
     CFantomAddress address2(address1);
     //LogPrintf("signing pubkey2 %s \n", address2.ToString().c_str());
 
-    if(!sandStormSigner.SignMessage(strMessage, errorMessage, vchStormNodeSignature, key2)) {
-        LogPrintf("CStormnodeScanningError::Sign() - Sign message failed");
+    if(!zeroSendSigner.SignMessage(strMessage, errorMessage, vchBlankNodeSignature, key2)) {
+        LogPrintf("CBlanknodeScanningError::Sign() - Sign message failed");
         return false;
     }
 
-    if(!sandStormSigner.VerifyMessage(pubkey2, vchStormNodeSignature, strMessage, errorMessage)) {
-        LogPrintf("CStormnodeScanningError::Sign() - Verify message failed");
+    if(!zeroSendSigner.VerifyMessage(pubkey2, vchBlankNodeSignature, strMessage, errorMessage)) {
+        LogPrintf("CBlanknodeScanningError::Sign() - Verify message failed");
         return false;
     }
 
     return true;
 }
 
-void CStormnodeScanningError::Relay()
+void CBlanknodeScanningError::Relay()
 {
-    CInv inv(MSG_STORMNODE_SCANNING_ERROR, GetHash());
+    CInv inv(MSG_BLANKNODE_SCANNING_ERROR, GetHash());
 
     vector<CInv> vInv;
     vInv.push_back(inv);

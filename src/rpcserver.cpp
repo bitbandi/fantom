@@ -251,11 +251,11 @@ static const CRPCCommand vRPCCommands[] =
 
 /* Dark features */
     { "spork",                  &spork,                  true,      false,      false },
-    { "stormnode",              &stormnode,             true,      false,      true },
-    { "stormnodelist",          &stormnodelist,         true,      false,      false },
+    { "blanknode",              &blanknode,             true,      false,      true },
+    { "blanknodelist",          &blanknodelist,         true,      false,      false },
 #ifdef ENABLE_WALLET
 	{ "setgenerate",		    &setgenerate,			 true,		 false,		 true },
-    { "sandstorm",              &sandstorm,               false,     false,      true },
+    { "zerosend",              &zerosend,               false,     false,      true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
     { "getstakinginfo",         &getstakinginfo,         true,      false,     false },
     { "getnewaddress",          &getnewaddress,          true,      false,     true },

@@ -28,7 +28,7 @@ CSporkManager sporkManager;
 
 void ProcessSpork(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
-    if(fLiteMode) return; //disable all sandstorm/stormnode related functionality
+    if(fLiteMode) return; //disable all zerosend/blanknode related functionality
 
     if (strCommand == "spork")
     {
@@ -84,11 +84,11 @@ bool IsSporkActive(int nSporkID)
     if(mapSporksActive.count(nSporkID)){
         r = mapSporksActive[nSporkID].nValue;
     } else {
-        if(nSporkID == SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT) r = SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT_DEFAULT;
+        if(nSporkID == SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT) r = SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT_DEFAULT;
         if(nSporkID == SPORK_2_INSTANTX) r = SPORK_2_INSTANTX_DEFAULT;
         if(nSporkID == SPORK_3_INSTANTX_BLOCK_FILTERING) r = SPORK_3_INSTANTX_BLOCK_FILTERING_DEFAULT;
         if(nSporkID == SPORK_5_MAX_VALUE) r = SPORK_5_MAX_VALUE_DEFAULT;
-        if(nSporkID == SPORK_7_STORMNODE_SCANNING) r = SPORK_7_STORMNODE_SCANNING;
+        if(nSporkID == SPORK_7_BLANKNODE_SCANNING) r = SPORK_7_BLANKNODE_SCANNING;
 
         if(r == 0) LogPrintf("GetSpork::Unknown Spork %d\n", nSporkID);
     }
@@ -105,11 +105,11 @@ int GetSporkValue(int nSporkID)
     if(mapSporksActive.count(nSporkID)){
         r = mapSporksActive[nSporkID].nValue;
     } else {
-        if(nSporkID == SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT) r = SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT_DEFAULT;
+        if(nSporkID == SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT) r = SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT_DEFAULT;
         if(nSporkID == SPORK_2_INSTANTX) r = SPORK_2_INSTANTX_DEFAULT;
         if(nSporkID == SPORK_3_INSTANTX_BLOCK_FILTERING) r = SPORK_3_INSTANTX_BLOCK_FILTERING_DEFAULT;
         if(nSporkID == SPORK_5_MAX_VALUE) r = SPORK_5_MAX_VALUE_DEFAULT;
-        if(nSporkID == SPORK_7_STORMNODE_SCANNING) r = SPORK_7_STORMNODE_SCANNING;
+        if(nSporkID == SPORK_7_BLANKNODE_SCANNING) r = SPORK_7_BLANKNODE_SCANNING;
 
         if(r == 0) LogPrintf("GetSpork::Unknown Spork %d\n", nSporkID);
     }
@@ -130,7 +130,7 @@ bool CSporkManager::CheckSignature(CSporkMessage& spork)
     CPubKey pubkey(ParseHex(strPubKey));
 
     std::string errorMessage = "";
-    if(!sandStormSigner.VerifyMessage(pubkey, spork.vchSig, strMessage, errorMessage)){
+    if(!zeroSendSigner.VerifyMessage(pubkey, spork.vchSig, strMessage, errorMessage)){
         return false;
     }
 
@@ -145,19 +145,19 @@ bool CSporkManager::Sign(CSporkMessage& spork)
     CPubKey pubkey2;
     std::string errorMessage = "";
 
-    if(!sandStormSigner.SetKey(strMasterPrivKey, errorMessage, key2, pubkey2))
+    if(!zeroSendSigner.SetKey(strMasterPrivKey, errorMessage, key2, pubkey2))
     {
-        LogPrintf("CStormnodePayments::Sign - ERROR: Invalid stormnodeprivkey: '%s'\n", errorMessage.c_str());
+        LogPrintf("CBlanknodePayments::Sign - ERROR: Invalid blanknodeprivkey: '%s'\n", errorMessage.c_str());
         return false;
     }
 
-    if(!sandStormSigner.SignMessage(strMessage, errorMessage, spork.vchSig, key2)) {
-        LogPrintf("CStormnodePayments::Sign - Sign message failed");
+    if(!zeroSendSigner.SignMessage(strMessage, errorMessage, spork.vchSig, key2)) {
+        LogPrintf("CBlanknodePayments::Sign - Sign message failed");
         return false;
     }
 
-    if(!sandStormSigner.VerifyMessage(pubkey2, spork.vchSig, strMessage, errorMessage)) {
-        LogPrintf("CStormnodePayments::Sign - Verify message failed");
+    if(!zeroSendSigner.VerifyMessage(pubkey2, spork.vchSig, strMessage, errorMessage)) {
+        LogPrintf("CBlanknodePayments::Sign - Verify message failed");
         return false;
     }
 
@@ -213,11 +213,11 @@ bool CSporkManager::SetPrivKey(std::string strPrivKey)
 
 int CSporkManager::GetSporkIDByName(std::string strName)
 {
-    if(strName == "SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT") return SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT;
+    if(strName == "SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT") return SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT;
     if(strName == "SPORK_2_INSTANTX") return SPORK_2_INSTANTX;
     if(strName == "SPORK_3_INSTANTX_BLOCK_FILTERING") return SPORK_3_INSTANTX_BLOCK_FILTERING;
     if(strName == "SPORK_5_MAX_VALUE") return SPORK_5_MAX_VALUE;
-    if(strName == "SPORK_7_STORMNODE_SCANNING") return SPORK_7_STORMNODE_SCANNING;
+    if(strName == "SPORK_7_BLANKNODE_SCANNING") return SPORK_7_BLANKNODE_SCANNING;
 
 
     return -1;
@@ -225,11 +225,11 @@ int CSporkManager::GetSporkIDByName(std::string strName)
 
 std::string CSporkManager::GetSporkNameByID(int id)
 {
-    if(id == SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT) return "SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT";
+    if(id == SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT) return "SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT";
     if(id == SPORK_2_INSTANTX) return "SPORK_2_INSTANTX";
     if(id == SPORK_3_INSTANTX_BLOCK_FILTERING) return "SPORK_3_INSTANTX_BLOCK_FILTERING";
     if(id == SPORK_5_MAX_VALUE) return "SPORK_5_MAX_VALUE";
-    if(id == SPORK_7_STORMNODE_SCANNING) return "SPORK_7_STORMNODE_SCANNING";
+    if(id == SPORK_7_BLANKNODE_SCANNING) return "SPORK_7_BLANKNODE_SCANNING";
 
     return "Unknown";
     

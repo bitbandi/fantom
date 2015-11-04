@@ -73,20 +73,20 @@ namespace boost {
 using namespace std;
 
 //Dark  features
-bool fStormNode = false;
-string strStormNodePrivKey = "";
-string strStormNodeAddr = "";
+bool fBlankNode = false;
+string strBlankNodePrivKey = "";
+string strBlankNodeAddr = "";
 bool fLiteMode = false;
 int nInstantXDepth = 1;
-int nSandstormRounds = 2;
+int nZerosendRounds = 2;
 int nAnonymizeFantomAmount = 1000;
 int nLiquidityProvider = 0;
 /** Spork enforcement enabled time */
-int64_t enforceStormnodePaymentsTime = 4085657524;
+int64_t enforceBlanknodePaymentsTime = 4085657524;
 bool fSucessfullyLoaded = false;
-bool fEnableSandstorm = false;
-/** All denominations used by sandstorm */
-std::vector<int64_t> sandStormDenominations;
+bool fEnableZerosend = false;
+/** All denominations used by zerosend */
+std::vector<int64_t> zeroSendDenominations;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -1149,9 +1149,9 @@ boost::filesystem::path GetConfigFile()
     return pathConfigFile;
 }
 
-boost::filesystem::path GetStormnodeConfigFile()
+boost::filesystem::path GetBlanknodeConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-snconf", "stormnode.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-snconf", "blanknode.conf"));
     if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir() / pathConfigFile;
     return pathConfigFile;
 }

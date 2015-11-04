@@ -375,15 +375,20 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
             coinControl->UnSelect(outpt);
         else if (item->isDisabled()) // locked (this happens if "check all" through parent node)
             item->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
-        else
+        else {
             coinControl->Select(outpt);
+            CTxIn vin(outpt);
+            int rounds = GetInputSandstormRounds(vin);
+            if(coinControl->useSandStorm && rounds < nSandstormRounds) {
+                coinControl->useSandStorm = false;
+            }
+        }
             
         // selection changed -> update labels
         if (ui->treeWidget->isEnabled()) // do not update on every click for (un)select all
             CoinControlDialog::updateLabels(model, this);
     }
 }
-
 // helper function, return human readable label for priority number
 QString CoinControlDialog::getPriorityLabel(double dPriority)
 {

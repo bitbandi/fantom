@@ -1,7 +1,7 @@
-#include "stormnodeman.h"
-#include "stormnode.h"
-#include "activestormnode.h"
-#include "sandstorm.h"
+#include "blanknodeman.h"
+#include "blanknode.h"
+#include "activeblanknode.h"
+#include "zerosend.h"
 #include "core.h"
 #include "util.h"
 #include "addrman.h"
@@ -10,8 +10,8 @@
 
 CCriticalSection cs_process_message;
 
-/** Stormnode manager */
-CStormnodeMan snodeman;
+/** Blanknode manager */
+CBlanknodeMan snodeman;
 
 struct CompareValueOnly
 {
@@ -23,34 +23,34 @@ struct CompareValueOnly
 };
 struct CompareValueOnlySN
 {
-    bool operator()(const pair<int64_t, CStormnode>& t1,
-                    const pair<int64_t, CStormnode>& t2) const
+    bool operator()(const pair<int64_t, CBlanknode>& t1,
+                    const pair<int64_t, CBlanknode>& t2) const
     {
         return t1.first < t2.first;
     }
 };
 
 //
-// CStormnodeDB
+// CBlanknodeDB
 //
 
-CStormnodeDB::CStormnodeDB()
+CBlanknodeDB::CBlanknodeDB()
 {
     pathSN = GetDataDir() / "sncache.dat";
-    strMagicMessage = "StormnodeCache";
+    strMagicMessage = "BlanknodeCache";
 }
 
-bool CStormnodeDB::Write(const CStormnodeMan& snodemanToSave)
+bool CBlanknodeDB::Write(const CBlanknodeMan& snodemanToSave)
 {
     int64_t nStart = GetTimeMillis();
 
     // serialize addresses, checksum data up to that point, then append checksum
-    CDataStream ssStormnodes(SER_DISK, CLIENT_VERSION);
-    ssStormnodes << strMagicMessage; // stormnode cache file specific magic message
-    ssStormnodes << FLATDATA(Params().MessageStart()); // network specific magic number
-    ssStormnodes << snodemanToSave;
-    uint256 hash = Hash(ssStormnodes.begin(), ssStormnodes.end());
-    ssStormnodes << hash;
+    CDataStream ssBlanknodes(SER_DISK, CLIENT_VERSION);
+    ssBlanknodes << strMagicMessage; // blanknode cache file specific magic message
+    ssBlanknodes << FLATDATA(Params().MessageStart()); // network specific magic number
+    ssBlanknodes << snodemanToSave;
+    uint256 hash = Hash(ssBlanknodes.begin(), ssBlanknodes.end());
+    ssBlanknodes << hash;
 
     // open output file, and associate with CAutoFile
     FILE *file = fopen(pathSN.string().c_str(), "wb");
@@ -60,7 +60,7 @@ bool CStormnodeDB::Write(const CStormnodeMan& snodemanToSave)
 
     // Write and commit header, data
     try {
-        fileout << ssStormnodes;
+        fileout << ssBlanknodes;
     }
     catch (std::exception &e) {
         return error("%s : Serialize or I/O error - %s", __func__, e.what());
@@ -74,7 +74,7 @@ bool CStormnodeDB::Write(const CStormnodeMan& snodemanToSave)
     return true;
 }
 
-CStormnodeDB::ReadResult CStormnodeDB::Read(CStormnodeMan& snodemanToLoad)
+CBlanknodeDB::ReadResult CBlanknodeDB::Read(CBlanknodeMan& snodemanToLoad)
 {   
     int64_t nStart = GetTimeMillis();
     // open input file, and associate with CAutoFile
@@ -107,10 +107,10 @@ CStormnodeDB::ReadResult CStormnodeDB::Read(CStormnodeMan& snodemanToLoad)
     }
     filein.fclose();
 
-    CDataStream ssStormnodes(vchData, SER_DISK, CLIENT_VERSION);
+    CDataStream ssBlanknodes(vchData, SER_DISK, CLIENT_VERSION);
 
     // verify stored checksum matches input data
-    uint256 hashTmp = Hash(ssStormnodes.begin(), ssStormnodes.end());
+    uint256 hashTmp = Hash(ssBlanknodes.begin(), ssBlanknodes.end());
     if (hashIn != hashTmp)
     {
         error("%s : Checksum mismatch, data corrupted", __func__);
@@ -120,19 +120,19 @@ CStormnodeDB::ReadResult CStormnodeDB::Read(CStormnodeMan& snodemanToLoad)
     unsigned char pchMsgTmp[4];
     std::string strMagicMessageTmp;
     try {
-        // de-serialize file header (stormnode cache file specific magic message) and ..
+        // de-serialize file header (blanknode cache file specific magic message) and ..
 
-        ssStormnodes >> strMagicMessageTmp;
+        ssBlanknodes >> strMagicMessageTmp;
 
         // ... verify the message matches predefined one
         if (strMagicMessage != strMagicMessageTmp)
         {
-            error("%s : Invalid stormnode cache magic message", __func__);
+            error("%s : Invalid blanknode cache magic message", __func__);
             return IncorrectMagicMessage;
         }
 
         // de-serialize file header (network specific magic number) and ..
-        ssStormnodes >> FLATDATA(pchMsgTmp);
+        ssBlanknodes >> FLATDATA(pchMsgTmp);
 
         // ... verify the network matches ours
         if (memcmp(pchMsgTmp, Params().MessageStart(), sizeof(pchMsgTmp)))
@@ -141,8 +141,8 @@ CStormnodeDB::ReadResult CStormnodeDB::Read(CStormnodeMan& snodemanToLoad)
             return IncorrectMagicNumber;
         }
 
-        // de-serialize data into CStormnodeMan object
-        ssStormnodes >> snodemanToLoad;
+        // de-serialize data into CBlanknodeMan object
+        ssBlanknodes >> snodemanToLoad;
     }
     catch (std::exception &e) {
         error("%s : Deserialize or I/O error - %s", __func__, e.what());
@@ -157,22 +157,22 @@ CStormnodeDB::ReadResult CStormnodeDB::Read(CStormnodeMan& snodemanToLoad)
     return Ok;
 }
 
-void DumpStormnodes()
+void DumpBlanknodes()
 {
     int64_t nStart = GetTimeMillis();
 
-    CStormnodeDB sndb;
-    CStormnodeMan tempSnodeman;
+    CBlanknodeDB sndb;
+    CBlanknodeMan tempSnodeman;
 
     LogPrintf("Verifying sncache.dat format...\n");
-    CStormnodeDB::ReadResult readResult = sndb.Read(tempSnodeman);
+    CBlanknodeDB::ReadResult readResult = sndb.Read(tempSnodeman);
     // there was an error and it was not an error on file openning => do not proceed
-    if (readResult == CStormnodeDB::FileError)
-        LogPrintf("Missing stormnode cache file - sncache.dat, will try to recreate\n");
-    else if (readResult != CStormnodeDB::Ok)
+    if (readResult == CBlanknodeDB::FileError)
+        LogPrintf("Missing blanknode cache file - sncache.dat, will try to recreate\n");
+    else if (readResult != CBlanknodeDB::Ok)
     {
         LogPrintf("Error reading sncache.dat: ");
-        if(readResult == CStormnodeDB::IncorrectFormat)
+        if(readResult == CBlanknodeDB::IncorrectFormat)
             LogPrintf("magic is ok but data has invalid format, will try to recreate\n");
         else
         {
@@ -183,83 +183,83 @@ void DumpStormnodes()
     LogPrintf("Writing info to sncache.dat...\n");
     sndb.Write(snodeman);
 
-    LogPrintf("Stormnode dump finished  %dms\n", GetTimeMillis() - nStart);
+    LogPrintf("Blanknode dump finished  %dms\n", GetTimeMillis() - nStart);
 }
 
-CStormnodeMan::CStormnodeMan() 
+CBlanknodeMan::CBlanknodeMan() 
 {
     nSsqCount = 0;
 }
 
-bool CStormnodeMan::Add(CStormnode &sn)
+bool CBlanknodeMan::Add(CBlanknode &sn)
 {
     LOCK(cs);
 
     if (!sn.IsEnabled())
         return false;
 
-    CStormnode *psn = Find(sn.vin);
+    CBlanknode *psn = Find(sn.vin);
 
     if (psn == NULL)
     {
-        if(fDebug) LogPrintf("CStormnodeMan: Adding new Stormnode %s - %i now\n", sn.addr.ToString().c_str(), size() + 1);
-        vStormnodes.push_back(sn);
+        if(fDebug) LogPrintf("CBlanknodeMan: Adding new Blanknode %s - %i now\n", sn.addr.ToString().c_str(), size() + 1);
+        vBlanknodes.push_back(sn);
         return true;
     }
 
     return false;
 }
 
-void CStormnodeMan::Check()
+void CBlanknodeMan::Check()
 {
     LOCK(cs);
 
-    BOOST_FOREACH(CStormnode& sn, vStormnodes)
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes)
         sn.Check();
 }
 
-void CStormnodeMan::CheckAndRemove()
+void CBlanknodeMan::CheckAndRemove()
 {
     LOCK(cs);
 
     Check();
 
     //remove inactive
-    vector<CStormnode>::iterator it = vStormnodes.begin();
-    while(it != vStormnodes.end()){
-        if((*it).activeState == CStormnode::STORMNODE_REMOVE || (*it).activeState == CStormnode::STORMNODE_VIN_SPENT){
-            if(fDebug) LogPrintf("CStormnodeMan: Removing inactive Stormnode %s - %i now\n", (*it).addr.ToString().c_str(), size() - 1);
-            it = vStormnodes.erase(it);
+    vector<CBlanknode>::iterator it = vBlanknodes.begin();
+    while(it != vBlanknodes.end()){
+        if((*it).activeState == CBlanknode::BLANKNODE_REMOVE || (*it).activeState == CBlanknode::BLANKNODE_VIN_SPENT){
+            if(fDebug) LogPrintf("CBlanknodeMan: Removing inactive Blanknode %s - %i now\n", (*it).addr.ToString().c_str(), size() - 1);
+            it = vBlanknodes.erase(it);
         } else {
             ++it;
         }
     }
 
-    // check who's asked for the Stormnode list
-    map<CNetAddr, int64_t>::iterator it1 = mAskedUsForStormnodeList.begin();
-    while(it1 != mAskedUsForStormnodeList.end()){
+    // check who's asked for the Blanknode list
+    map<CNetAddr, int64_t>::iterator it1 = mAskedUsForBlanknodeList.begin();
+    while(it1 != mAskedUsForBlanknodeList.end()){
         if((*it1).second < GetTime()) {
-            mAskedUsForStormnodeList.erase(it1++);
+            mAskedUsForBlanknodeList.erase(it1++);
         } else {
             ++it1;
         }
     }
 
-    // check who we asked for the Stormnode list
-    it1 = mWeAskedForStormnodeList.begin();
-    while(it1 != mWeAskedForStormnodeList.end()){
+    // check who we asked for the Blanknode list
+    it1 = mWeAskedForBlanknodeList.begin();
+    while(it1 != mWeAskedForBlanknodeList.end()){
         if((*it1).second < GetTime()){
-            mWeAskedForStormnodeList.erase(it1++);
+            mWeAskedForBlanknodeList.erase(it1++);
         } else {
             ++it1;
         }
     }
 
-    // check which Stormnodes we've asked for
-    map<COutPoint, int64_t>::iterator it2 = mWeAskedForStormnodeListEntry.begin();
-    while(it2 != mWeAskedForStormnodeListEntry.end()){
+    // check which Blanknodes we've asked for
+    map<COutPoint, int64_t>::iterator it2 = mWeAskedForBlanknodeListEntry.begin();
+    while(it2 != mWeAskedForBlanknodeListEntry.end()){
         if((*it2).second < GetTime()){
-            mWeAskedForStormnodeListEntry.erase(it2++);
+            mWeAskedForBlanknodeListEntry.erase(it2++);
         } else {
             ++it2;
         }
@@ -267,21 +267,21 @@ void CStormnodeMan::CheckAndRemove()
 
 }
 
-void CStormnodeMan::Clear()
+void CBlanknodeMan::Clear()
 {
     LOCK(cs);
-    vStormnodes.clear();
-    mAskedUsForStormnodeList.clear();
-    mWeAskedForStormnodeList.clear();
-    mWeAskedForStormnodeListEntry.clear();
+    vBlanknodes.clear();
+    mAskedUsForBlanknodeList.clear();
+    mWeAskedForBlanknodeList.clear();
+    mWeAskedForBlanknodeListEntry.clear();
     nSsqCount = 0;
 }
 
-int CStormnodeMan::CountEnabled()
+int CBlanknodeMan::CountEnabled()
 {
     int i = 0;
 
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
         sn.Check();
         if(sn.IsEnabled()) i++;
     }
@@ -289,11 +289,11 @@ int CStormnodeMan::CountEnabled()
     return i;
 }
 
-int CStormnodeMan::CountStormnodesAboveProtocol(int protocolVersion)
+int CBlanknodeMan::CountBlanknodesAboveProtocol(int protocolVersion)
 {
     int i = 0;
 
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
         sn.Check();
         if(sn.protocolVersion < protocolVersion || !sn.IsEnabled()) continue;
         i++;
@@ -302,12 +302,12 @@ int CStormnodeMan::CountStormnodesAboveProtocol(int protocolVersion)
     return i;
 }
 
-void CStormnodeMan::SsegUpdate(CNode* pnode)
+void CBlanknodeMan::SsegUpdate(CNode* pnode)
 {
     LOCK(cs);
 
-    std::map<CNetAddr, int64_t>::iterator it = mWeAskedForStormnodeList.find(pnode->addr);
-    if (it != mWeAskedForStormnodeList.end())
+    std::map<CNetAddr, int64_t>::iterator it = mWeAskedForBlanknodeList.find(pnode->addr);
+    if (it != mWeAskedForBlanknodeList.end())
     {
         if (GetTime() < (*it).second) {
             LogPrintf("sseg - we already asked %s for the list; skipping...\n", pnode->addr.ToString());
@@ -315,15 +315,15 @@ void CStormnodeMan::SsegUpdate(CNode* pnode)
         }
     }
     pnode->PushMessage("sseg", CTxIn());
-    int64_t askAgain = GetTime() + STORMNODES_SSEG_SECONDS;
-    mWeAskedForStormnodeList[pnode->addr] = askAgain;
+    int64_t askAgain = GetTime() + BLANKNODES_SSEG_SECONDS;
+    mWeAskedForBlanknodeList[pnode->addr] = askAgain;
 }
 
-CStormnode *CStormnodeMan::Find(const CTxIn &vin)
+CBlanknode *CBlanknodeMan::Find(const CTxIn &vin)
 {
     LOCK(cs);
 
-    BOOST_FOREACH(CStormnode& sn, vStormnodes)
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes)
     {
         if(sn.vin.prevout == vin.prevout)
             return &sn;
@@ -331,33 +331,35 @@ CStormnode *CStormnodeMan::Find(const CTxIn &vin)
     return NULL;
 }
 
-CStormnode *CStormnodeMan::Find(const CPubKey &pubKeyStormnode)
+CBlanknode *CBlanknodeMan::Find(const CPubKey &pubKeyBlanknode)
 {
     LOCK(cs);
 
-    BOOST_FOREACH(CStormnode& sn, vStormnodes)
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes)
     {
-        if(sn.pubkey2 == pubKeyStormnode)
+        if(sn.pubkey2 == pubKeyBlanknode)
             return &sn;
     }
     return NULL;
 }
 
 
-CStormnode* CStormnodeMan::FindOldestNotInVec(const std::vector<CTxIn> &vVins, int nMinimumAge, int nMinimumActiveSeconds)
+CBlanknode* CBlanknodeMan::FindOldestNotInVec(const std::vector<CTxIn> &vVins, int nMinimumAge)
 {
     LOCK(cs);
 
-    CStormnode *pOldestStormnode = NULL;
+    CBlanknode *pOldestBlanknode = NULL;
 
-    BOOST_FOREACH(CStormnode &sn, vStormnodes)
+    BOOST_FOREACH(CBlanknode &sn, vBlanknodes)
     {   
         sn.Check();
         if(!sn.IsEnabled()) continue;
 
+        if(sn.GetBlanknodeInputAge() < nMinimumAge) continue;
+
         bool found = false;
         BOOST_FOREACH(const CTxIn& vin, vVins)
-            if(sn.vin == vin)
+            if(sn.vin.prevout == vin.prevout)
             {   
                 found = true;
                 break;
@@ -365,34 +367,33 @@ CStormnode* CStormnodeMan::FindOldestNotInVec(const std::vector<CTxIn> &vVins, i
 
         if(found) continue;
 
-        if(pOldestStormnode == NULL || pOldestStormnode->GetStormnodeInputAge() < sn.GetStormnodeInputAge()){
-            pOldestStormnode = &sn;
+        if(pOldestBlanknode == NULL || pOldestBlanknode->SecondsSincePayment() < sn.SecondsSincePayment()){
+            pOldestBlanknode = &sn;
         }
     }
 
-    return pOldestStormnode;
+    return pOldestBlanknode;
 }
-
-CStormnode *CStormnodeMan::FindRandom()
+CBlanknode *CBlanknodeMan::FindRandom()
 {
     LOCK(cs);
 
     if(size() == 0) return NULL;
 
-    return &vStormnodes[GetRandInt(vStormnodes.size())];
+    return &vBlanknodes[GetRandInt(vBlanknodes.size())];
 }
 
-CStormnode* CStormnodeMan::GetCurrentStormNode(int mod, int64_t nBlockHeight, int minProtocol)
+CBlanknode* CBlanknodeMan::GetCurrentBlankNode(int mod, int64_t nBlockHeight, int minProtocol)
 {
     unsigned int score = 0;
-    CStormnode* winner = NULL;
+    CBlanknode* winner = NULL;
 
     // scan for winner
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
         sn.Check();
         if(sn.protocolVersion < minProtocol || !sn.IsEnabled()) continue;
 
-        // calculate the score for each stormnode
+        // calculate the score for each blanknode
         uint256 n = sn.CalculateScore(mod, nBlockHeight);
         unsigned int n2 = 0;
         memcpy(&n2, &n, sizeof(n2));
@@ -407,16 +408,16 @@ CStormnode* CStormnodeMan::GetCurrentStormNode(int mod, int64_t nBlockHeight, in
     return winner;
 }
 
-int CStormnodeMan::GetStormnodeRank(const CTxIn& vin, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
+int CBlanknodeMan::GetBlanknodeRank(const CTxIn& vin, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
 {
-    std::vector<pair<unsigned int, CTxIn> > vecStormnodeScores;
+    std::vector<pair<unsigned int, CTxIn> > vecBlanknodeScores;
 
     //make sure we know about this block
     uint256 hash = 0;
     if(!GetBlockHash(hash, nBlockHeight)) return -1;
 
     // scan for winner
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
 
         if(sn.protocolVersion < minProtocol) continue;
         if(fOnlyActive) {
@@ -428,13 +429,13 @@ int CStormnodeMan::GetStormnodeRank(const CTxIn& vin, int64_t nBlockHeight, int 
         unsigned int n2 = 0;
         memcpy(&n2, &n, sizeof(n2));
 
-        vecStormnodeScores.push_back(make_pair(n2, sn.vin));
+        vecBlanknodeScores.push_back(make_pair(n2, sn.vin));
     }
 
-    sort(vecStormnodeScores.rbegin(), vecStormnodeScores.rend(), CompareValueOnly());
+    sort(vecBlanknodeScores.rbegin(), vecBlanknodeScores.rend(), CompareValueOnly());
 
     int rank = 0;
-    BOOST_FOREACH (PAIRTYPE(unsigned int, CTxIn)& s, vecStormnodeScores){
+    BOOST_FOREACH (PAIRTYPE(unsigned int, CTxIn)& s, vecBlanknodeScores){
         rank++;
         if(s.second == vin) {
             return rank;
@@ -444,17 +445,17 @@ int CStormnodeMan::GetStormnodeRank(const CTxIn& vin, int64_t nBlockHeight, int 
     return -1;
 }
 
-std::vector<pair<int, CStormnode> > CStormnodeMan::GetStormnodeRanks(int64_t nBlockHeight, int minProtocol)
+std::vector<pair<int, CBlanknode> > CBlanknodeMan::GetBlanknodeRanks(int64_t nBlockHeight, int minProtocol)
 {
-    std::vector<pair<unsigned int, CStormnode> > vecStormnodeScores;
-    std::vector<pair<int, CStormnode> > vecStormnodeRanks;
+    std::vector<pair<unsigned int, CBlanknode> > vecBlanknodeScores;
+    std::vector<pair<int, CBlanknode> > vecBlanknodeRanks;
 
     //make sure we know about this block
     uint256 hash = 0;
-    if(!GetBlockHash(hash, nBlockHeight)) return vecStormnodeRanks;
+    if(!GetBlockHash(hash, nBlockHeight)) return vecBlanknodeRanks;
 
     // scan for winner
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
 
         sn.Check();
 
@@ -467,26 +468,26 @@ std::vector<pair<int, CStormnode> > CStormnodeMan::GetStormnodeRanks(int64_t nBl
         unsigned int n2 = 0;
         memcpy(&n2, &n, sizeof(n2));
 
-        vecStormnodeScores.push_back(make_pair(n2, sn));
+        vecBlanknodeScores.push_back(make_pair(n2, sn));
     }
 
-    sort(vecStormnodeScores.rbegin(), vecStormnodeScores.rend(), CompareValueOnlySN());
+    sort(vecBlanknodeScores.rbegin(), vecBlanknodeScores.rend(), CompareValueOnlySN());
 
     int rank = 0;
-    BOOST_FOREACH (PAIRTYPE(unsigned int, CStormnode)& s, vecStormnodeScores){
+    BOOST_FOREACH (PAIRTYPE(unsigned int, CBlanknode)& s, vecBlanknodeScores){
         rank++;
-        vecStormnodeRanks.push_back(make_pair(rank, s.second));
+        vecBlanknodeRanks.push_back(make_pair(rank, s.second));
     }
 
-    return vecStormnodeRanks;
+    return vecBlanknodeRanks;
 }
 
-CStormnode* CStormnodeMan::GetStormnodeByRank(int nRank, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
+CBlanknode* CBlanknodeMan::GetBlanknodeByRank(int nRank, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
 {
-    std::vector<pair<unsigned int, CTxIn> > vecStormnodeScores;
+    std::vector<pair<unsigned int, CTxIn> > vecBlanknodeScores;
 
     // scan for winner
-    BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+    BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
 
         if(sn.protocolVersion < minProtocol) continue;
         if(fOnlyActive) {
@@ -498,13 +499,13 @@ CStormnode* CStormnodeMan::GetStormnodeByRank(int nRank, int64_t nBlockHeight, i
         unsigned int n2 = 0;
         memcpy(&n2, &n, sizeof(n2));
 
-        vecStormnodeScores.push_back(make_pair(n2, sn.vin));
+        vecBlanknodeScores.push_back(make_pair(n2, sn.vin));
     }
 
-    sort(vecStormnodeScores.rbegin(), vecStormnodeScores.rend(), CompareValueOnly());
+    sort(vecBlanknodeScores.rbegin(), vecBlanknodeScores.rend(), CompareValueOnly());
 
     int rank = 0;
-    BOOST_FOREACH (PAIRTYPE(unsigned int, CTxIn)& s, vecStormnodeScores){
+    BOOST_FOREACH (PAIRTYPE(unsigned int, CTxIn)& s, vecBlanknodeScores){
         rank++;
         if(rank == nRank) {
             return Find(s.second);
@@ -514,32 +515,32 @@ CStormnode* CStormnodeMan::GetStormnodeByRank(int nRank, int64_t nBlockHeight, i
     return NULL;
 }
 
-void CStormnodeMan::ProcessStormnodeConnections()
+void CBlanknodeMan::ProcessBlanknodeConnections()
 {
     LOCK(cs_vNodes);
 
-    if(!sandStormPool.pSubmittedToStormnode) return;
+    if(!zeroSendPool.pSubmittedToBlanknode) return;
     
     BOOST_FOREACH(CNode* pnode, vNodes)
     {
-        if(sandStormPool.pSubmittedToStormnode->addr == pnode->addr) continue;
+        if(zeroSendPool.pSubmittedToBlanknode->addr == pnode->addr) continue;
 
-        if(pnode->fSandStormMaster){
-            LogPrintf("Closing Stormnode connection %s \n", pnode->addr.ToString().c_str());
+        if(pnode->fZeroSendMaster){
+            LogPrintf("Closing Blanknode connection %s \n", pnode->addr.ToString().c_str());
             pnode->CloseSocketDisconnect();
         }
     }
 }
 
-void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
+void CBlanknodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
 
-    if(fLiteMode) return; //disable all sandstorm/stormnode related functionality
+    if(fLiteMode) return; //disable all zerosend/blanknode related functionality
     if(IsInitialBlockDownload()) return;
 
     LOCK(cs_process_message);
 
-    if (strCommand == "ssee") { //Sandstorm Election Entry
+    if (strCommand == "ssee") { //Zerosend Election Entry
 
         CTxIn vin;
         CService addr;
@@ -577,7 +578,7 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
         }
 
         if(protocolVersion < MIN_SN_PROTO_VERSION) {
-            LogPrintf("ssee - ignoring outdated Stormnode %s protocol version %d\n", vin.ToString().c_str(), protocolVersion);
+            LogPrintf("ssee - ignoring outdated Blanknode %s protocol version %d\n", vin.ToString().c_str(), protocolVersion);
             return;
         }
 
@@ -599,23 +600,28 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
             return;
         }
 
+        if(!vin.scriptSig.empty()) {
+            LogPrintf("dsee - Ignore Not Empty ScriptSig %s\n",vin.ToString().c_str());
+            return;
+        }
+
         std::string errorMessage = "";
-        if(!sandStormSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)){
-            LogPrintf("ssee - Got bad Stormnode address signature\n");
+        if(!zeroSendSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)){
+            LogPrintf("ssee - Got bad Blanknode address signature\n");
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
 
-        //search existing stormnode list, this is where we update existing stormnodes with new ssee broadcasts
-        CStormnode* psn = this->Find(vin);
-        // if we are a stormnode but with undefined vin and this ssee is ours (matches our Stormnode privkey) then just skip this part
-        if(psn != NULL && !(fStormNode && activeStormnode.vin == CTxIn() && pubkey2 == activeStormnode.pubKeyStormnode))
+        //search existing blanknode list, this is where we update existing blanknodes with new ssee broadcasts
+        CBlanknode* psn = this->Find(vin);
+        // if we are a blanknode but with undefined vin and this ssee is ours (matches our Blanknode privkey) then just skip this part
+        if(psn != NULL && !(fBlankNode && activeBlanknode.vin == CTxIn() && pubkey2 == activeBlanknode.pubKeyBlanknode))
         {
             // count == -1 when it's a new entry
             //   e.g. We don't want the entry relayed/time updated when we're syncing the list
             // sn.pubkey = pubkey, IsVinAssociatedWithPubkey is validated once below,
             //   after that they just need to match
-            if(count == -1 && psn->pubkey == pubkey && !psn->UpdatedWithin(STORMNODE_MIN_SSEE_SECONDS)){
+            if(count == -1 && psn->pubkey == pubkey && !psn->UpdatedWithin(BLANKNODE_MIN_SSEE_SECONDS)){
                 psn->UpdateLastSeen();
 
                 if(psn->sigTime < sigTime){ //take the newest entry
@@ -629,53 +635,53 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                     psn->donationPercentage = donationPercentage;
                     psn->Check();
                     if(psn->IsEnabled())
-                        snodeman.RelayStormnodeEntry(vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
+                        snodeman.RelayBlanknodeEntry(vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
                  }
             }
 
             return;
         }
 
-        // make sure the vout that was signed is related to the transaction that spawned the stormnode
-        //  - this is expensive, so it's only done once per stormnode
-        if(!sandStormSigner.IsVinAssociatedWithPubkey(vin, pubkey)) {
+        // make sure the vout that was signed is related to the transaction that spawned the blanknode
+        //  - this is expensive, so it's only done once per blanknode
+        if(!zeroSendSigner.IsVinAssociatedWithPubkey(vin, pubkey)) {
             LogPrintf("ssee - Got mismatched pubkey and vin\n");
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
 
-        if(fDebug) LogPrintf("ssee - Got NEW Stormnode entry %s\n", addr.ToString().c_str());
+        if(fDebug) LogPrintf("ssee - Got NEW Blanknode entry %s\n", addr.ToString().c_str());
 
         // make sure it's still unspent
-        //  - this is checked later by .check() in many places and by ThreadCheckSandStormPool()
+        //  - this is checked later by .check() in many places and by ThreadCheckZeroSendPool()
 
         CValidationState state;
         CTransaction tx = CTransaction();
-        CTxOut vout = CTxOut(STORMNODE_COLLATERAL*COIN, sandStormPool.collateralPubKey);
+        CTxOut vout = CTxOut(BLANKNODE_COLLATERAL*COIN, zeroSendPool.collateralPubKey);
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
         if(AcceptableInputs(mempool, tx, false)){
-            if(fDebug) LogPrintf("ssee - Accepted Stormnode entry %i %i\n", count, current);
+            if(fDebug) LogPrintf("ssee - Accepted Blanknode entry %i %i\n", count, current);
 
-            if(GetInputAge(vin) < STORMNODE_MIN_CONFIRMATIONS){
-                LogPrintf("ssee - Input must have least %d confirmations\n", STORMNODE_MIN_CONFIRMATIONS);
+            if(GetInputAge(vin) < BLANKNODE_MIN_CONFIRMATIONS){
+                LogPrintf("ssee - Input must have least %d confirmations\n", BLANKNODE_MIN_CONFIRMATIONS);
                 Misbehaving(pfrom->GetId(), 20);
                 return;
             }
 
             // verify that sig time is legit in past
-            // should be at least not earlier than block when 1000 FNX tx got STORMNODE_MIN_CONFIRMATIONS
+            // should be at least not earlier than block when 1000 FNX tx got BLANKNODE_MIN_CONFIRMATIONS
             uint256 hashBlock = 0;
             GetTransaction(vin.prevout.hash, tx, hashBlock);
             map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
             if (mi != mapBlockIndex.end() && (*mi).second)
             {
                 CBlockIndex* pSNIndex = (*mi).second; // block for 1000 FNX tx -> 1 confirmation
-                CBlockIndex* pConfIndex = FindBlockByHeight((pSNIndex->nHeight + STORMNODE_MIN_CONFIRMATIONS - 1)); // block where tx got STORMNODE_MIN_CONFIRMATIONS
+                CBlockIndex* pConfIndex = FindBlockByHeight((pSNIndex->nHeight + BLANKNODE_MIN_CONFIRMATIONS - 1)); // block where tx got BLANKNODE_MIN_CONFIRMATIONS
                if(pConfIndex->GetBlockTime() > sigTime)
                {
-                    LogPrintf("ssee - Bad sigTime %d for Stormnode %20s %105s (%i conf block is at %d)\n",
-                              sigTime, addr.ToString(), vin.ToString(), STORMNODE_MIN_CONFIRMATIONS, pConfIndex->GetBlockTime());
+                    LogPrintf("ssee - Bad sigTime %d for Blanknode %20s %105s (%i conf block is at %d)\n",
+                              sigTime, addr.ToString(), vin.ToString(), BLANKNODE_MIN_CONFIRMATIONS, pConfIndex->GetBlockTime());
                     return;
                 }
             }
@@ -689,21 +695,21 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                 donationPercentage = 0;
             }
 
-            // add our stormnode
-            CStormnode sn(addr, vin, pubkey, vchSig, sigTime, pubkey2, protocolVersion, donationAddress, donationPercentage);
+            // add our blanknode
+            CBlanknode sn(addr, vin, pubkey, vchSig, sigTime, pubkey2, protocolVersion, donationAddress, donationPercentage);
             sn.UpdateLastSeen(lastUpdated);
             this->Add(sn);
 
-            // if it matches our stormnodeprivkey, then we've been remotely activated
-            if(pubkey2 == activeStormnode.pubKeyStormnode && protocolVersion == PROTOCOL_VERSION){
-                activeStormnode.EnableHotColdStormNode(vin, addr);
+            // if it matches our blanknodeprivkey, then we've been remotely activated
+            if(pubkey2 == activeBlanknode.pubKeyBlanknode && protocolVersion == PROTOCOL_VERSION){
+                activeBlanknode.EnableHotColdBlankNode(vin, addr);
             }
 
             if(count == -1 && !isLocal)
-                snodeman.RelayStormnodeEntry(vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
+                snodeman.RelayBlanknodeEntry(vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
  
         } else {
-            LogPrintf("ssee - Rejected Stormnode entry %s\n", addr.ToString().c_str());
+            LogPrintf("ssee - Rejected Blanknode entry %s\n", addr.ToString().c_str());
 
             int nDoS = 0;
             if (state.IsInvalid(nDoS))
@@ -716,7 +722,7 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
         }
     }
 
-    else if (strCommand == "sseep") { //SandStorm Election Entry Ping
+    else if (strCommand == "sseep") { //ZeroSend Election Entry Ping
 
         CTxIn vin;
         vector<unsigned char> vchSig;
@@ -736,8 +742,8 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
             return;
         }
 
-        // see if we have this stormnode
-        CStormnode* psn = this->Find(vin);
+        // see if we have this blanknode
+        CBlanknode* psn = this->Find(vin);
         if(psn != NULL && psn->protocolVersion >= MIN_SN_PROTO_VERSION)
         {
             // LogPrintf("sseep - Found corresponding sn for vin: %s\n", vin.ToString().c_str());
@@ -747,16 +753,16 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                 std::string strMessage = psn->addr.ToString() + boost::lexical_cast<std::string>(sigTime) + boost::lexical_cast<std::string>(stop);
 
                 std::string errorMessage = "";
-                if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage))
+                if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("sseep - Got bad Stormnode address signature %s \n", vin.ToString().c_str());
+                    LogPrintf("sseep - Got bad Blanknode address signature %s \n", vin.ToString().c_str());
                     //Misbehaving(pfrom->GetId(), 100);
                     return;
                 }
 
                 psn->lastSseep = sigTime;
 
-                if(!psn->UpdatedWithin(STORMNODE_MIN_SSEEP_SECONDS))
+                if(!psn->UpdatedWithin(BLANKNODE_MIN_SSEEP_SECONDS))
                 {   
                     if(stop) psn->Disable();
                     else
@@ -765,16 +771,16 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                         psn->Check();
                         if(!psn->IsEnabled()) return;
                     }
-                    snodeman.RelayStormnodeEntryPing(vin, vchSig, sigTime, stop);
+                    snodeman.RelayBlanknodeEntryPing(vin, vchSig, sigTime, stop);
                 }
             }
             return;
         }
 
-        if(fDebug) LogPrintf("sseep - Couldn't find Stormnode entry %s\n", vin.ToString().c_str());
+        if(fDebug) LogPrintf("sseep - Couldn't find Blanknode entry %s\n", vin.ToString().c_str());
 
-        std::map<COutPoint, int64_t>::iterator i = mWeAskedForStormnodeListEntry.find(vin.prevout);
-        if (i != mWeAskedForStormnodeListEntry.end())
+        std::map<COutPoint, int64_t>::iterator i = mWeAskedForBlanknodeListEntry.find(vin.prevout);
+        if (i != mWeAskedForBlanknodeListEntry.end())
         {
             int64_t t = (*i).second;
             if (GetTime() < t) return; // we've asked recently
@@ -784,18 +790,18 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
 
         LogPrintf("sseep - Asking source node for missing entry %s\n", vin.ToString().c_str());
         pfrom->PushMessage("sseg", vin);
-        int64_t askAgain = GetTime() + STORMNODE_MIN_SSEEP_SECONDS;
-        mWeAskedForStormnodeListEntry[vin.prevout] = askAgain;
+        int64_t askAgain = GetTime() + BLANKNODE_MIN_SSEEP_SECONDS;
+        mWeAskedForBlanknodeListEntry[vin.prevout] = askAgain;
 
-    } else if (strCommand == "svote") { //Stormnode Vote
+    } else if (strCommand == "svote") { //Blanknode Vote
 
         CTxIn vin;
         vector<unsigned char> vchSig;
         int nVote;
         vRecv >> vin >> vchSig >> nVote;
 
-        // see if we have this Stormnode
-        CStormnode* psn = this->Find(vin);
+        // see if we have this Blanknode
+        CBlanknode* psn = this->Find(vin);
         if(psn != NULL)
         {
             if((GetAdjustedTime() - psn->lastVote) > (60*60))
@@ -803,9 +809,9 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                 std::string strMessage = vin.ToString() + boost::lexical_cast<std::string>(nVote);
 
                 std::string errorMessage = "";
-                if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage))
+                if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("svote - Got bad Stormnode address signature %s \n", vin.ToString().c_str());
+                    LogPrintf("svote - Got bad Blanknode address signature %s \n", vin.ToString().c_str());
                     return;
                 }
 
@@ -821,7 +827,7 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
             return;
         }
 
-    } else if (strCommand == "sseg") { //Get stormnode list or specific entry
+    } else if (strCommand == "sseg") { //Get blanknode list or specific entry
 
         CTxIn vin;
         vRecv >> vin;
@@ -830,8 +836,8 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
             //local network
             if(!pfrom->addr.IsRFC1918() && Params().NetworkID() == CChainParams::MAIN)
             {
-                std::map<CNetAddr, int64_t>::iterator i = mAskedUsForStormnodeList.find(pfrom->addr);
-                if (i != mAskedUsForStormnodeList.end())
+                std::map<CNetAddr, int64_t>::iterator i = mAskedUsForBlanknodeList.find(pfrom->addr);
+                if (i != mAskedUsForBlanknodeList.end())
                 {
                     int64_t t = (*i).second;
                     if (GetTime() < t) {
@@ -841,73 +847,73 @@ void CStormnodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
                     }
                 }
 
-                int64_t askAgain = GetTime() + STORMNODES_SSEG_SECONDS;
-                mAskedUsForStormnodeList[pfrom->addr] = askAgain;
+                int64_t askAgain = GetTime() + BLANKNODES_SSEG_SECONDS;
+                mAskedUsForBlanknodeList[pfrom->addr] = askAgain;
             }
         } //else, asking for a specific node which is ok
 
         int count = this->size();
         int i = 0;
 
-        BOOST_FOREACH(CStormnode& sn, vStormnodes) {
+        BOOST_FOREACH(CBlanknode& sn, vBlanknodes) {
 
             if(sn.addr.IsRFC1918()) continue; //local network
 
             if(sn.IsEnabled())
             {
-                if(fDebug) LogPrintf("sseg - Sending stormnode entry - %s \n", sn.addr.ToString().c_str());
+                if(fDebug) LogPrintf("sseg - Sending blanknode entry - %s \n", sn.addr.ToString().c_str());
                 if(vin == CTxIn()){
                     pfrom->PushMessage("ssee", sn.vin, sn.addr, sn.sig, sn.sigTime, sn.pubkey, sn.pubkey2, count, i, sn.lastTimeSeen, sn.protocolVersion, sn.donationAddress, sn.donationPercentage);
                 } else if (vin == sn.vin) {
                     pfrom->PushMessage("ssee", sn.vin, sn.addr, sn.sig, sn.sigTime, sn.pubkey, sn.pubkey2, count, i, sn.lastTimeSeen, sn.protocolVersion, sn.donationAddress, sn.donationPercentage);
-                    LogPrintf("sseg - Sent 1 Stormnode entries to %s\n", pfrom->addr.ToString().c_str());
+                    LogPrintf("sseg - Sent 1 Blanknode entries to %s\n", pfrom->addr.ToString().c_str());
                     return;
                 }
                 i++;
             }
         }
 
-        LogPrintf("sseg - Sent %d Stormnode entries to %s\n", i, pfrom->addr.ToString().c_str());
+        LogPrintf("sseg - Sent %d Blanknode entries to %s\n", i, pfrom->addr.ToString().c_str());
     }
 
 }
 
-void CStormnodeMan::RelayStormnodeEntry(const CTxIn vin, const CService addr, const std::vector<unsigned char> vchSig, const int64_t nNow, const CPubKey pubkey, const CPubKey pubkey2, const int count, const int current, const int64_t lastUpdated, const int protocolVersion, CScript donationAddress, int donationPercentage)
+void CBlanknodeMan::RelayBlanknodeEntry(const CTxIn vin, const CService addr, const std::vector<unsigned char> vchSig, const int64_t nNow, const CPubKey pubkey, const CPubKey pubkey2, const int count, const int current, const int64_t lastUpdated, const int protocolVersion, CScript donationAddress, int donationPercentage)
 {
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes)
         pnode->PushMessage("ssee", vin, addr, vchSig, nNow, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
 }
 
-void CStormnodeMan::RelayStormnodeEntryPing(const CTxIn vin, const std::vector<unsigned char> vchSig, const int64_t nNow, const bool stop)
+void CBlanknodeMan::RelayBlanknodeEntryPing(const CTxIn vin, const std::vector<unsigned char> vchSig, const int64_t nNow, const bool stop)
 {
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes)
         pnode->PushMessage("sseep", vin, vchSig, nNow, stop);
 }
 
-void CStormnodeMan::Remove(CTxIn vin)
+void CBlanknodeMan::Remove(CTxIn vin)
 {
     LOCK(cs);
 
-    vector<CStormnode>::iterator it = vStormnodes.begin();
-    while(it != vStormnodes.end()){
+    vector<CBlanknode>::iterator it = vBlanknodes.begin();
+    while(it != vBlanknodes.end()){
         if((*it).vin == vin){
-            if(fDebug) LogPrintf("CStormnodeMan: Removing Stormnode %s - %i now\n", (*it).addr.ToString().c_str(), size() - 1);
-            vStormnodes.erase(it);
+            if(fDebug) LogPrintf("CBlanknodeMan: Removing Blanknode %s - %i now\n", (*it).addr.ToString().c_str(), size() - 1);
+            vBlanknodes.erase(it);
             break;
         }
     }
 }
 
-std::string CStormnodeMan::ToString() const
+std::string CBlanknodeMan::ToString() const
 {
     std::ostringstream info;
 
-    info << "stormnodes: " << (int)vStormnodes.size() <<
-            ", peers who asked us for Stormnode list: " << (int)mAskedUsForStormnodeList.size() <<
-            ", peers we asked for Stormnode list: " << (int)mWeAskedForStormnodeList.size() <<
-            ", entries in Stormnode list we asked for: " << (int)mWeAskedForStormnodeListEntry.size() <<
+    info << "blanknodes: " << (int)vBlanknodes.size() <<
+            ", peers who asked us for Blanknode list: " << (int)mAskedUsForBlanknodeList.size() <<
+            ", peers we asked for Blanknode list: " << (int)mWeAskedForBlanknodeList.size() <<
+            ", entries in Blanknode list we asked for: " << (int)mWeAskedForBlanknodeListEntry.size() <<
             ", nSsqCount: " << (int)nSsqCount;
     return info.str();
 }

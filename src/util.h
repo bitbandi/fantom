@@ -94,7 +94,7 @@ T* alignup(T* p)
     return u.ptr;
 }
 
-boost::filesystem::path GetStormnodeConfigFile();
+boost::filesystem::path GetBlanknodeConfigFile();
 
 #ifdef WIN32
 #define MSG_NOSIGNAL        0
@@ -119,18 +119,18 @@ inline void MilliSleep(int64_t n)
 
 //Dark features
 
-extern bool fStormNode;
+extern bool fBlankNode;
 extern bool fLiteMode;
 extern int nInstantXDepth;
-extern int nSandstormRounds;
+extern int nZerosendRounds;
 extern int nAnonymizeFantomAmount;
 extern int nLiquidityProvider;
-extern bool fEnableSandstorm;
-extern int64_t enforceStormnodePaymentsTime;
-extern std::string strStormNodeAddr;
+extern bool fEnableZerosend;
+extern int64_t enforceBlanknodePaymentsTime;
+extern std::string strBlankNodeAddr;
 extern int keysLoaded;
 extern bool fSucessfullyLoaded;
-extern std::vector<int64_t> sandStormDenominations;
+extern std::vector<int64_t> zeroSendDenominations;
 
 extern bool fDebug;
 extern bool fDebugSmsg;

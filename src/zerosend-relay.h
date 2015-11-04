@@ -3,19 +3,19 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef SANDSTORM_RELAY_H
-#define SANDSTORM_RELAY_H
+#ifndef ZEROSEND_RELAY_H
+#define ZEROSEND_RELAY_H
 
 #include "core.h"
 #include "main.h"
-#include "activestormnode.h"
-#include "stormnodeman.h"
+#include "activeblanknode.h"
+#include "blanknodeman.h"
 
 
-class CSandStormRelay
+class CZeroSendRelay
 {
 public:
-	CTxIn vinStormnode;
+	CTxIn vinBlanknode;
     vector<unsigned char> vchSig;
     vector<unsigned char> vchSig2;
     int nBlockHeight;
@@ -23,12 +23,12 @@ public:
     CTxIn in;
     CTxOut out;
 
-    CSandStormRelay();
-    CSandStormRelay(CTxIn& vinStormnodeIn, vector<unsigned char>& vchSigIn, int nBlockHeightIn, int nRelayTypeIn, CTxIn& in2, CTxOut& out2);
+    CZeroSendRelay();
+    CZeroSendRelay(CTxIn& vinBlanknodeIn, vector<unsigned char>& vchSigIn, int nBlockHeightIn, int nRelayTypeIn, CTxIn& in2, CTxOut& out2);
     
     IMPLEMENT_SERIALIZE
     (
-    	READWRITE(vinStormnode);
+    	READWRITE(vinBlanknode);
         READWRITE(vchSig);
         READWRITE(vchSig2);
 		READWRITE(nBlockHeight);

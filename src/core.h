@@ -25,6 +25,7 @@ public:
 
     COutPoint() { SetNull(); }
     COutPoint(uint256 hashIn, unsigned int nIn) { hash = hashIn; n = nIn; }
+    
     IMPLEMENT_SERIALIZE( READWRITE(FLATDATA(*this)); )
     void SetNull() { hash = 0; n = (unsigned int) -1; }
     bool IsNull() const { return (hash == 0 && n == (unsigned int) -1); }
@@ -48,6 +49,12 @@ public:
     {
         return strprintf("COutPoint(%s, %u)", hash.ToString().substr(0,10), n);
     }
+
+    std::string ToStringShort() const
+    {
+        return strprintf("%s-%u", hash.ToString().substr(0,64), n);
+    }
+
 };
 
 /** An inpoint - a combination of a transaction and an index n into its vin */

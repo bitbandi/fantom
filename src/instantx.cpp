@@ -9,9 +9,9 @@
 #include "base58.h"
 #include "protocol.h"
 #include "instantx.h"
-#include "activestormnode.h"
-#include "stormnodeman.h"
-#include "sandstorm.h"
+#include "activeblanknode.h"
+#include "blanknodeman.h"
+#include "zerosend.h"
 #include "spork.h"
 #include <boost/lexical_cast.hpp>
 
@@ -29,12 +29,12 @@ int nCompleteTXLocks;
 //txlock - Locks transaction
 //
 //step 1.) Broadcast intention to lock transaction inputs, "txlreg", CTransaction
-//step 2.) Top 10 stormnodes, open connect to top 1 stormnode. Send "txvote", CTransaction, Signature, Approve
-//step 3.) Top 1 stormnode, waits for 10 messages. Upon success, sends "txlock'
+//step 2.) Top 10 blanknodes, open connect to top 1 blanknode. Send "txvote", CTransaction, Signature, Approve
+//step 3.) Top 1 blanknode, waits for 10 messages. Upon success, sends "txlock'
 
 void ProcessMessageInstantX(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
-    if(fLiteMode) return; //disable all sandstorm/stormnode related functionality
+    if(fLiteMode) return; //disable all zerosend/blanknode related functionality
     if(!IsSporkActive(SPORK_2_INSTANTX)) return;
     if(IsInitialBlockDownload()) return;
 
@@ -138,24 +138,24 @@ void ProcessMessageInstantX(CNode* pfrom, std::string& strCommand, CDataStream& 
         if(ProcessConsensusVote(ctx)){
             //Spam/Dos protection
             /*
-                Stormnodes will sometimes propagate votes before the transaction is known to the client.
+                Blanknodes will sometimes propagate votes before the transaction is known to the client.
                 This tracks those messages and allows it at the same rate of the rest of the network, if
                 a peer violates it, it will simply be ignored
             */
             if(!mapTxLockReq.count(ctx.txHash) && !mapTxLockReqRejected.count(ctx.txHash)){
-                if(!mapUnknownVotes.count(ctx.vinStormnode.prevout.hash)){
-                    mapUnknownVotes[ctx.vinStormnode.prevout.hash] = GetTime()+(60*10);
+                if(!mapUnknownVotes.count(ctx.vinBlanknode.prevout.hash)){
+                    mapUnknownVotes[ctx.vinBlanknode.prevout.hash] = GetTime()+(60*10);
                 }
 
-                if(mapUnknownVotes[ctx.vinStormnode.prevout.hash] > GetTime() &&
-                    mapUnknownVotes[ctx.vinStormnode.prevout.hash] - GetAverageVoteTime() > 60*10){
-                        LogPrintf("ProcessMessageInstantX::txlreq - stormnode is spamming transaction votes: %s %s\n",
-                            ctx.vinStormnode.ToString().c_str(),
+                if(mapUnknownVotes[ctx.vinBlanknode.prevout.hash] > GetTime() &&
+                    mapUnknownVotes[ctx.vinBlanknode.prevout.hash] - GetAverageVoteTime() > 60*10){
+                        LogPrintf("ProcessMessageInstantX::txlreq - blanknode is spamming transaction votes: %s %s\n",
+                            ctx.vinBlanknode.ToString().c_str(),
                             ctx.txHash.ToString().c_str()
                         );
                         return;
                 } else {
-                    mapUnknownVotes[ctx.vinStormnode.prevout.hash] = GetTime()+(60*10);
+                    mapUnknownVotes[ctx.vinBlanknode.prevout.hash] = GetTime()+(60*10);
                 }
             }
             vector<CInv> vInv;
@@ -232,7 +232,7 @@ int64_t CreateNewLock(CTransaction tx)
 
     /*
         Use a blockheight newer than the input.
-        This prevents attackers from using transaction mallibility to predict which stormnodes
+        This prevents attackers from using transaction mallibility to predict which blanknodes
         they'll use.
     */
     int nBlockHeight = (pindexBest->nHeight - nTxAge)+4;
@@ -257,19 +257,19 @@ int64_t CreateNewLock(CTransaction tx)
 // check if we need to vote on this transaction
 void DoConsensusVote(CTransaction& tx, int64_t nBlockHeight)
 {
-    if(!fStormNode) return;
+    if(!fBlankNode) return;
 
-    int n = snodeman.GetStormnodeRank(activeStormnode.vin, nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
+    int n = snodeman.GetBlanknodeRank(activeBlanknode.vin, nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
 
     if(n == -1)
     {
-        if(fDebug) LogPrintf("InstantX::DoConsensusVote - Unknown Stormnode\n");
+        if(fDebug) LogPrintf("InstantX::DoConsensusVote - Unknown Blanknode\n");
         return;
     }
 
     if(n > INSTANTX_SIGNATURES_TOTAL)
     {
-        if(fDebug) LogPrintf("InstantX::DoConsensusVote - Stormnode not in the top %d (%d)\n", INSTANTX_SIGNATURES_TOTAL, n);
+        if(fDebug) LogPrintf("InstantX::DoConsensusVote - Blanknode not in the top %d (%d)\n", INSTANTX_SIGNATURES_TOTAL, n);
         return;
     }
     /*
@@ -279,7 +279,7 @@ void DoConsensusVote(CTransaction& tx, int64_t nBlockHeight)
     if(fDebug) LogPrintf("InstantX::DoConsensusVote - In the top %d (%d)\n", INSTANTX_SIGNATURES_TOTAL, n);
 
     CConsensusVote ctx;
-    ctx.vinStormnode = activeStormnode.vin;
+    ctx.vinBlanknode = activeBlanknode.vin;
     ctx.txHash = tx.GetHash();
     ctx.nBlockHeight = nBlockHeight;
     if(!ctx.Sign()){
@@ -307,30 +307,30 @@ void DoConsensusVote(CTransaction& tx, int64_t nBlockHeight)
 //received a consensus vote
 bool ProcessConsensusVote(CConsensusVote& ctx)
 {
-    int n = snodeman.GetStormnodeRank(ctx.vinStormnode, ctx.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
+    int n = snodeman.GetBlanknodeRank(ctx.vinBlanknode, ctx.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
 
-    CStormnode* psn = snodeman.Find(ctx.vinStormnode);
+    CBlanknode* psn = snodeman.Find(ctx.vinBlanknode);
     if(psn != NULL)
     {
-        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Stormnode ADDR %s %d\n", psn->addr.ToString().c_str(), n);
+        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Blanknode ADDR %s %d\n", psn->addr.ToString().c_str(), n);
     }
 
     if(n == -1)
     {
         //can be caused by past versions trying to vote with an invalid protocol
-        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Unknown Stormnode\n");
+        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Unknown Blanknode\n");
         return false;
     }
 
     if(n > INSTANTX_SIGNATURES_TOTAL)
     {
-        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Stormnode not in the top %d (%d) - %s\n", INSTANTX_SIGNATURES_TOTAL, n, ctx.GetHash().ToString().c_str());
+        if(fDebug) LogPrintf("InstantX::ProcessConsensusVote - Blanknode not in the top %d (%d) - %s\n", INSTANTX_SIGNATURES_TOTAL, n, ctx.GetHash().ToString().c_str());
         return false;
     }
 
     if(!ctx.SignatureValid()) {
         LogPrintf("InstantX::ProcessConsensusVote - Signature invalid\n");
-        //don't ban, it could just be a non-synced stormnode
+        //don't ban, it could just be a non-synced blanknode
         return false;
     }
 
@@ -450,20 +450,20 @@ void CleanTransactionLocksList()
             // loop through Stormodes that responded
             for(int nRank = 0; nRank <= INSTANTX_SIGNATURES_TOTAL; nRank++)
             {
-                CStormnode* psn = snodeman.GetStormnodeByRank(nRank, it->second.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);                
+                CBlanknode* psn = snodeman.GetBlanknodeByRank(nRank, it->second.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);                
                 if(!psn) continue;
 
                 bool fFound = false;
                 BOOST_FOREACH(CConsensusVote& v, it->second.vecConsensusVotes)
                 {
-                    if(psn->vin == v.vinStormnode){ //Stormnode responded
+                    if(psn->vin == v.vinBlanknode){ //Blanknode responded
                         fFound = true;
                     }
                 }
 
                 if(!fFound){
                     //increment a scanning error
-                    CStormnodeScanningError snse(psn->vin, SCANNING_ERROR_IX_NO_RESPONSE, it->second.nBlockHeight);
+                    CBlanknodeScanningError snse(psn->vin, SCANNING_ERROR_IX_NO_RESPONSE, it->second.nBlockHeight);
                     psn->ApplyScanningError(snse);
                 }
             }
@@ -491,7 +491,7 @@ void CleanTransactionLocksList()
 
 uint256 CConsensusVote::GetHash() const
 {
-    return vinStormnode.prevout.hash + vinStormnode.prevout.n + txHash;
+    return vinBlanknode.prevout.hash + vinBlanknode.prevout.n + txHash;
 }
 
 
@@ -501,17 +501,17 @@ bool CConsensusVote::SignatureValid()
     std::string strMessage = txHash.ToString().c_str() + boost::lexical_cast<std::string>(nBlockHeight);
     //LogPrintf("verify strMessage %s \n", strMessage.c_str());
 
-    CStormnode* psn = snodeman.Find(vinStormnode);
+    CBlanknode* psn = snodeman.Find(vinBlanknode);
 
     if(psn == NULL)
     {
-        LogPrintf("InstantX::CConsensusVote::SignatureValid() - Unknown Stormnode\n");
+        LogPrintf("InstantX::CConsensusVote::SignatureValid() - Unknown Blanknode\n");
         return false;
     }
 
-    //LogPrintf("verify addr %s \n", vecStormnodes[0].addr.ToString().c_str());
-    //LogPrintf("verify addr %s \n", vecStormnodes[1].addr.ToString().c_str());
-    //LogPrintf("verify addr %d %s \n", n, vecStormnodes[n].addr.ToString().c_str());
+    //LogPrintf("verify addr %s \n", vecBlanknodes[0].addr.ToString().c_str());
+    //LogPrintf("verify addr %s \n", vecBlanknodes[1].addr.ToString().c_str());
+    //LogPrintf("verify addr %d %s \n", n, vecBlanknodes[n].addr.ToString().c_str());
 
     CScript pubkey;
     pubkey =GetScriptForDestination(psn->pubkey2.GetID());
@@ -520,7 +520,7 @@ bool CConsensusVote::SignatureValid()
     CFantomAddress address2(address1);
     //LogPrintf("verify pubkey2 %s \n", address2.ToString().c_str());
 
-    if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchStormNodeSignature, strMessage, errorMessage)) {
+    if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchBlankNodeSignature, strMessage, errorMessage)) {
         LogPrintf("InstantX::CConsensusVote::SignatureValid() - Verify message failed\n");
         return false;
     }
@@ -536,11 +536,11 @@ bool CConsensusVote::Sign()
     CPubKey pubkey2;
     std::string strMessage = txHash.ToString().c_str() + boost::lexical_cast<std::string>(nBlockHeight);
     //LogPrintf("signing strMessage %s \n", strMessage.c_str());
-    //LogPrintf("signing privkey %s \n", strStormNodePrivKey.c_str());
+    //LogPrintf("signing privkey %s \n", strBlankNodePrivKey.c_str());
 
-    if(!sandStormSigner.SetKey(strStormNodePrivKey, errorMessage, key2, pubkey2))
+    if(!zeroSendSigner.SetKey(strBlankNodePrivKey, errorMessage, key2, pubkey2))
     {
-        LogPrintf("CActiveStormnode::RegisterAsStormNode() - ERROR: Invalid stormnodeprivkey: '%s'\n", errorMessage.c_str());
+        LogPrintf("CActiveBlanknode::RegisterAsBlankNode() - ERROR: Invalid blanknodeprivkey: '%s'\n", errorMessage.c_str());
         return false;
     }
 
@@ -551,13 +551,13 @@ bool CConsensusVote::Sign()
     CFantomAddress address2(address1);
     //LogPrintf("signing pubkey2 %s \n", address2.ToString().c_str());
 
-    if(!sandStormSigner.SignMessage(strMessage, errorMessage, vchStormNodeSignature, key2)) {
-        LogPrintf("CActiveStormnode::RegisterAsStormNode() - Sign message failed");
+    if(!zeroSendSigner.SignMessage(strMessage, errorMessage, vchBlankNodeSignature, key2)) {
+        LogPrintf("CActiveBlanknode::RegisterAsBlankNode() - Sign message failed");
         return false;
     }
 
-    if(!sandStormSigner.VerifyMessage(pubkey2, vchStormNodeSignature, strMessage, errorMessage)) {
-        LogPrintf("CActiveStormnode::RegisterAsStormNode() - Verify message failed");
+    if(!zeroSendSigner.VerifyMessage(pubkey2, vchBlankNodeSignature, strMessage, errorMessage)) {
+        LogPrintf("CActiveBlanknode::RegisterAsBlankNode() - Verify message failed");
         return false;
     }
 
@@ -570,17 +570,17 @@ bool CTransactionLock::SignaturesValid()
 
     BOOST_FOREACH(CConsensusVote vote, vecConsensusVotes)
     {
-        int n = snodeman.GetStormnodeRank(vote.vinStormnode, vote.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
+        int n = snodeman.GetBlanknodeRank(vote.vinBlanknode, vote.nBlockHeight, MIN_INSTANTX_PROTO_VERSION);
 
         if(n == -1)
         {
-            LogPrintf("InstantX::DoConsensusVote - Unknown Stormnode\n");
+            LogPrintf("InstantX::DoConsensusVote - Unknown Blanknode\n");
             return false;
         }
 
         if(n > INSTANTX_SIGNATURES_TOTAL)
         {
-            LogPrintf("InstantX::DoConsensusVote - Stormnode not in the top %s\n", INSTANTX_SIGNATURES_TOTAL);
+            LogPrintf("InstantX::DoConsensusVote - Blanknode not in the top %s\n", INSTANTX_SIGNATURES_TOTAL);
             return false;
         }
 

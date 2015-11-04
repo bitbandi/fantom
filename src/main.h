@@ -19,15 +19,15 @@
 
 class CValidationState;
 
-static const int STORMNODE_PAYMENT_START = 10500;
-static const int TESTNET_STORMNODE_PAYMENT_START = 10000;
+static const int BLANKNODE_PAYMENT_START = 10500;
+static const int TESTNET_BLANKNODE_PAYMENT_START = 10000;
 
-static const int64_t STORMNODE_COLLATERAL = (512*COIN);
-static const int64_t SANDSTORM_COLLATERAL = (0.5*COIN);
-static const int64_t SANDSTORM_POOL_MAX = (1024.15*COIN);
+static const int64_t BLANKNODE_COLLATERAL = (512*COIN);
+static const int64_t ZEROSEND_COLLATERAL = (0.5*COIN);
+static const int64_t ZEROSEND_POOL_MAX = (1024.15*COIN);
 
 /*
-    At 15 signatures, 1/2 of the stormnode network can be owned by
+    At 15 signatures, 1/2 of the blanknode network can be owned by
     one party without comprimising the security of InstantX
     (1000/2150.0)**15 = 1.031e-05
 */
@@ -177,7 +177,7 @@ bool AbortNode(const std::string &msg, const std::string &userMessage="");
 /** Increase a node's misbehavior score. */
 void Misbehaving(NodeId nodeid, int howmuch);
 
-int64_t GetStormnodePayment(int nHeight, int64_t blockValue);
+int64_t GetBlanknodePayment(int nHeight, int64_t blockValue);
 
 
 /** Position on disk for a particular transaction. */

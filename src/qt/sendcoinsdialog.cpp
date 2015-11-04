@@ -36,7 +36,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 
 #if QT_VERSION >= 0x040700
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a Fantom address (e.g. FmTLDsQnLuUtg2AjCQ3Nv1K8eEqzEhDjb1))"));
+    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a Fantom address (e.g. D7fjE4R4r2RoEdqYk3QsAqFckyf9pRHN6i))"));
 #endif
 
     addEntry();
@@ -49,6 +49,15 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
+    
+    // Fantom specific
+    if(fLiteMode) {
+        ui->checkUseZerosend->setChecked(false);
+        ui->checkUseZerosend->setVisible(false);
+        ui->checkInstantX->setVisible(false);
+        CoinControlDialog::coinControl->useZeroSend = false;
+        CoinControlDialog::coinControl->useInstantX = false;
+    }
     connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     connect(ui->checkInstantX, SIGNAL(stateChanged ( int )), this, SLOT(updateInstantX()));
 
@@ -512,6 +521,8 @@ void SendCoinsDialog::coinControlUpdateLabels()
         if(entry)
             CoinControlDialog::payAmounts.append(entry->getValue().amount);
     }
+
+    ui->checkUseZerosend->setChecked(CoinControlDialog::coinControl->useZeroSend);
 
     if (CoinControlDialog::coinControl->HasSelected())
     {

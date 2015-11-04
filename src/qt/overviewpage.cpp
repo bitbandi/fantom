@@ -26,7 +26,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(FantomUnits::FNX)
+    TxViewDelegate(): QAbstractItemDelegate(), unit(FantomUnits::FCX)
     {
 
     }
@@ -80,7 +80,7 @@ public:
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(fUseBlackTheme ? QColor(248, 248, 255) : option.palette.color(QPalette::Text));
+        painter->setPen(fUseBlackTheme ? QColor(80, 0, 120) : option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -248,7 +248,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(ui->toggleZerosend, SIGNAL(clicked()), this, SLOT(toggleZerosend()));
     }
 
-    // update the display unit, to not use the default ("FNX")
+    // update the display unit, to not use the default ("FCX")
     updateDisplayUnit();
 }
 
@@ -292,6 +292,13 @@ void OverviewPage::updateZerosendProgress()
         ui->zerosendProgress->setValue(0);
         QString s(tr("No inputs detected"));
         ui->zerosendProgress->setToolTip(s);
+        // when balance is zero just show info from settings
+        QString strSettings = FantomUnits::formatWithUnit(
+                    walletModel->getOptionsModel()->getDisplayUnit(),
+                    nAnonymizeFantomAmount * COIN
+                ) + " / " + tr("%n Rounds", "", nZerosendRounds);
+
+        ui->labelAmountRounds->setText(strSettings);
         return;
     }
 
@@ -304,10 +311,10 @@ void OverviewPage::updateZerosendProgress()
     }
 
     //Get the anon threshold
-    int64_t nMaxToAnonymize = nAnonymizeFantomAmount*COIN;
+    int64_t nMaxToAnonymize = pwalletMain->GetAnonymizableBalance(true);
 
-    // If it's more than the wallet amount, limit to that.
-    if(nMaxToAnonymize > nBalance) nMaxToAnonymize = nBalance;
+    // If it's more than the anon threshold, limit to that.
+    if(nMaxToAnonymize > nAnonymizeFantomAmount*COIN) nMaxToAnonymize = nAnonymizeFantomAmount*COIN;
 
     if(nMaxToAnonymize == 0) return;
 
@@ -319,7 +326,6 @@ void OverviewPage::updateZerosendProgress()
     {
         denomPart = (float)pwalletMain->GetNormalizedAnonymizedBalance() / denominatedBalance;
         denomPart = denomPart > 1 ? 1 : denomPart;
-        if(denomPart == 1 && nMaxToAnonymize > denominatedBalance) nMaxToAnonymize = denominatedBalance;
     }
 
     // % of fully anonymized balance
@@ -337,10 +343,38 @@ void OverviewPage::updateZerosendProgress()
 
     ui->zerosendProgress->setValue(progress);
 
-    std::ostringstream convert;
-    convert << "Progress: " << progress << "%, inputs have an average of " << pwalletMain->GetAverageAnonymizedRounds() << " of " << nZerosendRounds << " rounds";
-    QString s(convert.str().c_str());
-    ui->zerosendProgress->setToolTip(s);
+    QString strToolPip = tr("Progress: %1% (inputs have an average of %2 of %n rounds)", "", nZerosendRounds).arg(progress).arg(pwalletMain->GetAverageAnonymizedRounds());
+    ui->zerosendProgress->setToolTip(strToolPip);
+
+    QString strSettings;
+    if(nMaxToAnonymize >= nAnonymizeFantomAmount * COIN) {
+        ui->labelAmountRounds->setToolTip(tr("Found enough compatible inputs to anonymize %1")
+                                          .arg(FantomUnits::formatWithUnit(
+                                                   walletModel->getOptionsModel()->getDisplayUnit(),
+                                                   nAnonymizeFantomAmount * COIN
+                                               )));
+        strSettings = FantomUnits::formatWithUnit(
+                    walletModel->getOptionsModel()->getDisplayUnit(),
+                    nAnonymizeFantomAmount * COIN
+                ) + " / " + tr("%n Rounds", "", nZerosendRounds);
+    } else {
+        ui->labelAmountRounds->setToolTip(tr("Not enough compatible inputs to anonymize <span style='color:red;'>%1</span>,<br/>"
+                                             "will anonymize <span style='color:red;'>%2</span> instead")
+                                          .arg(FantomUnits::formatWithUnit(
+                                                   walletModel->getOptionsModel()->getDisplayUnit(),
+                                                   nAnonymizeFantomAmount * COIN
+                                               ))
+                                          .arg(FantomUnits::formatWithUnit(
+                                                   walletModel->getOptionsModel()->getDisplayUnit(),
+                                                   nMaxToAnonymize
+                                               )));
+        strSettings = "<span style='color:red;'>" + FantomUnits::formatWithUnit(
+                    walletModel->getOptionsModel()->getDisplayUnit(),
+                    nMaxToAnonymize
+                ) + " / " + tr("%n Rounds", "", nZerosendRounds) + "</span>";
+    }
+
+    ui->labelAmountRounds->setText(strSettings);
 }
 
 
@@ -355,15 +389,6 @@ void OverviewPage::zeroSendStatus()
         lastNewBlock = GetTime();
 
         updateZerosendProgress();
-
-        QString strSettings(" " + tr("Rounds"));
-        strSettings.prepend(QString::number(nZerosendRounds)).prepend(" / ");
-        strSettings.prepend(FantomUnits::formatWithUnit(
-            walletModel->getOptionsModel()->getDisplayUnit(),
-            nAnonymizeFantomAmount * COIN)
-        );
-
-        ui->labelAmountRounds->setText(strSettings);
     }
 
     if(!fEnableZerosend) {
@@ -398,7 +423,7 @@ void OverviewPage::zeroSendStatus()
     std::ostringstream convert;
 
     if(state == POOL_STATUS_IDLE) {
-        convert << tr("Darksend is idle.").toStdString();
+        convert << tr("Zerosend is idle.").toStdString();
     } else if(state == POOL_STATUS_ACCEPTING_ENTRIES) {
         if(entries == 0) {
             if(zeroSendPool.strAutoDenomResult.size() == 0){

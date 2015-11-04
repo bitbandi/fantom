@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = Fantom
-VERSION = 1.0.0.0
+VERSION = 1.2.0
 
 greaterThan(QT_MAJOR_VERSION, 5) {
     INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
@@ -289,6 +289,7 @@ HEADERS += src/qt/fantomgui.h \
     src/qt/zerosendconfig.h \
     src/blanknode.h \ 
     src/blanknode-pos.h \
+	src/blanknode-payments.h \
     src/zerosend.h \    
     src/zerosend-relay.h \
     src/instantx.h \
@@ -434,6 +435,7 @@ SOURCES += src/qt/fantom.cpp src/qt/fantomgui.cpp \
     src/zerosend.cpp \
     src/zerosend-relay.cpp \
     src/rpczerosend.cpp \
+    src/blanknode-payments.cpp \
     src/instantx.cpp \
     src/activeblanknode.cpp \
     src/spork.cpp \
