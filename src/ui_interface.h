@@ -16,7 +16,7 @@
 class CBasicKeyStore;
 class CWallet;
 class uint256;
-class CBlankNodeConfig;
+class CStormNodeConfig;
 class CSignedMarketListing;
 class CBuyRequest;
 
@@ -105,7 +105,7 @@ public:
      */
     boost::signals2::signal<void (const uint256 &hash, ChangeType status)> NotifyAlertChanged;
 
-    boost::signals2::signal<void (CBlankNodeConfig nodeConfig)> NotifyBlankNodeChanged;
+    boost::signals2::signal<void (CStormNodeConfig nodeConfig)> NotifyStormNodeChanged;
 
     boost::signals2::signal<void (std::string category)> NotifyMarketCategory;
 

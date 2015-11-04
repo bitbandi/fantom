@@ -51,10 +51,10 @@ int64_t GetAverageVoteTime();
 class CConsensusVote
 {
 public:
-    CTxIn vinBlanknode;
+    CTxIn vinStormnode;
     uint256 txHash;
     int nBlockHeight;
-    std::vector<unsigned char> vchBlankNodeSignature;
+    std::vector<unsigned char> vchStormNodeSignature;
 
     uint256 GetHash() const;
 
@@ -64,8 +64,8 @@ public:
     IMPLEMENT_SERIALIZE
     (
         READWRITE(txHash);
-        READWRITE(vinBlanknode);
-        READWRITE(vchBlankNodeSignature);
+        READWRITE(vinStormnode);
+        READWRITE(vchStormNodeSignature);
         READWRITE(nBlockHeight);
     )
 };

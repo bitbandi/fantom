@@ -41,14 +41,14 @@ static const int PROTOCOL_VERSION = 60020;
 static const int INIT_PROTO_VERSION = 60020;
 
 // disconnect from peers older than this proto version
-static const int MIN_ZEROSEND_PROTO_VERSION = 60020;
+static const int MIN_SANDSTORM_PROTO_VERSION = 60020;
 
 // disconnect from peers older than this proto version
 static const int MIN_PEER_PROTO_VERSION = 60020;
 
 static const int MIN_INSTANTX_PROTO_VERSION = 60020;
 
-//disconnect from Blanknodes older than this proto version
+//disconnect from Stormnodes older than this proto version
 static const int MIN_SN_PROTO_VERSION = 60020;
 
 // nTime field added to CAddress, starting with this version;

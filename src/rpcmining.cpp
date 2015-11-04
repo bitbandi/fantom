@@ -502,8 +502,8 @@ Value getblocktemplate(const Array& params, bool fHelp)
             "        { ... }                       (json object) vote candidate\n"
             "        ,...\n"
             "  ],\n"
-            "  \"blanknode_payments\" : true|false,         (boolean) true, if blanknode payments are enabled"
-            "  \"enforce_blanknode_payments\" : true|false  (boolean) true, if blanknode payments are enforced");
+            "  \"stormnode_payments\" : true|false,         (boolean) true, if stormnode payments are enabled"
+            "  \"enforce_stormnode_payments\" : true|false  (boolean) true, if stormnode payments are enforced");
 
     std::string strMode = "template";
     if (params.size() > 0)

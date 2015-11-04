@@ -77,18 +77,18 @@ bool CWalletDB::ReadStealthAddress(CStealthAddress& sxAddr)
     return Read(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey), sxAddr);
 }
 
-bool CWalletDB::WriteBlankNodeConfig(std::string sAlias, const CBlankNodeConfig& nodeConfig)
+bool CWalletDB::WriteStormNodeConfig(std::string sAlias, const CStormNodeConfig& nodeConfig)
 {
     nWalletDBUpdated++;
     return Write(std::make_pair(std::string("storm"), sAlias), nodeConfig, true);
 }
 
-bool CWalletDB::ReadBlankNodeConfig(std::string sAlias, CBlankNodeConfig& nodeConfig)
+bool CWalletDB::ReadStormNodeConfig(std::string sAlias, CStormNodeConfig& nodeConfig)
 {
     return Read(std::make_pair(std::string("storm"), sAlias), nodeConfig);
 }
 
-bool CWalletDB::EraseBlankNodeConfig(std::string sAlias)
+bool CWalletDB::EraseStormNodeConfig(std::string sAlias)
 {
     nWalletDBUpdated++;
     return Erase(std::make_pair(std::string("storm"), sAlias));
@@ -614,9 +614,9 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 	{
 	    std::string sAlias;
 	    ssKey >> sAlias;
-	    CBlankNodeConfig blankNodeConfig;
-	    ssValue >> blankNodeConfig;
-	    pwallet->mapMyBlankNodes.insert(make_pair(sAlias, blankNodeConfig));
+	    CStormNodeConfig stormNodeConfig;
+	    ssValue >> stormNodeConfig;
+	    pwallet->mapMyStormNodes.insert(make_pair(sAlias, stormNodeConfig));
 	}
     } catch (...)
     {

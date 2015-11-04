@@ -20,8 +20,8 @@
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "instantx.h"
-#include "zerosend.h"
-#include "blanknodeman.h"
+#include "sandstorm.h"
+#include "stormnodeman.h"
 #include "spork.h"
 #include "smessage.h"
 #include "market.h"
@@ -2471,30 +2471,30 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     }
 
 
-    // ----------- blanknode payments -----------
+    // ----------- stormnode payments -----------
 
-    bool BlanknodePayments = false;
+    bool StormnodePayments = false;
 
 
-    if(pindexBest->nHeight+1 >= BLANKNODE_PAYMENT_START) BlanknodePayments = true;
+    if(pindexBest->nHeight+1 >= STORMNODE_PAYMENT_START) StormnodePayments = true;
     
 
-    if(!IsSporkActive(SPORK_1_BLANKNODE_PAYMENTS_ENFORCEMENT)){
-        BlanknodePayments = false;
-        if(fDebug) LogPrintf("CheckBlock() : Blanknode payment enforcement is off\n");
+    if(!IsSporkActive(SPORK_1_STORMNODE_PAYMENTS_ENFORCEMENT)){
+        StormnodePayments = false;
+        if(fDebug) LogPrintf("CheckBlock() : Stormnode payment enforcement is off\n");
     }
 
-    if(BlanknodePayments)
+    if(StormnodePayments)
     {
         LOCK2(cs_main, mempool.cs);
 
         CBlockIndex *pindex = pindexBest;
         if(pindex != NULL){
             if(pindex->GetBlockHash() == hashPrevBlock){
-                CAmount blanknodePaymentAmount = GetBlanknodePayment(pindex->nHeight+1, vtx[0].GetValueOut());
+                CAmount stormnodePaymentAmount = GetStormnodePayment(pindex->nHeight+1, vtx[0].GetValueOut());
                 bool fIsInitialDownload = IsInitialBlockDownload();
 
-                // If we don't already have its previous block, skip blanknode payment step
+                // If we don't already have its previous block, skip stormnode payment step
                 if (!fIsInitialDownload && pindex != NULL)
                 {
                     bool foundPaymentAmount = false;
@@ -2502,19 +2502,19 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     bool foundPaymentAndPayee = false;
 
                     CScript payee;
-                    if(!blanknodePayments.GetBlockPayee(pindexBest->nHeight+1, payee) || payee == CScript()){
+                    if(!stormnodePayments.GetBlockPayee(pindexBest->nHeight+1, payee) || payee == CScript()){
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
-                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific blanknode payments %d\n", pindexBest->nHeight+1); }
+                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific stormnode payments %d\n", pindexBest->nHeight+1); }
                     }
 
                     for (unsigned int i = 0; i < vtx[0].vout.size(); i++) {
-                        if(vtx[0].vout[i].nValue == blanknodePaymentAmount )
+                        if(vtx[0].vout[i].nValue == stormnodePaymentAmount )
                             foundPaymentAmount = true;
                         if(vtx[0].vout[i].scriptPubKey == payee )
                             foundPayee = true;
-                        if(vtx[0].vout[i].nValue == blanknodePaymentAmount && vtx[0].vout[i].scriptPubKey == payee)
+                        if(vtx[0].vout[i].nValue == stormnodePaymentAmount && vtx[0].vout[i].scriptPubKey == payee)
                             foundPaymentAndPayee = true;
                     }
 
@@ -2523,22 +2523,22 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     CFantomAddress address2(address1);
 
                     if(!foundPaymentAndPayee) {
-                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find blanknode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, blanknodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
-                        return DoS(100, error("CheckBlock() : Couldn't find blanknode payment or payee"));
+                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find stormnode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, stormnodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
+                        return DoS(100, error("CheckBlock() : Couldn't find stormnode payment or payee"));
                     } else {
-                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, blanknodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
+                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, stormnodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                     }
                 } else {
-                    if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping blanknode payment check %d\n", pindexBest->nHeight+1); }
+                    if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping stormnode payment check %d\n", pindexBest->nHeight+1); }
                 }
             } else {
-                if(fDebug) { LogPrintf("CheckBlock() : Skipping blanknode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
+                if(fDebug) { LogPrintf("CheckBlock() : Skipping stormnode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
             }
         } else {
-            if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping blanknode payment check\n"); }
+            if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping stormnode payment check\n"); }
         }
     } else {
-        if(fDebug) { LogPrintf("CheckBlock() : skipping blanknode payment checks\n"); }
+        if(fDebug) { LogPrintf("CheckBlock() : skipping stormnode payment checks\n"); }
     }
 
 
@@ -2845,9 +2845,9 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
     if(!fLiteMode){
         if (!fImporting && !fReindex && pindexBest->nHeight > Checkpoints::GetTotalBlocksEstimate()){
-            zeroSendPool.NewBlock();
-            blanknodePayments.ProcessBlock(GetHeight()+10);
-            snscan.DoBlanknodePOSChecks();
+            sandStormPool.NewBlock();
+            stormnodePayments.ProcessBlock(GetHeight()+10);
+            snscan.DoStormnodePOSChecks();
         }
     }
 
@@ -3324,8 +3324,8 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
         return mapTxLockVote.count(inv.hash);
     case MSG_SPORK:
         return mapSporks.count(inv.hash);
-    case MSG_BLANKNODE_WINNER:
-        return mapSeenBlanknodeVotes.count(inv.hash);
+    case MSG_STORMNODE_WINNER:
+        return mapSeenStormnodeVotes.count(inv.hash);
     }
     // Don't know what it is, just say we already got one
     return true;
@@ -3393,14 +3393,14 @@ void static ProcessGetData(CNode* pfrom)
                    string txHash = inv.hash.ToString().c_str();
                    if(fDebug) LogPrintf("ProcessGetData -- txHash %d \n", txHash);
 
-                    if(mapZerosendBroadcastTxes.count(inv.hash)){
+                    if(mapSandstormBroadcastTxes.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
                         ss <<
-                            mapZerosendBroadcastTxes[inv.hash].tx <<
-                            mapZerosendBroadcastTxes[inv.hash].vin <<
-                            mapZerosendBroadcastTxes[inv.hash].vchSig <<
-                            mapZerosendBroadcastTxes[inv.hash].sigTime;
+                            mapSandstormBroadcastTxes[inv.hash].tx <<
+                            mapSandstormBroadcastTxes[inv.hash].vin <<
+                            mapSandstormBroadcastTxes[inv.hash].vchSig <<
+                            mapSandstormBroadcastTxes[inv.hash].sigTime;
 
                         pfrom->PushMessage("sstx", ss);
                         pushed = true;
@@ -3442,20 +3442,20 @@ void static ProcessGetData(CNode* pfrom)
                         pushed = true;
                     }
                 }
-                if (!pushed && inv.type == MSG_BLANKNODE_WINNER) {
-                    if(mapSeenBlanknodeVotes.count(inv.hash)){
+                if (!pushed && inv.type == MSG_STORMNODE_WINNER) {
+                    if(mapSeenStormnodeVotes.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
-                        ss << mapSeenBlanknodeVotes[inv.hash];
+                        ss << mapSeenStormnodeVotes[inv.hash];
                         pfrom->PushMessage("snw", ss);
                         pushed = true;
                     }
                 }
-                if (!pushed && inv.type == MSG_BLANKNODE_SCANNING_ERROR) {
-                    if(mapBlanknodeScanningErrors.count(inv.hash)){
+                if (!pushed && inv.type == MSG_STORMNODE_SCANNING_ERROR) {
+                    if(mapStormnodeScanningErrors.count(inv.hash)){
                         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                         ss.reserve(1000);
-                        ss << mapBlanknodeScanningErrors[inv.hash];
+                        ss << mapStormnodeScanningErrors[inv.hash];
                         pfrom->PushMessage("snse", ss);
                         pushed = true;
                     }
@@ -3836,7 +3836,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         vector<uint256> vEraseQueue;
         CTransaction tx;
 
-        //blanknode signed transaction
+        //stormnode signed transaction
         bool allowFree = false;
         CTxIn vin;
         vector<unsigned char> vchSig;
@@ -3848,37 +3848,37 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             //these allow sasternodes to publish a limited amount of free transactions
             vRecv >> tx >> vin >> vchSig >> sigTime;
 
-            CBlanknode* psn = snodeman.Find(vin);
+            CStormnode* psn = snodeman.Find(vin);
                 if(psn != NULL)
                 {
                     if(!psn->allowFreeTx){
-                        //multiple peers can send us a valid blanknode transaction
-                        if(fDebug) LogPrintf("sstx: Blanknode sending too many transactions %s\n", tx.GetHash().ToString().c_str());
+                        //multiple peers can send us a valid stormnode transaction
+                        if(fDebug) LogPrintf("sstx: Stormnode sending too many transactions %s\n", tx.GetHash().ToString().c_str());
                         return true;
                     }
 
                     std::string strMessage = tx.GetHash().ToString() + boost::lexical_cast<std::string>(sigTime);
 
                     std::string errorMessage = "";
-                    if(!zeroSendSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage)){
-                        LogPrintf("sstx: Got bad blanknode address signature %s \n", vin.ToString().c_str());
+                    if(!sandStormSigner.VerifyMessage(psn->pubkey2, vchSig, strMessage, errorMessage)){
+                        LogPrintf("sstx: Got bad stormnode address signature %s \n", vin.ToString().c_str());
                         //pfrom->Misbehaving(20);
                         return false;
                     }
 
-                    LogPrintf("sstx: Got Blanknode transaction %s\n", tx.GetHash().ToString().c_str());
+                    LogPrintf("sstx: Got Stormnode transaction %s\n", tx.GetHash().ToString().c_str());
 
                     allowFree = true;
                     psn->allowFreeTx = false;
 
-                    if(!mapZerosendBroadcastTxes.count(tx.GetHash())){
-                        CZerosendBroadcastTx sstx;
+                    if(!mapSandstormBroadcastTxes.count(tx.GetHash())){
+                        CSandstormBroadcastTx sstx;
                         sstx.tx = tx;
                         sstx.vin = vin;
                         sstx.vchSig = vchSig;
                         sstx.sigTime = sigTime;
 
-                        mapZerosendBroadcastTxes.insert(make_pair(tx.GetHash(), sstx));
+                        mapSandstormBroadcastTxes.insert(make_pair(tx.GetHash(), sstx));
                 }
             }
         }
@@ -4112,12 +4112,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     else
     {   
         MarketProcessMessage(pfrom, strCommand, vRecv);
-        zeroSendPool.ProcessMessageZerosend(pfrom, strCommand, vRecv);
+        sandStormPool.ProcessMessageSandstorm(pfrom, strCommand, vRecv);
         snodeman.ProcessMessage(pfrom, strCommand, vRecv);
-        ProcessMessageBlanknodePayments(pfrom, strCommand, vRecv);
+        ProcessMessageStormnodePayments(pfrom, strCommand, vRecv);
         ProcessMessageInstantX(pfrom, strCommand, vRecv);
         ProcessSpork(pfrom, strCommand, vRecv);
-        ProcessMessageBlanknodePOS(pfrom, strCommand, vRecv);
+        ProcessMessageStormnodePOS(pfrom, strCommand, vRecv);
     if (fSecMsgEnabled)
         SecureMsgReceiveData(pfrom, strCommand, vRecv);
         // Ignore unknown commands for extensibility
@@ -4442,7 +4442,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 
 
-int64_t GetBlanknodePayment(int nHeight, int64_t blockValue)
+int64_t GetStormnodePayment(int nHeight, int64_t blockValue)
 {
     int64_t ret = blockValue * 2/3; //67%
 

@@ -2,25 +2,25 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ZEROSEND_H
-#define ZEROSEND_H
+#ifndef SANDSTORM_H
+#define SANDSTORM_H
 
 //#include "primitives/transaction.h"
 #include "main.h"
 #include "sync.h"
-#include "blanknode.h"
-#include "activeblanknode.h"
-#include "blanknodeman.h"
-#include "zerosend-relay.h"
+#include "stormnode.h"
+#include "activestormnode.h"
+#include "stormnodeman.h"
+#include "sandstorm-relay.h"
 
 class CTxIn;
-class CZerosendPool;
-class CZeroSendSigner;
-class CBlankNodeVote;
+class CSandstormPool;
+class CSandStormSigner;
+class CStormNodeVote;
 class CFantomAddress;
-class CZerosendQueue;
-class CZerosendBroadcastTx;
-class CActiveBlanknode;
+class CSandstormQueue;
+class CSandstormBroadcastTx;
+class CActiveStormnode;
 
 // pool states for mixing
 #define POOL_MAX_TRANSACTIONS                  3 // wait for X transactions to merge and publish
@@ -36,30 +36,30 @@ class CActiveBlanknode;
 #define POOL_STATUS_SUCCESS                    8 // success
 
 // status update message constants
-#define BLANKNODE_ACCEPTED                    1
-#define BLANKNODE_REJECTED                    0
-#define BLANKNODE_RESET                       -1
+#define STORMNODE_ACCEPTED                    1
+#define STORMNODE_REJECTED                    0
+#define STORMNODE_RESET                       -1
 
-#define ZEROSEND_QUEUE_TIMEOUT                 240
-#define ZEROSEND_SIGNING_TIMEOUT               120
+#define SANDSTORM_QUEUE_TIMEOUT                 240
+#define SANDSTORM_SIGNING_TIMEOUT               120
 
 // used for anonymous relaying of inputs/outputs/sigs
-#define ZEROSEND_RELAY_IN                 1
-#define ZEROSEND_RELAY_OUT                2
-#define ZEROSEND_RELAY_SIG                3
+#define SANDSTORM_RELAY_IN                 1
+#define SANDSTORM_RELAY_OUT                2
+#define SANDSTORM_RELAY_SIG                3
 
-extern CZerosendPool zeroSendPool;
-extern CZeroSendSigner zeroSendSigner;
-extern std::vector<CZerosendQueue> vecZerosendQueue;
-extern std::string strBlankNodePrivKey;
-extern map<uint256, CZerosendBroadcastTx> mapZerosendBroadcastTxes;
-extern CActiveBlanknode activeBlanknode;
+extern CSandstormPool sandStormPool;
+extern CSandStormSigner sandStormSigner;
+extern std::vector<CSandstormQueue> vecSandstormQueue;
+extern std::string strStormNodePrivKey;
+extern map<uint256, CSandstormBroadcastTx> mapSandstormBroadcastTxes;
+extern CActiveStormnode activeStormnode;
 
-// get the Zerosend chain depth for a given input
-int GetInputZerosendRounds(CTxIn in, int rounds=0);
+// get the Sandstorm chain depth for a given input
+int GetInputSandstormRounds(CTxIn in, int rounds=0);
 
 
-// Holds an Zerosend input
+// Holds an Sandstorm input
 class CTxSSIn : public CTxIn
 {
 public:
@@ -77,7 +77,7 @@ public:
     }
 };
 
-/** Holds a Zerosend output
+/** Holds a Sandstorm output
  */
 class CTxSSOut : public CTxOut
 {
@@ -93,8 +93,8 @@ public:
     }
 };
 
-// A clients transaction in the zerosend pool
-class CZeroSendEntry
+// A clients transaction in the sandstorm pool
+class CSandStormEntry
 {
 public:
     bool isSet;
@@ -105,7 +105,7 @@ public:
     CTransaction txSupporting;
     int64_t addedTime;
 
-    CZeroSendEntry()
+    CSandStormEntry()
     {
         isSet = false;
         collateral = CTransaction();
@@ -148,15 +148,15 @@ public:
 
     bool IsExpired()
     {
-        return (GetTime() - addedTime) > ZEROSEND_QUEUE_TIMEOUT;// 120 seconds
+        return (GetTime() - addedTime) > SANDSTORM_QUEUE_TIMEOUT;// 120 seconds
     }
 };
 
 
 //
-// A currently inprogress zerosend merge and denomination information
+// A currently inprogress sandstorm merge and denomination information
 //
-class CZerosendQueue
+class CSandstormQueue
 {
 public:
     CTxIn vin;
@@ -165,7 +165,7 @@ public:
     bool ready; //ready for submit
     std::vector<unsigned char> vchSig;
     
-    CZerosendQueue()
+    CSandstormQueue()
     {
         nDenom = 0;
         vin = CTxIn();
@@ -185,7 +185,7 @@ public:
 
     bool GetAddress(CService &addr)
     {
-        CBlanknode* psn = snodeman.Find(vin);
+        CStormnode* psn = snodeman.Find(vin);
         if(psn != NULL)
         {
             addr = psn->addr;
@@ -196,7 +196,7 @@ public:
 
     bool GetProtocolVersion(int &protocolVersion)
     {
-        CBlanknode* psn = snodeman.Find(vin);
+        CStormnode* psn = snodeman.Find(vin);
         if(psn != NULL)
         {
             protocolVersion = psn->protocolVersion;
@@ -210,15 +210,15 @@ public:
 
     bool IsExpired()
     {
-        return (GetTime() - time) > ZEROSEND_QUEUE_TIMEOUT;// 120 seconds
+        return (GetTime() - time) > SANDSTORM_QUEUE_TIMEOUT;// 120 seconds
     }
 
     bool CheckSignature();
 
 };
 
-// store zerosend tx signature information
-class CZerosendBroadcastTx
+// store sandstorm tx signature information
+class CSandstormBroadcastTx
 {
 public:
     CTransaction tx;
@@ -230,7 +230,7 @@ public:
 //
 // Helper object for signing and checking signatures
 //
-class CZeroSendSigner
+class CSandStormSigner
 {
 public:
     bool IsVinAssociatedWithPubkey(CTxIn& vin, CPubKey& pubkey);
@@ -240,15 +240,15 @@ public:
 };
 
 //
-// Used to keep track of current status of zerosend pool
+// Used to keep track of current status of sandstorm pool
 //
-class CZerosendPool
+class CSandstormPool
 {
 public:
     // clients entries
-    std::vector<CZeroSendEntry> myEntries;
-    // blanknode entries
-    std::vector<CZeroSendEntry> entries;
+    std::vector<CSandStormEntry> myEntries;
+    // stormnode entries
+    std::vector<CSandStormEntry> entries;
     // the finalized transaction ready for signing
     CTransaction finalTransaction;
 
@@ -265,17 +265,17 @@ public:
 
     std::vector<CTxIn> lockedCoins;
 
-    uint256 BlankNodeBlockHash;
+    uint256 StormNodeBlockHash;
 
     std::string lastMessage;
     bool completedTransaction;
     bool unitTest;
-    CBlanknode* pSubmittedToBlanknode;
+    CStormnode* pSubmittedToStormnode;
 
     int sessionID;
     int sessionDenom; //Users must submit an denom matching this
     int sessionUsers; //N Users have said they'll join
-    bool sessionFoundBlanknode; //If we've found a compatible blanknode
+    bool sessionFoundStormnode; //If we've found a compatible stormnode
     int64_t sessionTotalValue; //used for autoDenom
     std::vector<CTransaction> vecSessionCollateral;
 
@@ -289,9 +289,9 @@ public:
     //debugging data
     std::string strAutoDenomResult;
 
-    CZerosendPool()
+    CSandstormPool()
     {
-        /* ZeroSend uses collateral addresses to trust parties entering the pool
+        /* SandStorm uses collateral addresses to trust parties entering the pool
             to behave themselves. If they don't it takes their money. */
 
         cachedLastSuccess = 0;
@@ -305,22 +305,22 @@ public:
         SetNull();
     }
 
-    /** Process a Zerosend message using the Zerosend protocol
+    /** Process a Sandstorm message using the Sandstorm protocol
      * \param pfrom
      * \param strCommand lower case command string; valid values are:
      *        Command  | Description
      *        -------- | -----------------
-     *        ssa      | Zerosend Acceptable
-     *        ssc      | Zerosend Complete
-     *        ssf      | Zerosend Final tx
-     *        ssi      | Zerosend vIn
-     *        ssq      | Zerosend Queue
-     *        sss      | Zerosend Signal Final Tx
-     *        sssu     | Zerosend status update
-     *        sssub    | Zerosend Subscribe To
+     *        ssa      | Sandstorm Acceptable
+     *        ssc      | Sandstorm Complete
+     *        ssf      | Sandstorm Final tx
+     *        ssi      | Sandstorm vIn
+     *        ssq      | Sandstorm Queue
+     *        sss      | Sandstorm Signal Final Tx
+     *        sssu     | Sandstorm status update
+     *        sssub    | Sandstorm Subscribe To
      * \param vRecv
      */
-    void ProcessMessageZerosend(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
+    void ProcessMessageSandstorm(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
 
     void InitCollateralAddress(){
         std::string strAddress = "";
@@ -353,7 +353,7 @@ public:
 
     int GetEntriesCount() const
     {
-        if(fBlankNode){
+        if(fStormNode){
             return entries.size();
         } else {
             return entriesCount;
@@ -377,16 +377,16 @@ public:
 
     void UpdateState(unsigned int newState)
     {
-        if (fBlankNode && (newState == POOL_STATUS_ERROR || newState == POOL_STATUS_SUCCESS)){
-            LogPrintf("CZerosendPool::UpdateState() - Can't set state to ERROR or SUCCESS as a blanknode. \n");
+        if (fStormNode && (newState == POOL_STATUS_ERROR || newState == POOL_STATUS_SUCCESS)){
+            LogPrintf("CSandstormPool::UpdateState() - Can't set state to ERROR or SUCCESS as a stormnode. \n");
             return;
         }
 
-        LogPrintf("CZerosendPool::UpdateState() == %d | %d \n", state, newState);
+        LogPrintf("CSandstormPool::UpdateState() == %d | %d \n", state, newState);
         if(state != newState){
             lastTimeChanged = GetTimeMillis();
-            if(fBlankNode) {
-                RelayStatus(zeroSendPool.sessionID, zeroSendPool.GetState(), zeroSendPool.GetEntriesCount(), BLANKNODE_RESET);
+            if(fStormNode) {
+                RelayStatus(sandStormPool.sessionID, sandStormPool.GetState(), sandStormPool.GetEntriesCount(), STORMNODE_RESET);
             }
         }
         state = newState;
@@ -411,12 +411,12 @@ public:
     // Is this amount compatible with other client in the pool?
     bool IsCompatibleWithSession(int64_t nAmount, CTransaction txCollateral, std::string& strReason);
 
-    // Passively run Zerosend in the background according to the configuration in settings (only for Qt)
+    // Passively run Sandstorm in the background according to the configuration in settings (only for Qt)
     bool DoAutomaticDenominating(bool fDryRun=false, bool ready=false);
-    bool PrepareZerosendDenominate();
+    bool PrepareSandstormDenominate();
 
 
-    // check for process in Zerosend
+    // check for process in Sandstorm
     void Check();
     void CheckFinalTransaction();
     // charge fees to bad actors
@@ -439,10 +439,10 @@ public:
     // are all inputs signed?
     bool SignaturesComplete();
     
-    // as a client, send a transaction to a blanknode to start the denomination process
-    void SendZerosendDenominate(std::vector<CTxIn>& vin, std::vector<CTxOut>& vout, int64_t amount);
+    // as a client, send a transaction to a stormnode to start the denomination process
+    void SendSandstormDenominate(std::vector<CTxIn>& vin, std::vector<CTxOut>& vout, int64_t amount);
     
-    // get blanknode updates about the progress of zerosend
+    // get stormnode updates about the progress of sandstorm
     bool StatusUpdate(int newState, int newEntriesCount, int newAccepted, std::string& error, int newSessionID=0);
 
     // as a client, check and sign the final transaction
@@ -478,7 +478,7 @@ public:
 
 
     //
-    // Relay Zerosend Messages
+    // Relay Sandstorm Messages
     //
 
     void RelayFinalTransaction(const int sessionID, const CTransaction& txNew);
@@ -489,6 +489,6 @@ public:
     void RelayCompletedTransaction(const int sessionID, const bool error, const std::string errorMessage);
 };
 
-void ThreadCheckZeroSendPool();
+void ThreadCheckSandStormPool();
 
 #endif

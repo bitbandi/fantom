@@ -16,9 +16,9 @@
 #include "crypter.h"
 #include "key.h"
 #include "spork.h"
-#include "zerosend.h"
+#include "sandstorm.h"
 #include "instantx.h"
-#include "blanknode.h"
+#include "stormnode.h"
 #include "chainparams.h"
 #include "smessage.h"
 
@@ -856,7 +856,7 @@ bool CWallet::IsDenominated(const CTxIn &txin) const
 
 bool CWallet::IsDenominatedAmount(int64_t nInputAmount) const
 {
-    BOOST_FOREACH(int64_t d, zeroSendDenominations)
+    BOOST_FOREACH(int64_t d, sandStormDenominations)
         if(nInputAmount == d)
             return true;
     return false;
@@ -1346,8 +1346,8 @@ CAmount CWallet::GetAnonymizedBalance() const
                     //if(IsSpent(out.tx->GetHash(), i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue; 
             if(pcoin->IsSpent(i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue;
 
-                    int rounds = GetInputZerosendRounds(vin);
-                    if(rounds >= nZerosendRounds){
+                    int rounds = GetInputSandstormRounds(vin);
+                    if(rounds >= nSandstormRounds){
                         nTotal += pcoin->vout[i].nValue;
                     }
                 }
@@ -1383,7 +1383,7 @@ double CWallet::GetAverageAnonymizedRounds() const
                     //if(IsSpent(out.tx->GetHash(), i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue;
             if(pcoin->IsSpent(i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue;
 
-                    int rounds = GetInputZerosendRounds(vin);
+                    int rounds = GetInputSandstormRounds(vin);
                     fTotal += (float)rounds;
                     fCount += 1;
                 }
@@ -1420,8 +1420,8 @@ CAmount CWallet::GetNormalizedAnonymizedBalance() const
                     //if(IsSpent(out.tx->GetHash(), i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue;
             if(pcoin->IsSpent(i) || !IsMine(pcoin->vout[i]) || !IsDenominated(vin)) continue;
 
-                    int rounds = GetInputZerosendRounds(vin);
-                    nTotal += pcoin->vout[i].nValue * rounds / nZerosendRounds;
+                    int rounds = GetInputSandstormRounds(vin);
+                    nTotal += pcoin->vout[i].nValue * rounds / nSandstormRounds;
                 }
             }
         }
@@ -1613,7 +1613,7 @@ void CWallet::AvailableCoinsSN(vector<COutput>& vCoins, bool fOnlyConfirmed, con
                     found = true;
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if(found && coin_type == ONLY_NONDENOMINATED_NOTSN) found = (pcoin->vout[i].nValue != BLANKNODE_COLLATERAL*COIN); // do not use SN funds
+                    if(found && coin_type == ONLY_NONDENOMINATED_NOTSN) found = (pcoin->vout[i].nValue != STORMNODE_COLLATERAL*COIN); // do not use SN funds
                 } else {
                     found = true;
                 }
@@ -1998,7 +1998,7 @@ bool less_then_denom (const COutput& out1, const COutput& out2)
 
     bool found1 = false;
     bool found2 = false;
-    BOOST_FOREACH(int64_t d, zeroSendDenominations) // loop through predefined denoms
+    BOOST_FOREACH(int64_t d, sandStormDenominations) // loop through predefined denoms
     {
         if(pcoin1->vout[out1.i].nValue == d) found1 = true;
         if(pcoin2->vout[out2.i].nValue == d) found2 = true;
@@ -2131,7 +2131,7 @@ bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pai
     //if we're doing only denominated, we need to round up to the nearest .1FNX
     if(coin_type == ONLY_DENOMINATED){
         // Make outputs by looping through denominations, from large to small
-        BOOST_FOREACH(int64_t v, zeroSendDenominations)
+        BOOST_FOREACH(int64_t v, sandStormDenominations)
         {
             BOOST_FOREACH(const COutput& out, vCoins)
             {
@@ -2139,9 +2139,9 @@ bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pai
                     && nValueRet + out.tx->vout[out.i].nValue < nTargetValue + (0.1*COIN)+100 //round the amount up to .1FNX over
                 ){
                     CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
-                    int rounds = GetInputZerosendRounds(vin);
+                    int rounds = GetInputSandstormRounds(vin);
                     // make sure it's actually anonymized
-                    if(rounds < nZerosendRounds) continue;
+                    if(rounds < nSandstormRounds) continue;
                     nValueRet += out.tx->vout[out.i].nValue;
                     setCoinsRet.insert(make_pair(out.tx, out.i));
                 }
@@ -2219,7 +2219,7 @@ struct CompareByPriority
     }
 };
 
-bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t nValueMax, std::vector<CTxIn>& vCoinsRet, std::vector<COutput>& vCoinsRet2, int64_t& nValueRet, int nZerosendRoundsMin, int nZerosendRoundsMax)
+bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t nValueMax, std::vector<CTxIn>& vCoinsRet, std::vector<COutput>& vCoinsRet2, int64_t& nValueRet, int nSandstormRoundsMin, int nSandstormRoundsMax)
 {
     vCoinsRet.clear();
     nValueRet = 0;
@@ -2253,7 +2253,7 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t 
 
     BOOST_FOREACH(const COutput& out, vCoins)
     {
-        // blanknode-like input should not be selected by AvailableCoins now anyway
+        // stormnode-like input should not be selected by AvailableCoins now anyway
         //if(out.tx->vout[out.i].nValue == 1000*COIN) continue;
         if(nValueRet + out.tx->vout[out.i].nValue <= nValueMax){
             bool fAccepted = false;
@@ -2267,9 +2267,9 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t 
 
             CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
 
-            int rounds = GetInputZerosendRounds(vin);
-            if(rounds >= nZerosendRoundsMax) continue;
-            if(rounds < nZerosendRoundsMin) continue;
+            int rounds = GetInputSandstormRounds(vin);
+            if(rounds >= nSandstormRoundsMax) continue;
+            if(rounds < nSandstormRoundsMin) continue;
 
             if(fFound100000 && fFound10000 && fFound1000 && fFound100 && fFound10 && fFound1 && fFoundDot1){ //if fulfilled
                 //we can return this for submission
@@ -2310,7 +2310,7 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t 
     return (nValueRet >= nValueMin && fFound100000 && fFound10000 && fFound1000 && fFound100 && fFound10 && fFound1 && fFoundDot1);
 }
 
-bool CWallet::SelectCoinsDark(int64_t nValueMin, int64_t nValueMax, std::vector<CTxIn>& setCoinsRet, int64_t& nValueRet, int nZerosendRoundsMin, int nZerosendRoundsMax) const
+bool CWallet::SelectCoinsDark(int64_t nValueMin, int64_t nValueMax, std::vector<CTxIn>& setCoinsRet, int64_t& nValueRet, int nSandstormRoundsMin, int nSandstormRoundsMax) const
 {
     CCoinControl *coinControl=NULL;
 
@@ -2318,7 +2318,7 @@ bool CWallet::SelectCoinsDark(int64_t nValueMin, int64_t nValueMax, std::vector<
     nValueRet = 0;
 
     vector<COutput> vCoins;
-    AvailableCoins(vCoins, true, coinControl, nZerosendRoundsMin < 0 ? ONLY_NONDENOMINATED_NOTSN : ONLY_DENOMINATED);
+    AvailableCoins(vCoins, true, coinControl, nSandstormRoundsMin < 0 ? ONLY_NONDENOMINATED_NOTSN : ONLY_DENOMINATED);
 
     set<pair<const CWalletTx*,unsigned int> > setCoinsRet2;
 
@@ -2328,16 +2328,16 @@ bool CWallet::SelectCoinsDark(int64_t nValueMin, int64_t nValueMax, std::vector<
     //the first thing we get is a fee input, then we'll use as many denominated as possible. then the rest
     BOOST_FOREACH(const COutput& out, vCoins)
     {
-        //there's no reason to allow inputs less than 1 COIN into Zerosend (other than denominations smaller than that amount)
+        //there's no reason to allow inputs less than 1 COIN into Sandstorm (other than denominations smaller than that amount)
         if(out.tx->vout[out.i].nValue < 1*COIN && !IsDenominatedAmount(out.tx->vout[out.i].nValue)) continue;
-        if(fBlankNode && out.tx->vout[out.i].nValue == 512*COIN) continue; //blanknode input
+        if(fStormNode && out.tx->vout[out.i].nValue == 512*COIN) continue; //stormnode input
 
         if(nValueRet + out.tx->vout[out.i].nValue <= nValueMax){
             CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
 
-            int rounds = GetInputZerosendRounds(vin);
-            if(rounds >= nZerosendRoundsMax) continue;
-            if(rounds < nZerosendRoundsMin) continue;
+            int rounds = GetInputSandstormRounds(vin);
+            if(rounds >= nSandstormRoundsMax) continue;
+            if(rounds < nSandstormRoundsMin) continue;
 
             vin.prevPubKey = out.tx->vout[out.i].scriptPubKey; // the inputs PubKey
             nValueRet += out.tx->vout[out.i].nValue;
@@ -2427,7 +2427,7 @@ bool CWallet::HasCollateralInputs() const
 
 bool CWallet::IsCollateralAmount(int64_t nInputAmount) const
 {
-    return  nInputAmount != 0 && nInputAmount % ZEROSEND_COLLATERAL == 0 && nInputAmount < ZEROSEND_COLLATERAL * 5 && nInputAmount > ZEROSEND_COLLATERAL;
+    return  nInputAmount != 0 && nInputAmount % SANDSTORM_COLLATERAL == 0 && nInputAmount < SANDSTORM_COLLATERAL * 5 && nInputAmount > SANDSTORM_COLLATERAL;
 }
 
 bool CWallet::SelectCoinsWithoutDenomination(int64_t nTargetValue, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet) const
@@ -2462,7 +2462,7 @@ bool CWallet::CreateCollateralTransaction(CTransaction& txCollateral, std::strin
 
     if (!SelectCoinsCollateral(vCoinsCollateral, nValueIn2))
     {
-        strReason = "Error: Zerosend requires a collateral transaction and could not locate an acceptable input!";
+        strReason = "Error: Sandstorm requires a collateral transaction and could not locate an acceptable input!";
         return false;
     }
 
@@ -2476,9 +2476,9 @@ bool CWallet::CreateCollateralTransaction(CTransaction& txCollateral, std::strin
     BOOST_FOREACH(CTxIn v, vCoinsCollateral)
         txCollateral.vin.push_back(v);
 
-    if(nValueIn2 - ZEROSEND_COLLATERAL - nFeeRet > 0) {
+    if(nValueIn2 - SANDSTORM_COLLATERAL - nFeeRet > 0) {
         //pay collateral charge in fees
-        CTxOut vout3 = CTxOut(nValueIn2 - ZEROSEND_COLLATERAL, scriptChange);
+        CTxOut vout3 = CTxOut(nValueIn2 - SANDSTORM_COLLATERAL, scriptChange);
         txCollateral.vout.push_back(vout3);
     }
 
@@ -2488,7 +2488,7 @@ bool CWallet::CreateCollateralTransaction(CTransaction& txCollateral, std::strin
             BOOST_FOREACH(CTxIn v, vCoinsCollateral)
                 UnlockCoin(v.prevout);
 
-            strReason = "CZerosendPool::Sign - Unable to sign collateral transaction! \n";
+            strReason = "CSandstormPool::Sign - Unable to sign collateral transaction! \n";
             return false;
         }
         vinNumber++;
@@ -2569,12 +2569,12 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
                     if(coin_type == ALL_COINS) {
                         strFailReason = _("Insufficient funds.");
                     } else if (coin_type == ONLY_NONDENOMINATED) {
-                        strFailReason = _("Unable to locate enough Zerosend non-denominated funds for this transaction.");
+                        strFailReason = _("Unable to locate enough Sandstorm non-denominated funds for this transaction.");
                     } else if (coin_type == ONLY_NONDENOMINATED_NOTSN) {
-                        strFailReason = _("Unable to locate enough Zerosend non-denominated funds for this transaction that are not equal 1000 FNX.");
+                        strFailReason = _("Unable to locate enough Sandstorm non-denominated funds for this transaction that are not equal 1000 FNX.");
                     } else {
-                        strFailReason = _("Unable to locate enough Zerosend denominated funds for this transaction.");
-                        strFailReason += _("Zerosend uses exact denominated amounts to send funds, you might simply need to anonymize some more coins.");
+                        strFailReason = _("Unable to locate enough Sandstorm denominated funds for this transaction.");
+                        strFailReason += _("Sandstorm uses exact denominated amounts to send funds, you might simply need to anonymize some more coins.");
                     }
 
                     if(useIX){
@@ -3647,34 +3647,34 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nCredit += nReward;
     }
 
-    // Blanknode Payments
+    // Stormnode Payments
     int payments = 1;
-    // start blanknode payments
-    bool bBlankNodePayment = false;
+    // start stormnode payments
+    bool bStormNodePayment = false;
 
     if ( Params().NetworkID() == CChainParams::TESTNET ){
-        if (pindexBest->nHeight+1 >= TESTNET_BLANKNODE_PAYMENT_START) {
-            bBlankNodePayment = true;
+        if (pindexBest->nHeight+1 >= TESTNET_STORMNODE_PAYMENT_START) {
+            bStormNodePayment = true;
         }
     }
     else
     {   if ( Params().NetworkID() == CChainParams::MAIN ){
-            if (pindexBest->nHeight+1 >= BLANKNODE_PAYMENT_START){
-                bBlankNodePayment = true;
+            if (pindexBest->nHeight+1 >= STORMNODE_PAYMENT_START){
+                bStormNodePayment = true;
             }
         }
     }
 
     CScript payee;
     bool hasPayment = true;
-    if(bBlankNodePayment) {
+    if(bStormNodePayment) {
         //spork
-        if(!blanknodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee)){
-            CBlanknode* winningNode = snodeman.GetCurrentBlankNode(1);
+        if(!stormnodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee)){
+            CStormnode* winningNode = snodeman.GetCurrentStormNode(1);
             if(winningNode){
                 payee = GetScriptForDestination(winningNode->pubkey.GetID());
             } else {
-                LogPrintf("CreateCoinStake: Failed to detect blanknode to pay\n");
+                LogPrintf("CreateCoinStake: Failed to detect stormnode to pay\n");
                 hasPayment = false;
             }
         }
@@ -3691,32 +3691,32 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         ExtractDestination(payee, address1);
         CFantomAddress address2(address1);
 
-        LogPrintf("Blanknode payment to %s\n", address2.ToString().c_str());
+        LogPrintf("Stormnode payment to %s\n", address2.ToString().c_str());
     }
 
     int64_t blockValue = nCredit;
-    int64_t blanknodePayment = GetBlanknodePayment(pindexPrev->nHeight+1, nReward);
+    int64_t stormnodePayment = GetStormnodePayment(pindexPrev->nHeight+1, nReward);
 
     
     // Set output amount
-    if (!hasPayment && txNew.vout.size() == 3) // 2 stake outputs, stake was split, no blanknode payment
+    if (!hasPayment && txNew.vout.size() == 3) // 2 stake outputs, stake was split, no stormnode payment
     {
         txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
         txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
     }
-    else if(hasPayment && txNew.vout.size() == 4) // 2 stake outputs, stake was split, plus a blanknode payment
+    else if(hasPayment && txNew.vout.size() == 4) // 2 stake outputs, stake was split, plus a stormnode payment
     {
-        txNew.vout[payments-1].nValue = blanknodePayment;
-        blockValue -= blanknodePayment;
+        txNew.vout[payments-1].nValue = stormnodePayment;
+        blockValue -= stormnodePayment;
         txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
         txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
     }
-    else if(!hasPayment && txNew.vout.size() == 2) // only 1 stake output, was not split, no blanknode payment
+    else if(!hasPayment && txNew.vout.size() == 2) // only 1 stake output, was not split, no stormnode payment
         txNew.vout[1].nValue = blockValue;
-    else if(hasPayment && txNew.vout.size() == 3) // only 1 stake output, was not split, plus a blanknode payment
+    else if(hasPayment && txNew.vout.size() == 3) // only 1 stake output, was not split, plus a stormnode payment
     {
-        txNew.vout[payments-1].nValue = blanknodePayment;
-        blockValue -= blanknodePayment;
+        txNew.vout[payments-1].nValue = stormnodePayment;
+        blockValue -= stormnodePayment;
         txNew.vout[1].nValue = blockValue;
     }
 
@@ -3861,14 +3861,14 @@ string CWallet::SendMoneyToDestination(const CTxDestination& address, int64_t nV
 }
 
 
-string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
+string CWallet::PrepareSandstormDenominate(int minRounds, int maxRounds)
 {
     if (IsLocked())
         return _("Error: Wallet locked, unable to create transaction!");
 
-    if(zeroSendPool.GetState() != POOL_STATUS_ERROR && zeroSendPool.GetState() != POOL_STATUS_SUCCESS)
-        if(zeroSendPool.GetMyTransactionCount() > 0)
-            return _("Error: You already have pending entries in the Zerosend pool");
+    if(sandStormPool.GetState() != POOL_STATUS_ERROR && sandStormPool.GetState() != POOL_STATUS_SUCCESS)
+        if(sandStormPool.GetMyTransactionCount() > 0)
+            return _("Error: You already have pending entries in the Sandstorm pool");
 
     // ** find the coins we'll use
     std::vector<CTxIn> vCoins;
@@ -3881,13 +3881,13 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
         if minRounds >= 0 it means only denominated inputs are going in and coming out
     */
     if(minRounds >= 0){
-        if (!SelectCoinsByDenominations(zeroSendPool.sessionDenom, 0.1*COIN, ZEROSEND_POOL_MAX, vCoins, vCoins2, nValueIn, minRounds, maxRounds))
+        if (!SelectCoinsByDenominations(sandStormPool.sessionDenom, 0.1*COIN, SANDSTORM_POOL_MAX, vCoins, vCoins2, nValueIn, minRounds, maxRounds))
             return _("Insufficient funds");
     }
 
     // calculate total value out
     int64_t nTotalValue = GetTotalValue(vCoins);
-    LogPrintf("PrepareZerosendDenominate - preparing zerosend denominate . Got: %d \n", nTotalValue);
+    LogPrintf("PrepareSandstormDenominate - preparing sandstorm denominate . Got: %d \n", nTotalValue);
 
     BOOST_FOREACH(CTxIn v, vCoins)
         LockCoin(v.prevout);
@@ -3907,7 +3907,7 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
         denomination in random order. This means we'll at least get 1
         of each that is required as outputs.
     */
-    BOOST_FOREACH(int64_t d, zeroSendDenominations){
+    BOOST_FOREACH(int64_t d, sandStormDenominations){
         vDenoms.push_back(d);
         vDenoms.push_back(d);
     }
@@ -3922,23 +3922,23 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
         it nees to get exact change.
     */
     for(int i = 0; i <= 500; i++)
-        BOOST_FOREACH(int64_t d, zeroSendDenominations)
+        BOOST_FOREACH(int64_t d, sandStormDenominations)
             vDenoms.push_back(d);
 
     //randomize the order of inputs we get back
-    std::random_shuffle (vDenoms.begin() + (int)zeroSendDenominations.size() + 1, vDenoms.end());
+    std::random_shuffle (vDenoms.begin() + (int)sandStormDenominations.size() + 1, vDenoms.end());
 
     // Make outputs by looping through denominations randomly
     BOOST_REVERSE_FOREACH(int64_t v, vDenoms){
         //only use the ones that are approved
         bool fAccepted = false;
-        if((zeroSendPool.sessionDenom & (1 << 0))      && v == ((100000*COIN) +100000000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 1)) && v == ((10000*COIN)  +10000000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 2)) && v == ((1000*COIN)   +1000000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 3)) && v == ((100*COIN)    +100000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 4)) && v == ((10*COIN)     +10000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 5)) && v == ((1*COIN)      +1000)) {fAccepted = true;}
-        else if((zeroSendPool.sessionDenom & (1 << 6)) && v == ((.1*COIN)     +100)) {fAccepted = true;}
+        if((sandStormPool.sessionDenom & (1 << 0))      && v == ((100000*COIN) +100000000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 1)) && v == ((10000*COIN)  +10000000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 2)) && v == ((1000*COIN)   +1000000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 3)) && v == ((100*COIN)    +100000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 4)) && v == ((10*COIN)     +10000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 5)) && v == ((1*COIN)      +1000)) {fAccepted = true;}
+        else if((sandStormPool.sessionDenom & (1 << 6)) && v == ((.1*COIN)     +100)) {fAccepted = true;}
         if(!fAccepted) continue;
 
         int nOutputs = 0;
@@ -3964,7 +3964,7 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
     }
 
     //back up mode , incase we couldn't successfully make the outputs for some reason
-    if(vOut.size() > 40 || zeroSendPool.GetDenominations(vOut) != zeroSendPool.sessionDenom || nValueLeft != 0){
+    if(vOut.size() > 40 || sandStormPool.GetDenominations(vOut) != sandStormPool.sessionDenom || nValueLeft != 0){
         vOut.clear();
         nValueLeft = nTotalValue;
 
@@ -3989,9 +3989,9 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
 
     }
 
-    if(zeroSendPool.GetDenominations(vOut) != zeroSendPool.sessionDenom)
+    if(sandStormPool.GetDenominations(vOut) != sandStormPool.sessionDenom)
     {
-           LogPrintf("GetDenominations %d != sessionDenom %d \n", zeroSendPool.GetDenominations(vOut), zeroSendPool.sessionDenom);
+           LogPrintf("GetDenominations %d != sessionDenom %d \n", sandStormPool.GetDenominations(vOut), sandStormPool.sessionDenom);
         return "Error: can't make current denominated outputs.";
     }
 
@@ -4003,7 +4003,7 @@ string CWallet::PrepareZerosendDenominate(int minRounds, int maxRounds)
     //randomize the output order
     std::random_shuffle (vOut.begin(), vOut.end());
 
-    zeroSendPool.SendZerosendDenominate(vCoins, vOut, nValueIn);
+    sandStormPool.SendSandstormDenominate(vCoins, vOut, nValueIn);
 
     return "";
 }
@@ -4630,11 +4630,11 @@ bool CWallet::GetTransaction(const uint256 &hashTx, CWalletTx& wtx)
     return false;
 }
 
-bool CWallet::AddBlankNodeConfig(CBlankNodeConfig nodeConfig)
+bool CWallet::AddStormNodeConfig(CStormNodeConfig nodeConfig)
 {
-    bool rv = CWalletDB(strWalletFile).WriteBlankNodeConfig(nodeConfig.sAlias, nodeConfig);
+    bool rv = CWalletDB(strWalletFile).WriteStormNodeConfig(nodeConfig.sAlias, nodeConfig);
     if(rv)
-    uiInterface.NotifyBlankNodeChanged(nodeConfig);
+    uiInterface.NotifyStormNodeChanged(nodeConfig);
 
     return rv;
 }

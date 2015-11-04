@@ -43,7 +43,7 @@ void AddressCurrentlyConnected(const CService& addr);
 CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const std::string& addrName);
 CNode* FindNode(const CService& ip);
-CNode* ConnectNode(CAddress addrConnect, const char *strDest = NULL, bool zeroSendMaster=false);
+CNode* ConnectNode(CAddress addrConnect, const char *strDest = NULL, bool sandStormMaster=false);
 void MapPort(bool fUseUPnP);
 unsigned short GetListenPort();
 bool BindListenPort(const CService &bindAddr, std::string& strError=REF(std::string()));
@@ -248,7 +248,7 @@ public:
     // b) the peer may tell us in their version message that we should not relay tx invs
     //    until they have initialized their bloom filter.
     bool fRelayTxes;
-    bool fZeroSendMaster;
+    bool fSandStormMaster;
     CSemaphoreGrant grantOutbound;
     int nRefCount;
     NodeId id;

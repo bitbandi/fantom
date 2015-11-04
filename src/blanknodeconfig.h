@@ -3,8 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef SRC_BLANKNODECONFIG_H_
-#define SRC_BLANKNODECONFIG_H_
+#ifndef SRC_STORMNODECONFIG_H_
+#define SRC_STORMNODECONFIG_H_
 
 #include <string>
 #include <vector>
@@ -12,15 +12,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-class CBlanknodeConfig;
-extern CBlanknodeConfig blanknodeConfig;
+class CStormnodeConfig;
+extern CStormnodeConfig stormnodeConfig;
 
-class CBlanknodeConfig
+class CStormnodeConfig
 {
 
 public:
 
-    class CBlanknodeEntry {
+    class CStormnodeEntry {
 
     private:
         std::string alias;
@@ -32,7 +32,7 @@ public:
         std::string donationPercent;
     public:
 
-        CBlanknodeEntry(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string donationAddress, std::string donationPercent) {
+        CStormnodeEntry(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string donationAddress, std::string donationPercent) {
             this->alias = alias;
             this->ip = ip;
             this->privKey = privKey;
@@ -91,23 +91,23 @@ public:
         }
     };
 
-    CBlanknodeConfig() {
-        entries = std::vector<CBlanknodeEntry>();
+    CStormnodeConfig() {
+        entries = std::vector<CStormnodeEntry>();
     }
 
     void clear();
     bool read(std::string& strErr);
     void add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string donationAddress, std::string donationPercent);
 
-    std::vector<CBlanknodeEntry>& getEntries() {
+    std::vector<CStormnodeEntry>& getEntries() {
         return entries;
     }
 
 private:
-    std::vector<CBlanknodeEntry> entries;
+    std::vector<CStormnodeEntry> entries;
 
 
 };
 
 
-#endif /* SRC_BLANKNODECONFIG_H_ */
+#endif /* SRC_STORMNODECONFIG_H_ */

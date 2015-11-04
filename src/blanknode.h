@@ -3,8 +3,8 @@
 // Copyright (c) 2009-2015 The Darkcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BLANKNODE_H
-#define BLANKNODE_H
+#ifndef STORMNODE_H
+#define STORMNODE_H
 
 #include "uint256.h"
 #include "uint256.h"
@@ -14,60 +14,60 @@
 #include "util.h"
 #include "base58.h"
 #include "main.h"
-#include "blanknode-pos.h"
+#include "stormnode-pos.h"
 #include "timedata.h"
 #include "script.h"
 
 class uint256;
 
-#define BLANKNODE_NOT_PROCESSED               0 // initial state
-#define BLANKNODE_IS_CAPABLE                  1
-#define BLANKNODE_NOT_CAPABLE                 2
-#define BLANKNODE_STOPPED                     3
-#define BLANKNODE_INPUT_TOO_NEW               4
-#define BLANKNODE_PORT_NOT_OPEN               6
-#define BLANKNODE_PORT_OPEN                   7
-#define BLANKNODE_SYNC_IN_PROCESS             8
-#define BLANKNODE_REMOTELY_ENABLED            9
+#define STORMNODE_NOT_PROCESSED               0 // initial state
+#define STORMNODE_IS_CAPABLE                  1
+#define STORMNODE_NOT_CAPABLE                 2
+#define STORMNODE_STOPPED                     3
+#define STORMNODE_INPUT_TOO_NEW               4
+#define STORMNODE_PORT_NOT_OPEN               6
+#define STORMNODE_PORT_OPEN                   7
+#define STORMNODE_SYNC_IN_PROCESS             8
+#define STORMNODE_REMOTELY_ENABLED            9
 
-#define BLANKNODE_MIN_CONFIRMATIONS           15
-#define BLANKNODE_MIN_SSEEP_SECONDS           (30*60)
-#define BLANKNODE_MIN_SSEE_SECONDS            (5*60)
-#define BLANKNODE_PING_SECONDS                (1*60)
-#define BLANKNODE_EXPIRATION_SECONDS          (65*60)
-#define BLANKNODE_REMOVAL_SECONDS             (70*60)
+#define STORMNODE_MIN_CONFIRMATIONS           15
+#define STORMNODE_MIN_SSEEP_SECONDS           (30*60)
+#define STORMNODE_MIN_SSEE_SECONDS            (5*60)
+#define STORMNODE_PING_SECONDS                (1*60)
+#define STORMNODE_EXPIRATION_SECONDS          (65*60)
+#define STORMNODE_REMOVAL_SECONDS             (70*60)
 
 using namespace std;
 
-class CBlankNode;
-class CBlanknodePayments;
-class CBlanknodePaymentWinner;
+class CStormNode;
+class CStormnodePayments;
+class CStormnodePaymentWinner;
 
-extern CCriticalSection cs_blanknodes;
-extern CBlanknodePayments blanknodePayments;
-extern map<uint256, CBlanknodePaymentWinner> mapSeenBlanknodeVotes;
+extern CCriticalSection cs_stormnodes;
+extern CStormnodePayments stormnodePayments;
+extern map<uint256, CStormnodePaymentWinner> mapSeenStormnodeVotes;
 extern map<int64_t, uint256> mapCacheBlockHashes;
 
 
-void ProcessMessageBlanknodePayments(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
+void ProcessMessageStormnodePayments(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
 bool GetBlockHash(uint256& hash, int nBlockHeight);
 
 //
-// The Blanknode Class. For managing the zerosend process. It contains the input of the 1000DRK, signature to prove
+// The Stormnode Class. For managing the sandstorm process. It contains the input of the 1000DRK, signature to prove
 // it's the one who own that ip address and code for calculating the payment election.
 //
-class CBlanknode
+class CStormnode
 {
 private:
     // critical section to protect the inner data structures
     mutable CCriticalSection cs;
 public:
     enum state {
-    BLANKNODE_ENABLED = 1,
-    BLANKNODE_EXPIRED = 2,
-    BLANKNODE_VIN_SPENT = 3,
-    BLANKNODE_REMOVE = 4,
-    BLANKNODE_POS_ERROR = 5
+    STORMNODE_ENABLED = 1,
+    STORMNODE_EXPIRED = 2,
+    STORMNODE_VIN_SPENT = 3,
+    STORMNODE_REMOVE = 4,
+    STORMNODE_POS_ERROR = 5
     };
 
 	static int minProtoVersion;
@@ -93,11 +93,11 @@ public:
     int nScanningErrorCount;
     int nLastScanningErrorBlockHeight;
 
-    CBlanknode();
-    CBlanknode(const CBlanknode& other);
-    CBlanknode(CService newAddr, CTxIn newVin, CPubKey newPubkey, std::vector<unsigned char> newSig, int64_t newSigTime, CPubKey newPubkey2, int protocolVersionIn, CScript donationAddress, int donationPercentage);
+    CStormnode();
+    CStormnode(const CStormnode& other);
+    CStormnode(CService newAddr, CTxIn newVin, CPubKey newPubkey, std::vector<unsigned char> newSig, int64_t newSigTime, CPubKey newPubkey2, int protocolVersionIn, CScript donationAddress, int donationPercentage);
  
-    void swap(CBlanknode& first, CBlanknode& second) // nothrow    
+    void swap(CStormnode& first, CStormnode& second) // nothrow    
     {
         // enable ADL (not necessary in our case, but good practice)
         using std::swap;
@@ -127,16 +127,16 @@ public:
         swap(first.nLastScanningErrorBlockHeight, second.nLastScanningErrorBlockHeight);
     }
 
-    CBlanknode& operator=(CBlanknode from)
+    CStormnode& operator=(CStormnode from)
     {
         swap(*this, from);
         return *this;
     }
-    friend bool operator==(const CBlanknode& a, const CBlanknode& b)
+    friend bool operator==(const CStormnode& a, const CStormnode& b)
     {
         return a.vin == b.vin;
     }
-    friend bool operator!=(const CBlanknode& a, const CBlanknode& b)
+    friend bool operator!=(const CStormnode& a, const CStormnode& b)
     {
         return !(a.vin == b.vin);
     }
@@ -208,10 +208,10 @@ public:
 
     bool IsEnabled()
     {
-        return activeState == BLANKNODE_ENABLED;
+        return activeState == STORMNODE_ENABLED;
     }
 
-    int GetBlanknodeInputAge()
+    int GetStormnodeInputAge()
     {
         if(pindexBest == NULL) return 0;
 
@@ -223,7 +223,7 @@ public:
         return cacheInputAge+(pindexBest->nHeight-cacheInputAgeBlock);
     }
 
-    void ApplyScanningError(CBlanknodeScanningError& snse)
+    void ApplyScanningError(CStormnodeScanningError& snse)
     {
         if(!snse.IsValid()) return;
 
@@ -235,25 +235,25 @@ public:
             if(nScanningErrorCount < 0) nScanningErrorCount = 0;
         } else { //all other codes are equally as bad
             nScanningErrorCount++;
-            if(nScanningErrorCount > BLANKNODE_SCANNING_ERROR_THESHOLD*2) nScanningErrorCount = BLANKNODE_SCANNING_ERROR_THESHOLD*2;
+            if(nScanningErrorCount > STORMNODE_SCANNING_ERROR_THESHOLD*2) nScanningErrorCount = STORMNODE_SCANNING_ERROR_THESHOLD*2;
         }
     }
 
     std::string Status() {
     std::string strStatus = "ACTIVE";
 
-    if(activeState == CBlanknode::BLANKNODE_ENABLED) strStatus   = "ENABLED";
-    if(activeState == CBlanknode::BLANKNODE_EXPIRED) strStatus   = "EXPIRED";
-    if(activeState == CBlanknode::BLANKNODE_VIN_SPENT) strStatus = "VIN_SPENT";
-    if(activeState == CBlanknode::BLANKNODE_REMOVE) strStatus    = "REMOVE";
-    if(activeState == CBlanknode::BLANKNODE_POS_ERROR) strStatus = "POS_ERROR";
+    if(activeState == CStormnode::STORMNODE_ENABLED) strStatus   = "ENABLED";
+    if(activeState == CStormnode::STORMNODE_EXPIRED) strStatus   = "EXPIRED";
+    if(activeState == CStormnode::STORMNODE_VIN_SPENT) strStatus = "VIN_SPENT";
+    if(activeState == CStormnode::STORMNODE_REMOVE) strStatus    = "REMOVE";
+    if(activeState == CStormnode::STORMNODE_POS_ERROR) strStatus = "POS_ERROR";
 
     return strStatus;
     }
 };
 
 // for storing the winning payments
-class CBlanknodePaymentWinner
+class CStormnodePaymentWinner
 {
 public:
     int nBlockHeight;
@@ -262,7 +262,7 @@ public:
     std::vector<unsigned char> vchSig;
     uint64_t score;
 
-    CBlanknodePaymentWinner() {
+    CStormnodePaymentWinner() {
         nBlockHeight = 0;
         score = 0;
         vin = CTxIn();
@@ -286,14 +286,14 @@ public:
 };
 
 //
-// Blanknode Payments Class
+// Stormnode Payments Class
 // Keeps track of who should get paid for which blocks
 //
 
-class CBlanknodePayments
+class CStormnodePayments
 {
 private:
-    std::vector<CBlanknodePaymentWinner> vWinning;
+    std::vector<CStormnodePaymentWinner> vWinning;
     int nSyncedFromPeer;
     std::string strMasterPrivKey;
     std::string strMainPubKey;
@@ -302,28 +302,28 @@ private:
 
 public:
 
-    CBlanknodePayments() {
+    CStormnodePayments() {
         strMainPubKey = "";
         enabled = false;
     }
 
     bool SetPrivKey(std::string strPrivKey);
-    bool CheckSignature(CBlanknodePaymentWinner& winner);
-    bool Sign(CBlanknodePaymentWinner& winner);
+    bool CheckSignature(CStormnodePaymentWinner& winner);
+    bool Sign(CStormnodePaymentWinner& winner);
 
-    // Deterministically calculate a given "score" for a blanknode depending on how close it's hash is
+    // Deterministically calculate a given "score" for a stormnode depending on how close it's hash is
     // to the blockHeight. The further away they are the better, the furthest will win the election
     // and get paid this block
     //
 
     uint64_t CalculateScore(uint256 blockHash, CTxIn& vin);
-    bool GetWinningBlanknode(int nBlockHeight, CTxIn& vinOut);
-    bool AddWinningBlanknode(CBlanknodePaymentWinner& winner);
+    bool GetWinningStormnode(int nBlockHeight, CTxIn& vinOut);
+    bool AddWinningStormnode(CStormnodePaymentWinner& winner);
     bool ProcessBlock(int nBlockHeight);
-    void Relay(CBlanknodePaymentWinner& winner);
+    void Relay(CStormnodePaymentWinner& winner);
     void Sync(CNode* node);
     void CleanPaymentList();
-    int LastPayment(CBlanknode& sn);
+    int LastPayment(CStormnode& sn);
 
     //slow
     bool GetBlockPayee(int nBlockHeight, CScript& payee);

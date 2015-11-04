@@ -12,10 +12,10 @@
 #include "net.h"
 #include "util.h"
 #include "ui_interface.h"
-#include "activeblanknode.h"
-#include "blanknodeman.h"
+#include "activestormnode.h"
+#include "stormnodeman.h"
 #include "spork.h"
-#include "blanknodeconfig.h"
+#include "stormnodeconfig.h"
 #include "smessage.h"
 #include "market.h"
 
@@ -112,7 +112,7 @@ void Shutdown()
         bitdb.Flush(false);
 #endif
     StopNode();
-    DumpBlanknodes();
+    DumpStormnodes();
     UnregisterNodeSignals(GetNodeSignals());
     {
         LOCK(cs_main);
@@ -266,20 +266,20 @@ std::string HelpMessage()
     strUsage += "  -rpcsslcertificatechainfile=<file.cert>  " + _("Server certificate file (default: server.cert)") + "\n";
     strUsage += "  -rpcsslprivatekeyfile=<file.pem>         " + _("Server private key (default: server.pem)") + "\n";
     strUsage += "  -rpcsslciphers=<ciphers>                 " + _("Acceptable ciphers (default: TLSv1.2+HIGH:TLSv1+HIGH:!SSLv2:!aNULL:!eNULL:!3DES:@STRENGTH)") + "\n";
-    strUsage += "  -litemode=<n>          " + _("Disable all Blanknode and Zerosend related functionality (0-1, default: 0)") + "\n";
-strUsage += "\n" + _("Blanknode options:") + "\n";
-    strUsage += "  -blanknode=<n>            " + _("Enable the client to act as a blanknode (0-1, default: 0)") + "\n";
-    strUsage += "  -snconf=<file>             " + _("Specify blanknode configuration file (default: blanknode.conf)") + "\n";
-    strUsage += "  -snconflock=<n>            " + _("Lock blanknodes from blanknode configuration file (default: 1)") + "\n";
-    strUsage += "  -blanknodeprivkey=<n>     " + _("Set the blanknode private key") + "\n";
-    strUsage += "  -blanknodeaddr=<n>        " + _("Set external address:port to get to this blanknode (example: address:port)") + "\n";
-    strUsage += "  -blanknodeminprotocol=<n> " + _("Ignore blanknodes less than version (example: 60020; default : 0)") + "\n";
+    strUsage += "  -litemode=<n>          " + _("Disable all Stormnode and Sandstorm related functionality (0-1, default: 0)") + "\n";
+strUsage += "\n" + _("Stormnode options:") + "\n";
+    strUsage += "  -stormnode=<n>            " + _("Enable the client to act as a stormnode (0-1, default: 0)") + "\n";
+    strUsage += "  -snconf=<file>             " + _("Specify stormnode configuration file (default: stormnode.conf)") + "\n";
+    strUsage += "  -snconflock=<n>            " + _("Lock stormnodes from stormnode configuration file (default: 1)") + "\n";
+    strUsage += "  -stormnodeprivkey=<n>     " + _("Set the stormnode private key") + "\n";
+    strUsage += "  -stormnodeaddr=<n>        " + _("Set external address:port to get to this stormnode (example: address:port)") + "\n";
+    strUsage += "  -stormnodeminprotocol=<n> " + _("Ignore stormnodes less than version (example: 60020; default : 0)") + "\n";
 
-    strUsage += "\n" + _("Zerosend options:") + "\n";
-    strUsage += "  -enablezerosend=<n>          " + _("Enable use of automated zerosend for funds stored in this wallet (0-1, default: 0)") + "\n";
-    strUsage += "  -zerosendrounds=<n>          " + _("Use N separate blanknodes to anonymize funds  (2-8, default: 2)") + "\n";
+    strUsage += "\n" + _("Sandstorm options:") + "\n";
+    strUsage += "  -enablesandstorm=<n>          " + _("Enable use of automated sandstorm for funds stored in this wallet (0-1, default: 0)") + "\n";
+    strUsage += "  -sandstormrounds=<n>          " + _("Use N separate stormnodes to anonymize funds  (2-8, default: 2)") + "\n";
     strUsage += "  -anonymizefantomamount=<n> " + _("Keep N Fantom anonymized (default: 0)") + "\n";
-    strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to Zerosend by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
+    strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to Sandstorm by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
 
     strUsage += "\n" + _("InstantX options:") + "\n";
     strUsage += "  -enableinstantx=<n>    " + _("Enable instantx, show confirmations for locked transactions (bool, default: true)") + "\n";
@@ -532,16 +532,16 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("Used data directory %s\n", strDataDir);
     std::ostringstream strErrors;
 
-    if (mapArgs.count("-blanknodepaymentskey")) // blanknode payments priv key
+    if (mapArgs.count("-stormnodepaymentskey")) // stormnode payments priv key
     {
-        if (!blanknodePayments.SetPrivKey(GetArg("-blanknodepaymentskey", "")))
-            return InitError(_("Unable to sign blanknode payment winner, wrong key?"));
-        if (!sporkManager.SetPrivKey(GetArg("-blanknodepaymentskey", "")))
+        if (!stormnodePayments.SetPrivKey(GetArg("-stormnodepaymentskey", "")))
+            return InitError(_("Unable to sign stormnode payment winner, wrong key?"));
+        if (!sporkManager.SetPrivKey(GetArg("-stormnodepaymentskey", "")))
             return InitError(_("Unable to sign spork message, wrong key?"));
     }
 
-    //ignore blanknodes below protocol version
-    CBlanknode::minProtoVersion = GetArg("-blanknodeminprotocol", MIN_SN_PROTO_VERSION);
+    //ignore stormnodes below protocol version
+    CStormnode::minProtoVersion = GetArg("-stormnodeminprotocol", MIN_SN_PROTO_VERSION);
 
     int64_t nStart;
 
@@ -874,7 +874,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             snodeman.CheckAndRemove(); // clean out expired
     }
 
-    LogPrintf("Loaded info from blanknodes.dat  %dms\n", GetTimeMillis() - nStart);
+    LogPrintf("Loaded info from stormnodes.dat  %dms\n", GetTimeMillis() - nStart);
     LogPrintf("  %s\n", snodeman.ToString());
 
     // ********************************************************* Step 10.1: startup secure messaging
@@ -885,7 +885,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     MarketInit();
     
-    // ********************************************************* Step 11: start ZeroSend
+    // ********************************************************* Step 11: start SandStorm
 
     if (!CheckDiskSpace())
         return false;
@@ -893,60 +893,60 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!strErrors.str().empty())
         return InitError(strErrors.str());
 
-    uiInterface.InitMessage(_("Loading Blanknode cache..."));
+    uiInterface.InitMessage(_("Loading Stormnode cache..."));
 
     nStart = GetTimeMillis();
 
-    CBlanknodeDB sndb;
-    CBlanknodeDB::ReadResult readResult = sndb.Read(snodeman);
-    if (readResult == CBlanknodeDB::FileError)
-        LogPrintf("Missing Blanknode cache file - sncache.dat, will try to recreate\n");
-    else if (readResult != CBlanknodeDB::Ok)
+    CStormnodeDB sndb;
+    CStormnodeDB::ReadResult readResult = sndb.Read(snodeman);
+    if (readResult == CStormnodeDB::FileError)
+        LogPrintf("Missing Stormnode cache file - sncache.dat, will try to recreate\n");
+    else if (readResult != CStormnodeDB::Ok)
     {
         LogPrintf("Error reading sncache.dat: ");
-        if(readResult == CBlanknodeDB::IncorrectFormat)
+        if(readResult == CStormnodeDB::IncorrectFormat)
             LogPrintf("magic is ok but data has invalid format, will try to recreate\n");
         else
             LogPrintf("file format is unknown or invalid, please fix it manually\n");
     }
 
-    fBlankNode = GetBoolArg("-blanknode", false);
-    if(fBlankNode) {
-        LogPrintf("IS ZEROSEND MASTER NODE\n");
-        strBlankNodeAddr = GetArg("-blanknodeaddr", "");
+    fStormNode = GetBoolArg("-stormnode", false);
+    if(fStormNode) {
+        LogPrintf("IS SANDSTORM MASTER NODE\n");
+        strStormNodeAddr = GetArg("-stormnodeaddr", "");
 
-        LogPrintf(" addr %s\n", strBlankNodeAddr.c_str());
+        LogPrintf(" addr %s\n", strStormNodeAddr.c_str());
 
-        if(!strBlankNodeAddr.empty()){
-            CService addrTest = CService(strBlankNodeAddr);
+        if(!strStormNodeAddr.empty()){
+            CService addrTest = CService(strStormNodeAddr);
             if (!addrTest.IsValid()) {
-                return InitError("Invalid -blanknodeaddr address: " + strBlankNodeAddr);
+                return InitError("Invalid -stormnodeaddr address: " + strStormNodeAddr);
             }
         }
 
-        strBlankNodePrivKey = GetArg("-blanknodeprivkey", "");
-        if(!strBlankNodePrivKey.empty()){
+        strStormNodePrivKey = GetArg("-stormnodeprivkey", "");
+        if(!strStormNodePrivKey.empty()){
             std::string errorMessage;
 
             CKey key;
             CPubKey pubkey;
 
-            if(!zeroSendSigner.SetKey(strBlankNodePrivKey, errorMessage, key, pubkey))
+            if(!sandStormSigner.SetKey(strStormNodePrivKey, errorMessage, key, pubkey))
             {
-                return InitError(_("Invalid blanknodeprivkey. Please see documenation."));
+                return InitError(_("Invalid stormnodeprivkey. Please see documenation."));
             }
 
-            activeBlanknode.pubKeyBlanknode = pubkey;
+            activeStormnode.pubKeyStormnode = pubkey;
 
         } else {
-            return InitError(_("You must specify a blanknodeprivkey in the configuration. Please see documentation for help."));
+            return InitError(_("You must specify a stormnodeprivkey in the configuration. Please see documentation for help."));
         }
     }
 
     if(GetBoolArg("-snconflock", true)) {
-        LogPrintf("Locking Blanknodes:\n");
+        LogPrintf("Locking Stormnodes:\n");
         uint256 snTxHash;
-        BOOST_FOREACH(CBlanknodeConfig::CBlanknodeEntry sne, blanknodeConfig.getEntries()) {
+        BOOST_FOREACH(CStormnodeConfig::CStormnodeEntry sne, stormnodeConfig.getEntries()) {
             LogPrintf("  %s %s\n", sne.getTxHash(), sne.getOutputIndex());
             snTxHash.SetHex(sne.getTxHash());
             COutPoint outpoint = COutPoint(snTxHash, boost::lexical_cast<unsigned int>(sne.getOutputIndex()));
@@ -954,17 +954,17 @@ bool AppInit2(boost::thread_group& threadGroup)
         }
     }
 
-    fEnableZerosend = GetBoolArg("-enablezerosend", false);
+    fEnableSandstorm = GetBoolArg("-enablesandstorm", false);
 
-    nZerosendRounds = GetArg("-zerosendrounds", 2);
-    if(nZerosendRounds > 16) nZerosendRounds = 16;
-    if(nZerosendRounds < 1) nZerosendRounds = 1;
+    nSandstormRounds = GetArg("-sandstormrounds", 2);
+    if(nSandstormRounds > 16) nSandstormRounds = 16;
+    if(nSandstormRounds < 1) nSandstormRounds = 1;
 
     nLiquidityProvider = GetArg("-liquidityprovider", 0); //0-100
     if(nLiquidityProvider != 0) {
-        zeroSendPool.SetMinBlockSpacing(std::min(nLiquidityProvider,100)*15);
-        fEnableZerosend = true;
-        nZerosendRounds = 99999;
+        sandStormPool.SetMinBlockSpacing(std::min(nLiquidityProvider,100)*15);
+        fEnableSandstorm = true;
+        nSandstormRounds = 99999;
     }
 
     nAnonymizeFantomAmount = GetArg("-anonymizefantomamount", 0);
@@ -980,39 +980,39 @@ bool AppInit2(boost::thread_group& threadGroup)
         nInstantXDepth = 0;
     }
 
-    //lite mode disables all Blanknode and Zerosend related functionality
+    //lite mode disables all Stormnode and Sandstorm related functionality
     fLiteMode = GetBoolArg("-litemode", false);
-    if(fBlankNode && fLiteMode){
-        return InitError("You can not start a blanknode in litemode");
+    if(fStormNode && fLiteMode){
+        return InitError("You can not start a stormnode in litemode");
     }
 
     LogPrintf("fLiteMode %d\n", fLiteMode);
     LogPrintf("nInstantXDepth %d\n", nInstantXDepth);
-    LogPrintf("Zerosend rounds %d\n", nZerosendRounds);
+    LogPrintf("Sandstorm rounds %d\n", nSandstormRounds);
     LogPrintf("Anonymize Fantom Amount %d\n", nAnonymizeFantomAmount);
 
     /* Denominations
-       A note about convertability. Within Zerosend pools, each denomination
+       A note about convertability. Within Sandstorm pools, each denomination
        is convertable to another.
        For example:
        1DRK+1000 == (.1DRK+100)*10
        10DRK+10000 == (1DRK+1000)*10
     */
-    zeroSendDenominations.push_back( (100000      * COIN)+100000000 );    
-    zeroSendDenominations.push_back( (10000       * COIN)+10000000 );
-    zeroSendDenominations.push_back( (1000        * COIN)+1000000 );
-    zeroSendDenominations.push_back( (100         * COIN)+100000 );
-    zeroSendDenominations.push_back( (10          * COIN)+10000 );
-    zeroSendDenominations.push_back( (1           * COIN)+1000 );
-    zeroSendDenominations.push_back( (.1          * COIN)+100 );
+    sandStormDenominations.push_back( (100000      * COIN)+100000000 );    
+    sandStormDenominations.push_back( (10000       * COIN)+10000000 );
+    sandStormDenominations.push_back( (1000        * COIN)+1000000 );
+    sandStormDenominations.push_back( (100         * COIN)+100000 );
+    sandStormDenominations.push_back( (10          * COIN)+10000 );
+    sandStormDenominations.push_back( (1           * COIN)+1000 );
+    sandStormDenominations.push_back( (.1          * COIN)+100 );
     /* Disabled till we need them
-    zeroSendDenominations.push_back( (.01      * COIN)+10 );
-    zeroSendDenominations.push_back( (.001     * COIN)+1 );
+    sandStormDenominations.push_back( (.01      * COIN)+10 );
+    sandStormDenominations.push_back( (.001     * COIN)+1 );
     */
 
-    zeroSendPool.InitCollateralAddress();
+    sandStormPool.InitCollateralAddress();
 
-    threadGroup.create_thread(boost::bind(&ThreadCheckZeroSendPool));
+    threadGroup.create_thread(boost::bind(&ThreadCheckSandStormPool));
 
 
 
@@ -1066,9 +1066,9 @@ bool AppInit2(boost::thread_group& threadGroup)
 
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
-	BOOST_FOREACH(PAIRTYPE(std::string, CBlankNodeConfig) storm, pwalletMain->mapMyBlankNodes)
+	BOOST_FOREACH(PAIRTYPE(std::string, CStormNodeConfig) storm, pwalletMain->mapMyStormNodes)
 	{
-	    uiInterface.NotifyBlankNodeChanged(storm.second);
+	    uiInterface.NotifyStormNodeChanged(storm.second);
 	}
 
         // Add wallet transactions that aren't already in a block to mapTransactions

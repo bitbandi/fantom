@@ -11,7 +11,7 @@
 #include "main.h"
 #include "addrman.h"
 #include "ui_interface.h"
-#include "zerosend.h"
+#include "sandstorm.h"
 #include "wallet.h"
 #include "market.h"
 
@@ -370,7 +370,7 @@ CNode* FindNode(const CService& addr)
     return NULL;
 }
 
-CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool zeroSendMaster)
+CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool sandStormMaster)
 {
     if (pszDest == NULL) {
         if (IsLocal(addrConnect))
@@ -380,8 +380,8 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool zeroSendMaste
         CNode* pnode = FindNode((CService)addrConnect);
         if (pnode)
         {
-	    if(zeroSendMaster)
-                pnode->fZeroSendMaster = true;
+	    if(sandStormMaster)
+                pnode->fSandStormMaster = true;
 
             pnode->AddRef();
             return pnode;

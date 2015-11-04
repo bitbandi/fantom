@@ -1,20 +1,20 @@
 
 #include "net.h"
-#include "blanknodeconfig.h"
+#include "stormnodeconfig.h"
 #include "util.h"
 #include <base58.h>
 
-CBlanknodeConfig blanknodeConfig;
+CStormnodeConfig stormnodeConfig;
 
-void CBlanknodeConfig::add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string donationAddress, std::string donationPercent) {
-    CBlanknodeEntry cme(alias, ip, privKey, txHash, outputIndex, donationAddress, donationPercent);
+void CStormnodeConfig::add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string donationAddress, std::string donationPercent) {
+    CStormnodeEntry cme(alias, ip, privKey, txHash, outputIndex, donationAddress, donationPercent);
     entries.push_back(cme);
 }
 
-bool CBlanknodeConfig::read(std::string& strErr) {
-    boost::filesystem::ifstream streamConfig(GetBlanknodeConfigFile());
+bool CStormnodeConfig::read(std::string& strErr) {
+    boost::filesystem::ifstream streamConfig(GetStormnodeConfigFile());
     if (!streamConfig.good()) {
-        return true; // No blanknode.conf file is OK
+        return true; // No stormnode.conf file is OK
     }
 
     for(std::string line; std::getline(streamConfig, line); )

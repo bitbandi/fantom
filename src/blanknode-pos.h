@@ -3,8 +3,8 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BLANKNODE_POS_H
-#define BLANKNODE_POS_H
+#ifndef STORMNODE_POS_H
+#define STORMNODE_POS_H
 
 #include "bignum.h"
 #include "sync.h"
@@ -19,72 +19,72 @@
 using namespace std;
 using namespace boost;
 
-class CBlanknodeScanning;
-class CBlanknodeScanningError;
+class CStormnodeScanning;
+class CStormnodeScanningError;
 
-extern map<uint256, CBlanknodeScanningError> mapBlanknodeScanningErrors;
-extern CBlanknodeScanning snscan;
+extern map<uint256, CStormnodeScanningError> mapStormnodeScanningErrors;
+extern CStormnodeScanning snscan;
 
-static const int MIN_BLANKNODE_POS_PROTO_VERSION = 60020;
+static const int MIN_STORMNODE_POS_PROTO_VERSION = 60020;
 
 /*
 	1% of the network is scanned every 2.5 minutes, making a full
 	round of scanning take about 4.16 hours. We're targeting about 
 	a day of proof-of-service errors for complete removal from the 
-	blanknode system.
+	stormnode system.
 */
-static const int BLANKNODE_SCANNING_ERROR_THESHOLD = 6;
+static const int STORMNODE_SCANNING_ERROR_THESHOLD = 6;
 
 #define SCANNING_SUCCESS                       1
 #define SCANNING_ERROR_NO_RESPONSE             2
 #define SCANNING_ERROR_IX_NO_RESPONSE          3
 #define SCANNING_ERROR_MAX                     3
 
-void ProcessMessageBlanknodePOS(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
+void ProcessMessageStormnodePOS(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
 
-class CBlanknodeScanning
+class CStormnodeScanning
 {
 public:
-    void DoBlanknodePOSChecks();
-    void CleanBlanknodeScanningErrors();
+    void DoStormnodePOSChecks();
+    void CleanStormnodeScanningErrors();
 };
 
-// Returns how many blanknodes are allowed to scan each block
+// Returns how many stormnodes are allowed to scan each block
 int GetCountScanningPerBlock();
 
-class CBlanknodeScanningError
+class CStormnodeScanningError
 {
 public:
-    CTxIn vinBlanknodeA;
-    CTxIn vinBlanknodeB;
+    CTxIn vinStormnodeA;
+    CTxIn vinStormnodeB;
     int nErrorType;
     int nExpiration;
     int nBlockHeight;
-    std::vector<unsigned char> vchBlankNodeSignature;
+    std::vector<unsigned char> vchStormNodeSignature;
 
-    CBlanknodeScanningError ()
+    CStormnodeScanningError ()
     {
-        vinBlanknodeA = CTxIn();
-        vinBlanknodeB = CTxIn();
+        vinStormnodeA = CTxIn();
+        vinStormnodeB = CTxIn();
         nErrorType = 0;
         nExpiration = GetTime()+(60*60);
         nBlockHeight = 0;
     }
 
-    CBlanknodeScanningError (CTxIn& vinBlanknodeAIn, CTxIn& vinBlanknodeBIn, int nErrorTypeIn, int nBlockHeightIn)
+    CStormnodeScanningError (CTxIn& vinStormnodeAIn, CTxIn& vinStormnodeBIn, int nErrorTypeIn, int nBlockHeightIn)
     {
-    	vinBlanknodeA = vinBlanknodeAIn;
-    	vinBlanknodeB = vinBlanknodeBIn;
+    	vinStormnodeA = vinStormnodeAIn;
+    	vinStormnodeB = vinStormnodeBIn;
     	nErrorType = nErrorTypeIn;
     	nExpiration = GetTime()+(60*60);
     	nBlockHeight = nBlockHeightIn;
     }
 
-    CBlanknodeScanningError (CTxIn& vinBlanknodeBIn, int nErrorTypeIn, int nBlockHeightIn)
+    CStormnodeScanningError (CTxIn& vinStormnodeBIn, int nErrorTypeIn, int nBlockHeightIn)
     {
-        //just used for IX, BlanknodeA is any client
-        vinBlanknodeA = CTxIn();
-        vinBlanknodeB = vinBlanknodeBIn;
+        //just used for IX, StormnodeA is any client
+        vinStormnodeA = CTxIn();
+        vinStormnodeB = vinStormnodeBIn;
         nErrorType = nErrorTypeIn;
         nExpiration = GetTime()+(60*60);
         nBlockHeight = nBlockHeightIn;
@@ -102,12 +102,12 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-        READWRITE(vinBlanknodeA);
-        READWRITE(vinBlanknodeB);
+        READWRITE(vinStormnodeA);
+        READWRITE(vinStormnodeB);
         READWRITE(nErrorType);
         READWRITE(nExpiration);
         READWRITE(nBlockHeight);
-        READWRITE(vchBlankNodeSignature);
+        READWRITE(vchStormNodeSignature);
     )
 };
 
