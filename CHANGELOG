@@ -1,0 +1,199 @@
+Base58 Change, Port Changes and Minor Fixes
+Addition of OBJ directory for Daemon builds
+Version updated
+ReadMe updated
+Instamine code for Silk/Dark weaver swap/burn added to main.cpp
+OpenSSL update
+LevelDB 1.18 Update
+Fix to guard against OpenSSL's new strict DER checks, fixed getbalance and other minor fixes
+Spelling edits
+Enabled locking of Stormnodes via the Stormnode configuration file
+Unset Sandstorm checkbox if there were non-anonymized inputs selected in coincontrol, give warning
+Removal of target space change and hardfork
+Fixed time to switch "out of sync" messages
+Fix twice denominatedBalance calculations
+Solve performance problems by caching and fix probable security issue
+RPC: Allow "sandstorm" only with ENABLE_WALLET
+Disconnect Sandstorm timer on Overview page destruction
+Fix spaces/monospace fonts in qt console
+Mac compatibility so users can switch tabs using CMD+(NUM)
+Added better instructions to get libsecp256k1 installed in case of library issues within ReadMe
+Added secp256k1 libs to /deps in case for any reason the libs are not available from github anymore
+Increased maximum block size to 50MB (50x Bitcoin Core)
+Added safe shutdown for Windows
+Fixed sync issues and CPU usage
+Add event support for Tor
+rpc: Prevent easy memory exhaustion attack 
+Fixed issue where using setaccount with a foreign address causes the address to be added to your receiving addresses.
+Fix priority calculation in CreateTransaction
+darksilk.conf added to /src
+GUI Styling changes
+Statistics Page Added and Icons Updated
+Clickable Padlock to Unlock Wallet and Unlock for Staking Only
+Fixed GUI bugs
+Assertion Error Fix for MacOSX
+Sandstorm GUI Fixes
+Decentralised DarkSilkMarket added
+Overview Transactions UI Fixes
+Messaging, GUI Update, Null Pointer Fix, Various Fixes/Changes
+Windows Build Fix
+Addition of possibly needed dependency
+Stormnode Collateral Increase
+Marketplace RPC Calls | Cleanup
+Amended Spork Max Value for Stormnode Collateral
+Removal of unused Spork
+Minimum Transaction fee changed to 0.0001DRKSLK
+Add support for miniupnpc API version 14
+DARKSILK_TIMEDATA_MAX_SAMPLES 200
+Add time offset to getpeerinfo output
+Don't check duplicate stake while importing
+Ignore blocks received while importing
+Further Market RPC JSON calls
+marketbuyrequest RPC command
+marketmybuys RPC call for market
+MacOSX Fixes and GUI Fix
+Market RPC Minor Fixes
+darksilk-qt.pro cleanup
+DarkSilk-qt.app renamed to DarkSilk.app for OSX
+Replaced stake min age with min confirmation
+Limited drop of difficulty per block
+Made special marker non spendable
+Added nonspendable encoding for block signing key
+BIP66 compatibility
+Replaced NOP7 with CHECKLOCKTIMEVERIFY
+Enforce new script verification flags
+Static pos reward
+Demand canonical block sig from updated peers
+Submitblock: Add submission of stake template
+Reward and Min Conf Blocks Changed
+Checkpointing Removal
+Gitian MacDeploy Graphics Added
+IsProtocolV1/IsProtocolV2 hard fork switches removed
+FutureDriftV1/FutureDriftV2 reverted back to FutureDrift
+CheckStakeKernelHashV1/CheckStakeKernalHashV2 reverted back to CheckStakeKernelHash
+Unsigned Int GetTargetSpacing changed to Static Const Int POS_TARGET_SPACING
+Fix boost::get usage with Boost 1.58 in rpcrawtransaction.cpp 
+Static PoS Reward of 1 DRKSLK
+Prevent redefinition compiler warning
+Fix issue where getrawtransaction RPC call does not work
+PoW additions to GetNextTargetRequired
+Scale up addrman
+Gitian windows compile fixes
+Correctly randomize change output position
+LevelDB windows cross compile missing files
+Scale up addrman
+Gitian windows compile fixes
+Correctly randomize change output position
+Removal of Dead Code
+Fix for building with Boost 1.58
+LevelDB Cross compile fixes
+DarkSilk-Qt: cleanup / optimise addressbookpage
+Discourage fee sniping with nLockTime
+Removal of dead code from main.h
+Changed ProofOfStakeReward to use static const
+Diff changes
+Shadowchat Messaging Updates
+DNSSeed Thread Fix
+Stormnode payments start on block 82002
+Restore hex to getrawtransaction vout scriptPubkey
+static const rename | nActualSpacing code reform
+Removal of Keepass until later date that this doesn't cause an issue with Windows builds
+Updated dependencies, added Gitian OSX files
+Remove unused GetProofOfStakeReward
+Faster Retargetting for PoW
+Fixed PoS target spacing
+Fix payee selectoin on StormnodePayments::ProcessBlock
+fix log output / more notCapableReason-s
+HasCollateralInputs should check only for at least 1 collateral not 2
+Track lastTimeChanged for mnodeman and ask for update only if UpdateNeeded
+Added sstx support for free transactions 
+Fix for src/qt/stormnodemanager.cpp
+RPC Fixes
+Fix DoAutomaticDenominating
+Few Fixes for Processing Extra Messages
+Reversioning and restriction change
+Check and remove expired Stormnodes on Client start
+Maps in snodeman
+bool warning fix
+SSEG Update
+Show new number of SN's on add/remove in logs | Move output to debug level
+sigTime
+Temp Fix prior to major changes
+SPORK Additions/Changes | SANDSTORM fee removal
+prevent ganing sigTime too much on initial ssee
+SandStorm/InstantX Functionality | Send with SandStorm on sendcoinsdialog.ui
+Fix Filtering for active | add spaces to table-fy console view | add spaces to IP only in full mode
+Merged Stormnode blinding
+fix compiling for windows
+fix console spam
+Make stormnodes.dat verification more specific, prevent from overwriting corruped
+files with unknown format, give more info in debug.log output
+fixed shared key usage
+fix even more console spam
+rename stormnodes.dat->mncache.dat / fix strings
+save nsqCount in mncache.dat
+[Qt] add more NULL pointer checks in darksilkgui.cpp
+close wallet regardless of "minimize to tray" settings
+Added coincontrol sandstorm rounds column
+Stormnode Proof of Service Added
+Add structure for donating a percentage of ones earnings to another party via the protocol
+Fixed snw message issue
+fix pubkey/donation conditions
+Fixed blinding submission process
+increasing ss timeouts
+fixed ssee sync
+fixed Stormnode payments FindOldestNotInVec
+Disabled Stormnode blinding / increased rounds defaults
+Added Stormnode voting system for DarkSilk initiates
+Stormnode voting improvements
+remove locks
+Added easy to use donations
+Changed some locks
+Disable relay
+Changed some locks
+Improved donation code/message
+Added stormnode list donation
+Fixed ranking issues for PoSe
+Fixed stormnode donation miscalculations
+Explicitly grab each piece of data from memory for hashing in CStormnode::CalculateScore
+Reducing spam
+Removed donation flag
+New Command: stormnode list pose - Shows proof-of-service score for Stormnodes
+Default keypool size in usage text fixed 
+Use strMagicMessage to verify mncache.dat, rewrite (only) if hash and both magic are ok
+Make sure nScanningErrorCount and nLastScanningErrorBlockHeight handled correctly
+Move sn state enum inside class
+Do not check mn unless only active requested
+ProcessStormnodeConnections should work on testnet too
+Don't limit ss-send inputs number artificially, fees should take care of it instead
+Reference node fixes / debugging
+Compiling warnings / fixed block comparison 
+Create empty darksilk.conf during startup if it doesn't exist
+Updated minimum for reference node
+Fixes for "stormnode list"
+Fix SN ssee: SN should not update itself in SN list until it activated
+Fix possible SN breakage during mixing
+Remove donations to multisig addresses
+Further fixes to Sandstorm
+Added nDenom check for ssa
+Fix SelectCoinsByDenominations
+Do not search for known sporks by hash, search only by ID
+Check collateral before submitting
+Fixed vote-many
+Fix filtering for stormnode list votes rpc 
+Fixed vote crashes
+stormnode stop should disable SN and remove it from SN list
+SS: Adjust Target Balance
+Should set nMaxToAnonymize equal to denominatedBalance only if it's greater then it was possible to denominate
+Ref-node : Always fill vecLastPayments
+Removal of centrally broadcasted synchronised checkpoints
+Reshuffle of allocators
+Addition of uint512 to uint256
+Fixes
+Mixer on overviewpage.cpp moved to a more ideal position
+IRC Removed
+Fixing out of bounds error in GetKey() 
+Sandstorm fixes for fees
+Stormnode Changes
+CTransaction | CMutable changes
+int64_t nAmount changed to CAmount nAmount

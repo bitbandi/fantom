@@ -70,7 +70,7 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     QAction *clipboardAfterFeeAction = new QAction(tr("Copy after fee"), this);
     QAction *clipboardBytesAction = new QAction(tr("Copy bytes"), this);
     QAction *clipboardPriorityAction = new QAction(tr("Copy priority"), this);
-    QAction *clipboardLowOutputAction = new QAction(tr("Copy low output"), this);
+    QAction *clipboardLowOutputAction = new QAction(tr("Copy dust"), this);
     QAction *clipboardChangeAction = new QAction(tr("Copy change"), this);
 
     connect(clipboardQuantityAction, SIGNAL(triggered()), this, SLOT(clipboardQuantity()));
@@ -302,7 +302,7 @@ void CoinControlDialog::clipboardPriority()
     QApplication::clipboard()->setText(ui->labelCoinControlPriority->text());
 }
 
-// copy label "Low output" to clipboard
+// copy label "Dust" to clipboard
 void CoinControlDialog::clipboardLowOutput()
 {
     QApplication::clipboard()->setText(ui->labelCoinControlLowOutput->text());
@@ -426,7 +426,6 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
     // nPayAmount
     qint64 nPayAmount = 0;
-    bool fLowOutput = false;
     bool fDust = false;
     CTransaction txDummy;
     foreach(const qint64 &amount, CoinControlDialog::payAmounts)
@@ -435,16 +434,13 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
         if (amount > 0)
         {
-            if (amount < CENT)
-                fLowOutput = true;
-
             CTxOut txout(amount, (CScript)vector<unsigned char>(24, 0));
             txDummy.vout.push_back(txout);
         }
     }
 
     QString sPriorityLabel      = "";
-    int64_t nAmount             = 0;
+    CAmount nAmount             = 0;
     int64_t nPayFee             = 0;
     int64_t nAfterFee           = 0;
     int64_t nChange             = 0;
@@ -566,7 +562,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     QLabel *l7 = dialog->findChild<QLabel *>("labelCoinControlLowOutput");
     QLabel *l8 = dialog->findChild<QLabel *>("labelCoinControlChange");
     
-    // enable/disable "low output" and "change"
+    // enable/disable "dust" and "change"
     dialog->findChild<QLabel *>("labelCoinControlLowOutputText")->setEnabled(nPayAmount > 0);
     dialog->findChild<QLabel *>("labelCoinControlLowOutput")    ->setEnabled(nPayAmount > 0);
     dialog->findChild<QLabel *>("labelCoinControlChangeText")   ->setEnabled(nPayAmount > 0);
@@ -579,24 +575,22 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     l4->setText(FantomUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
     l5->setText(((nBytes > 0) ? "~" : "") + QString::number(nBytes));                                    // Bytes
     l6->setText(sPriorityLabel);                                             // Priority
-    l7->setText((fLowOutput ? (fDust ? tr("DUST") : tr("yes")) : tr("no"))); // Low Output / Dust
+    l7->setText(fDust ? tr("yes") : tr("no")); // Low Output / Dust
     l8->setText(FantomUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
     
     // turn labels "red"
     l5->setStyleSheet((nBytes >= 10000) ? "color:red;" : "");               // Bytes >= 10000
     l6->setStyleSheet((dPriority <= 576000) ? "color:red;" : "");         // Priority < "medium"
-    l7->setStyleSheet((fLowOutput) ? "color:red;" : "");                    // Low Output = "yes"
-    l8->setStyleSheet((nChange > 0 && nChange < CENT) ? "color:red;" : ""); // Change < 0.01FNX
-        
+    l7->setStyleSheet((fDust) ? "color:red;" : "");                                     // Dust = "yes"
+
     // tool tips
     l5->setToolTip(tr("This label turns red, if the transaction size is bigger than 10000 bytes.\n\n This means a fee of at least %1 per kb is required.\n\n Can vary +/- 1 Byte per input.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
     l6->setToolTip(tr("Transactions with higher priority get more likely into a block.\n\nThis label turns red, if the priority is smaller than \"medium\".\n\n This means a fee of at least %1 per kb is required.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
     l7->setToolTip(tr("This label turns red, if any recipient receives an amount smaller than %1.\n\n This means a fee of at least %2 is required. \n\n Amounts below 0.546 times the minimum relay fee are shown as DUST.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)).arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
-    l8->setToolTip(tr("This label turns red, if the change is smaller than %1.\n\n This means a fee of at least %2 is required.").arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)).arg(FantomUnits::formatWithUnit(nDisplayUnit, CENT)));
+
     dialog->findChild<QLabel *>("labelCoinControlBytesText")    ->setToolTip(l5->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlPriorityText") ->setToolTip(l6->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlLowOutputText")->setToolTip(l7->toolTip());
-    dialog->findChild<QLabel *>("labelCoinControlChangeText")   ->setToolTip(l8->toolTip());
    
     // Insufficient funds
     QLabel *label = dialog->findChild<QLabel *>("labelCoinControlInsuffFunds");

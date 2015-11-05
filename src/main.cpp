@@ -291,6 +291,7 @@ bool CTransaction::ReadFromDisk(COutPoint prevout)
     return ReadFromDisk(txdb, prevout, txindex);
 }
 
+
 bool IsStandardTx(const CTransaction& tx, string& reason)
 {
     if (tx.nVersion > CTransaction::CURRENT_VERSION || tx.nVersion < 1) {
@@ -937,11 +938,101 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         }
     }
 
-
-    /* LogPrint("mempool", "AcceptableInputs : accepted %s (poolsz %u)\n",
-           hash.ToString(),
-           pool.mapTx.size());*/
     return true;
+}
+
+CMutableTransaction::CMutableTransaction(const CTransaction& tx) : nVersion(tx.nVersion), vin(tx.vin), vout(tx.vout), nLockTime(tx.nLockTime) {}
+
+uint256 CMutableTransaction::GetHash() const
+{
+    return SerializeHash(*this);
+}
+
+std::string CMutableTransaction::ToString() const
+{
+    std::string str;
+    str += strprintf("CMutableTransaction(ver=%d, time=%u vin.size=%u, vout.size=%u, nLockTime=%u)\n",
+        nVersion,
+        nTime,
+        vin.size(),
+        vout.size(),
+        nLockTime);
+    for (unsigned int i = 0; i < vin.size(); i++)
+        str += "    " + vin[i].ToString() + "\n";
+    for (unsigned int i = 0; i < vout.size(); i++)
+        str += "    " + vout[i].ToString() + "\n";
+    return str;
+}
+
+void CTransaction::UpdateHash() const
+{
+    *const_cast<uint256*>(&hash) = SerializeHash(*this);
+}
+
+CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), nLockTime(tx.nLockTime) {
+    UpdateHash();
+}
+
+CTransaction& CTransaction::operator=(const CTransaction &tx) {
+    *const_cast<int*>(&nVersion) = tx.nVersion;
+    *const_cast<unsigned int*>(&nTime) = tx.nTime;
+    *const_cast<std::vector<CTxIn>*>(&vin) = tx.vin;
+    *const_cast<std::vector<CTxOut>*>(&vout) = tx.vout;
+    *const_cast<unsigned int*>(&nLockTime) = tx.nLockTime;
+    *const_cast<uint256*>(&hash) = tx.hash;
+    return *this;
+}
+
+uint256 CTransaction::GetHash() const
+{
+    return SerializeHash(*this);
+}
+
+CAmount CTransaction::GetValueOut() const
+{
+    CAmount nValueOut = 0;
+    for (std::vector<CTxOut>::const_iterator it(vout.begin()); it != vout.end(); ++it)
+    {
+        nValueOut += it->nValue;
+        if (!MoneyRange(it->nValue) || !MoneyRange(nValueOut))
+            throw std::runtime_error("CTransaction::GetValueOut() : value out of range");
+    }
+    return nValueOut;
+}
+
+unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
+{
+    // In order to avoid disincentivizing cleaning up the UTXO set we don't count
+    // the constant overhead for each txin and up to 110 bytes of scriptSig (which
+    // is enough to cover a compressed pubkey p2sh redemption) for priority.
+    // Providing any more cleanup incentive than making additional inputs free would
+    // risk encouraging people to create junk outputs to redeem later.
+    if (nTxSize == 0)
+        nTxSize = ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION);
+    for (std::vector<CTxIn>::const_iterator it(vin.begin()); it != vin.end(); ++it)
+    {
+        unsigned int offset = 41U + std::min(110U, (unsigned int)it->scriptSig.size());
+        if (nTxSize > offset)
+            nTxSize -= offset;
+    }
+    return nTxSize;
+}
+
+std::string CTransaction::ToString() const
+{
+    std::string str;
+    str += strprintf("CTransaction(hash=%s, time= %u ver=%d, vin.size=%u, vout.size=%u, nLockTime=%u)\n",
+        GetHash().ToString().substr(0,16),
+        nTime,
+        nVersion,
+        vin.size(),
+        vout.size(),
+        nLockTime);
+    for (unsigned int i = 0; i < vin.size(); i++)
+        str += "    " + vin[i].ToString() + "\n";
+    for (unsigned int i = 0; i < vout.size(); i++)
+        str += "    " + vout[i].ToString() + "\n";
+    return str;
 }
 
 

@@ -438,7 +438,7 @@ alternate-background-color: rgb(15,55,126);
                   <string notr="true">font-weight:bold;</string>
                  </property>
                  <property name="text">
-                  <string>Low Output:</string>
+                  <string>Dust:</string>
                  </property>
                 </widget>
                </item>

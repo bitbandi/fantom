@@ -103,7 +103,7 @@ std::string RefundEscrow(uint256 buyerTxHash, uint256 sellerTxHash, CPubKey sell
 {
     // create a raw transaction
     // that spends the buyer and seller tx inputs
-    int64_t nAmount = nValue / 2;
+    CAmount nAmount = nValue / 2;
     // create a raw tx that sends nAmount to seller and nAmount to buyer
     // inputs buyerTxHash, sellerTxHash
     CTransaction rawTx;
@@ -133,7 +133,7 @@ std::string PayEscrow(uint256 buyerTxHash, uint256 sellerTxHash, CPubKey sellerK
 {
     // create a raw transaction
     // that spends the buyer and seller tx inputs
-    int64_t nAmount = nValue;
+    CAmount nAmount = nValue;
     // create a raw tx that sends nAmount to seller and nAmount to buyer
     // inputs buyerTxHash, sellerTxHash
     CTransaction rawTx;

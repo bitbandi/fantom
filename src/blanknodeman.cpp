@@ -556,7 +556,7 @@ void CBlanknodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataS
         int donationPercentage;
         std::string strMessage;
 
-        // 60021 and greater
+        // 60022 and greater
         vRecv >> vin >> addr >> vchSig >> sigTime >> pubkey >> pubkey2 >> count >> current >> lastUpdated >> protocolVersion >> donationAddress >> donationPercentage;
  
         // make sure signature isn't in the future (past is OK)
