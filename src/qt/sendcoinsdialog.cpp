@@ -19,12 +19,14 @@
 #include <QMessageBox>
 #include <QTextDocument>
 #include <QScrollBar>
+#include <QSettings>
 #include <QClipboard>
 
 SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SendCoinsDialog),
-    model(0)
+    model(0),
+    fNewRecipientAllowed(true)
 {
     ui->setupUi(this);
 
@@ -50,7 +52,16 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
     
-    // DarkSilk specific
+    // Dash specific
+    QSettings settings;
+    if (!settings.contains("bUseSandStorm"))
+        settings.setValue("bUseSandStorm", false);
+    if (!settings.contains("bUseInstantX"))
+        settings.setValue("bUseInstantX", false);
+        
+    bool useSandStorm = settings.value("bUseSandStorm").toBool();
+    bool useInstantX = settings.value("bUseInstantX").toBool();
+
     if(fLiteMode) {
         ui->checkUseSandstorm->setChecked(false);
         ui->checkUseSandstorm->setVisible(false);
@@ -58,6 +69,13 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
         CoinControlDialog::coinControl->useSandStorm = false;
         CoinControlDialog::coinControl->useInstantX = false;
     }
+    else{
+        ui->checkUseSandstorm->setChecked(useSandStorm);
+        ui->checkInstantX->setChecked(useInstantX);
+        CoinControlDialog::coinControl->useSandStorm = useSandStorm;
+        CoinControlDialog::coinControl->useInstantX = useInstantX;
+    }
+
     connect(ui->checkUseSandstorm, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     connect(ui->checkInstantX, SIGNAL(stateChanged ( int )), this, SLOT(updateInstantX()));
 
@@ -108,7 +126,8 @@ void SendCoinsDialog::setModel(WalletModel *model)
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance());
         connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64, qint64, qint64)), this, SLOT(setBalance(qint64, qint64, qint64, qint64, qint64)));
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-
+        updateDisplayUnit();
+        
         // Coin Control
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         connect(model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
@@ -395,10 +414,12 @@ void SendCoinsDialog::setBalance(qint64 balance, qint64 stake, qint64 unconfirme
  Q_UNUSED(immatureBalance);
  Q_UNUSED(anonymizedBalance);
 
+
  if(model && model->getOptionsModel())
  {
         uint64_t bal = 0;
-
+        QSettings settings;
+        settings.setValue("bUseSandStorm", ui->checkUseSandstorm->isChecked());
         if(ui->checkUseSandstorm->isChecked()) {
         bal = anonymizedBalance;
         } else {
@@ -411,18 +432,15 @@ void SendCoinsDialog::setBalance(qint64 balance, qint64 stake, qint64 unconfirme
 
 void SendCoinsDialog::updateDisplayUnit()
 {
-    if(model && model->getOptionsModel())
-    {
-        setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance());
-        // Update labelBalance with the current balance and the current unit
-        ui->labelBalance->setText(DarkSilkUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), model->getBalance()));
-    }
+    setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance());
     CoinControlDialog::coinControl->useSandStorm = ui->checkUseSandstorm->isChecked();
     coinControlUpdateLabels();
 }
 
 void SendCoinsDialog::updateInstantX()
-{
+{   
+    QSettings settings;
+    settings.setValue("bUseInstantX", ui->checkInstantX->isChecked());
     CoinControlDialog::coinControl->useInstantX = ui->checkInstantX->isChecked();
     coinControlUpdateLabels();
 }
