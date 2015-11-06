@@ -310,7 +310,6 @@ public:
     // Compute priority, given priority of inputs and (optionally) tx size
     double ComputePriority(double dPriorityInputs, unsigned int nTxSize=0) const;
 
-<<<<<<< HEAD
     /** Amount of fantoms spent by this transaction.
         @return sum of all outputs (note: does not include fees)
      */
