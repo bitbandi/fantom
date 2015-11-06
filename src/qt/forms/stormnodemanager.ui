@@ -43,7 +43,7 @@ alternate-background-color: rgb(86, 0, 120);</string>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
-         <string>SandStorm Network</string>
+         <string>Stormnode Network</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="0">
