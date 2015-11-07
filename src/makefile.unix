@@ -35,6 +35,7 @@ LIBS += \
    -l boost_thread$(BOOST_LIB_SUFFIX) \
    -l db_cxx$(BDB_LIB_SUFFIX) \
    -l ssl \
+   -l gmp \
    -l crypto
 
 ifndef USE_UPNP
@@ -165,7 +166,25 @@ OBJS= \
     obj/crypto/sha512.o \
     obj/smessage.o \
     obj/rpcmarket.o \
-    obj/market.o
+    obj/market.o \
+    obj/crypto/hash/deps/aes_helper.o \
+    obj/crypto/hash/deps/echo.o \
+    obj/crypto/hash/deps/shavite.o \
+    obj/crypto/hash/deps/simd.o \
+    obj/crypto/hash/deps/blake.o\
+    obj/crypto/hash/deps/bmw.o\
+    obj/crypto/hash/deps/groestl.o\
+    obj/crypto/hash/deps/jh.o\
+    obj/crypto/hash/deps/keccak.o\
+    obj/crypto/hash/deps/skein.o \
+    obj/crypto/hash/deps/hamsi.o \
+    obj/crypto/hash/deps/fugue.o \
+    obj/crypto/hash/deps/shabal.o \
+    obj/crypto/hash/deps/whirlpool.o \
+    obj/crypto/hash/deps/sha2big.o \
+    obj/crypto/hash/deps/haval.o \
+	obj/crypto/hash/velvetmath.o
+
 
 ifdef USE_NATIVE_I2P
 	OBJS += obj/i2p.o
@@ -211,12 +230,21 @@ obj/scrypt-x86_64.o: scrypt-x86_64.S
 obj/scrypt-arm.o: scrypt-arm.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
+
 obj/%.o: %.cpp
+	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
+	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+	  rm -f $(@:%.o=%.d)
+
+obj/%.o: %.c
 	$(CXX) -c $(xCXXFLAGS) -fpermissive -MMD -MF $(@:%.o=%.d) -o $@ $<
 	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
 	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
+
 
 fantomd: $(OBJS:obj/%=obj/%)
 	$(LINK) $(xCXXFLAGS) -o $@ $^ $(xLDFLAGS) $(LIBS)

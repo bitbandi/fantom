@@ -391,7 +391,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
         {
             return Aborted;
         }
-        if(!wallet->CommitTransaction(wtx, keyChange))
+        if(!wallet->CommitTransaction(wtx, keyChange, (recipients[0].useInstantX) ? "txlreq" : "tx"))
         {
             return TransactionCommitFailed;
         }

@@ -19,12 +19,14 @@
 #include <QMessageBox>
 #include <QTextDocument>
 #include <QScrollBar>
+#include <QSettings>
 #include <QClipboard>
 
 SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SendCoinsDialog),
-    model(0)
+    model(0),
+    fNewRecipientAllowed(true)
 {
     ui->setupUi(this);
 
@@ -50,7 +52,16 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
     
-    // Fantom specific
+    // Dash specific
+    QSettings settings;
+    if (!settings.contains("bUseSandStorm"))
+        settings.setValue("bUseSandStorm", false);
+    if (!settings.contains("bUseInstantX"))
+        settings.setValue("bUseInstantX", false);
+        
+    bool useSandStorm = settings.value("bUseSandStorm").toBool();
+    bool useInstantX = settings.value("bUseInstantX").toBool();
+
     if(fLiteMode) {
         ui->checkUseZerosend->setChecked(false);
         ui->checkUseZerosend->setVisible(false);
@@ -58,6 +69,14 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
         CoinControlDialog::coinControl->useZeroSend = false;
         CoinControlDialog::coinControl->useInstantX = false;
     }
+    connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
+    else{
+        ui->checkUseZerosend->setChecked(useSandStorm);
+        ui->checkInstantX->setChecked(useInstantX);
+        CoinControlDialog::coinControl->useZerosend = useZerosend;
+        CoinControlDialog::coinControl->useInstantX = useInstantX;
+    }
+
     connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     connect(ui->checkInstantX, SIGNAL(stateChanged ( int )), this, SLOT(updateInstantX()));
 
@@ -108,7 +127,8 @@ void SendCoinsDialog::setModel(WalletModel *model)
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance());
         connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64, qint64, qint64)), this, SLOT(setBalance(qint64, qint64, qint64, qint64, qint64)));
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-
+        updateDisplayUnit();
+        
         // Coin Control
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         connect(model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
@@ -146,6 +166,32 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     if(!valid || recipients.isEmpty()) {
         return;
+    }
+
+    QString strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
+    QString strFee = "";
+    recipients[0].inputType = ONLY_DENOMINATED;
+
+    if(ui->checkUseSandstorm->isChecked()) {
+        recipients[0].inputType = ONLY_DENOMINATED;
+        strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
+        QString strNearestAmount(
+            DarkSilkUnits::formatWithUnit(
+                model->getOptionsModel()->getDisplayUnit(), 0.1 * COIN));
+        strFee = QString(tr(
+            "(darksend requires this amount to be rounded up to the nearest %1)."
+        ).arg(strNearestAmount));
+    } else {
+        recipients[0].inputType = ALL_COINS;
+        strFunds = tr("using") + " <b>" + tr("any available funds (not recommended)") + "</b>";
+    }
+
+    if(ui->checkInstantX->isChecked()) {
+        recipients[0].useInstantX = true;
+        strFunds += " ";
+        strFunds += tr("and InstantX");
+    } else {
+        recipients[0].useInstantX = false;
     }
 
     // Format confirmation message
@@ -362,28 +408,41 @@ bool SendCoinsDialog::handleURI(const QString &uri)
     return false;
 }
 
-void SendCoinsDialog::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance, qint64 anonymousBalance)
+void SendCoinsDialog::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance, qint64 anonymizedBalance)
 { 
  Q_UNUSED(stake);
  Q_UNUSED(unconfirmedBalance);
  Q_UNUSED(immatureBalance);
- Q_UNUSED(anonymousBalance);
+ Q_UNUSED(anonymizedBalance);
+
 
  if(model && model->getOptionsModel())
  {
- ui->labelBalance->setText(FantomUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
- }
+        uint64_t bal = 0;
+        QSettings settings;
+        settings.setValue("bUseZeroSend", ui->checkUseZerosend->isChecked());
+        if(ui->checkUseZerosend->isChecked()) {
+        bal = anonymizedBalance;
+        } else {
+        bal = balance;
+        }
+
+		ui->labelBalance->setText(FantomUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
+    }
 }
 
 void SendCoinsDialog::updateDisplayUnit()
 {
-    setBalance(model->getBalance(), 0, 0, 0, 0);
+    setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance());
     CoinControlDialog::coinControl->useZeroSend = ui->checkUseZerosend->isChecked();
+
     coinControlUpdateLabels();
 }
 
 void SendCoinsDialog::updateInstantX()
-{
+{   
+    QSettings settings;
+    settings.setValue("bUseInstantX", ui->checkInstantX->isChecked());
     CoinControlDialog::coinControl->useInstantX = ui->checkInstantX->isChecked();
     coinControlUpdateLabels();
 }
