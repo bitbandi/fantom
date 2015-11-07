@@ -378,9 +378,9 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
         else {
             coinControl->Select(outpt);
             CTxIn vin(outpt);
-            int rounds = GetInputSandstormRounds(vin);
-            if(coinControl->useSandStorm && rounds < nSandstormRounds) {
-                coinControl->useSandStorm = false;
+            int rounds = GetInputZerosendRounds(vin);
+            if(coinControl->useZeroSend && rounds < nZerosendRounds) {
+                coinControl->useZeroSend = false;
             }
         }
             

@@ -54,12 +54,12 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     
     // Dash specific
     QSettings settings;
-    if (!settings.contains("bUseSandStorm"))
-        settings.setValue("bUseSandStorm", false);
+    if (!settings.contains("bUseZeroSend"))
+        settings.setValue("bUseZeroSend", false);
     if (!settings.contains("bUseInstantX"))
         settings.setValue("bUseInstantX", false);
         
-    bool useSandStorm = settings.value("bUseSandStorm").toBool();
+    bool useZeroSend = settings.value("bUseZeroSend").toBool();
     bool useInstantX = settings.value("bUseInstantX").toBool();
 
     if(fLiteMode) {
@@ -69,11 +69,10 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
         CoinControlDialog::coinControl->useZeroSend = false;
         CoinControlDialog::coinControl->useInstantX = false;
     }
-    connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     else{
         ui->checkUseZerosend->setChecked(useZeroSend);
         ui->checkInstantX->setChecked(useInstantX);
-        CoinControlDialog::coinControl->useZerosend = useZerosend;
+        CoinControlDialog::coinControl->useZeroSend = useZeroSend;
         CoinControlDialog::coinControl->useInstantX = useInstantX;
     }
 
@@ -172,11 +171,11 @@ void SendCoinsDialog::on_sendButton_clicked()
     QString strFee = "";
     recipients[0].inputType = ONLY_DENOMINATED;
 
-    if(ui->checkUseSandstorm->isChecked()) {
+    if(ui->checkUseZerosend->isChecked()) {
         recipients[0].inputType = ONLY_DENOMINATED;
         strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
         QString strNearestAmount(
-            DarkSilkUnits::formatWithUnit(
+            FantomUnits::formatWithUnit(
                 model->getOptionsModel()->getDisplayUnit(), 0.1 * COIN));
         strFee = QString(tr(
             "(darksend requires this amount to be rounded up to the nearest %1)."

@@ -46,7 +46,7 @@ void ProcessMessageBlanknodePayments(CNode* pfrom, std::string& strCommand, CDat
 
         CTxDestination address1;
         ExtractDestination(winner.payee, address1);
-        CDarkSilkAddress address2(address1);
+        CFantomAddress address2(address1);
 
         uint256 hash = winner.GetHash();
         if(mapSeenBlanknodeVotes.count(hash)) {
@@ -297,11 +297,11 @@ bool CBlanknodePayments::ProcessBlock(int nBlockHeight)
 
     CTxDestination address1;
     ExtractDestination(newWinner.payee, address1);
-    CDarkSilkAddress address2(address1);
+    CFantomAddress address2(address1);
 
     CTxDestination address3;
     ExtractDestination(payeeSource, address3);
-    CDarkSilkAddress address4(address3);
+    CFantomAddress address4(address3);
 
     LogPrintf("Winner payee %s nHeight %d vin source %s. \n", address2.ToString().c_str(), newWinner.nBlockHeight, address4.ToString().c_str());
  

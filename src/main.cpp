@@ -2866,8 +2866,8 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     }
 
     if(!IsInitialBlockDownload()){
-        sandStormPool.CheckTimeout();
-        sandStormPool.NewBlock();
+        zeroSendPool.CheckTimeout();
+        zeroSendPool.NewBlock();
     }
 
     LogPrintf("ProcessBlock: ACCEPTED\n");

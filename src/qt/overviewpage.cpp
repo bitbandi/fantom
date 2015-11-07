@@ -26,7 +26,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(FantomUnits::FCX)
+    TxViewDelegate(): QAbstractItemDelegate(), unit(FantomUnits::FNX)
     {
 
     }
@@ -80,7 +80,7 @@ public:
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(fUseBlackTheme ? QColor(80, 0, 120) : option.palette.color(QPalette::Text));
+        painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
