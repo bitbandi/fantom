@@ -98,7 +98,8 @@ public:
         base58Prefixes[SECRET_KEY] =     list_of(76);                    //Fantom private keys start with 'y'              
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x88)(0x52)(0xFE)(0xC8); //Fantom BIP32 pubkeys start with 'drks'
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x88)(0x52)(0x9C)(0x2C); //Fantom BIP32 prvkeys start with 'drky'
-
+		base58Prefixes[STEALTH_ADDRESS] = list_of(40).convert_to_container<std::vector<unsigned char> >();
+		
         convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
         nLastPOWBlock = 8500000;
@@ -151,7 +152,8 @@ public:
         base58Prefixes[SECRET_KEY] =     list_of(140);                    //Fantom private keys start with 'y'              
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x02)(0xFE)(0x52)(0x7D); //Fantom BIP32 pubkeys start with 'drks'
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x02)(0xFE)(0x52)(0x8C); //Fantom BIP32 prvkeys start with 'drky'
-
+		base58Prefixes[STEALTH_ADDRESS] = list_of(40).convert_to_container<std::vector<unsigned char> >();
+		
         convertSeeds(vFixedSeeds, pnTestnetSeed, ARRAYLEN(pnTestnetSeed), nDefaultPort);
 
         nLastPOWBlock = 100;
