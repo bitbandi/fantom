@@ -377,9 +377,10 @@ void OverviewPage::updateZerosendProgress()
     ui->labelAmountRounds->setText(strSettings);
 }
 
-
 void OverviewPage::zeroSendStatus()
 {
+    if(IsInitialBlockDownload()) return;
+    
     int nBestHeight = pindexBest->nHeight;
 
     if(nBestHeight != zeroSendPool.cachedNumBlocks)

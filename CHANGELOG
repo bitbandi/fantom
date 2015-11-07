@@ -197,3 +197,6 @@ Sandstorm fixes for fees
 Stormnode Changes
 CTransaction | CMutable changes
 int64_t nAmount changed to CAmount nAmount
+Fixed performance issues with --reindex
+Coinbase Maturity
+Fix Stormnode::Check() Segfault 

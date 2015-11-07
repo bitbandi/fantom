@@ -71,7 +71,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     }
     connect(ui->checkUseZerosend, SIGNAL(stateChanged ( int )), this, SLOT(updateDisplayUnit()));
     else{
-        ui->checkUseZerosend->setChecked(useSandStorm);
+        ui->checkUseZerosend->setChecked(useZeroSend);
         ui->checkInstantX->setChecked(useInstantX);
         CoinControlDialog::coinControl->useZerosend = useZerosend;
         CoinControlDialog::coinControl->useInstantX = useInstantX;

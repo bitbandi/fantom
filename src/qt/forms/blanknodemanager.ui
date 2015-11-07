@@ -43,7 +43,7 @@ alternate-background-color: rgb(15,55,126);</string>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
-         <string>ZeroSend Network</string>
+         <string>Blanknode Network</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="0">

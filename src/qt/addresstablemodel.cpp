@@ -5,6 +5,7 @@
 
 #include "wallet.h"
 #include "base58.h"
+#include "stealth.h"
 
 #include <QFont>
 #include <QDebug>
@@ -353,7 +354,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
 
     editStatus = OK;
 
-    if(type == Send)
+    if (type == Send)
     {
         if (strAddress.length() > 75)
         {
