@@ -183,7 +183,9 @@ OBJS= \
     obj/crypto/hash/deps/whirlpool.o \
     obj/crypto/hash/deps/sha2big.o \
     obj/crypto/hash/deps/haval.o \
-	obj/crypto/hash/velvetmath.o
+    obj/crypto/hash/deps/cubehash.o \
+    obj/crypto/hash/deps/luffa.o \
+    obj/crypto/hash/velvetmath.o
 
 
 ifdef USE_NATIVE_I2P
