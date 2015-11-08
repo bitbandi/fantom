@@ -247,16 +247,15 @@ static const CRPCCommand vRPCCommands[] =
     { "validateaddress",        &validateaddress,        true,      false,     false },
     { "validatepubkey",         &validatepubkey,         true,      false,     false },
     { "verifymessage",          &verifymessage,          false,     false,     false },
-    { "searchrawtransactions",  &searchrawtransactions,  false,     false,     false },
+    { "searchrawtransactions",  &searchrawtransactions,  false,     false, false },
 
 /* Dark features */
-#ifdef ENABLE_WALLET
-	{ "setgenerate",		    &setgenerate,			 true,		 false,		 true },
-    { "zerosend",              &zerosend,               false,     false,      true },
     { "spork",                  &spork,                  true,      false,      false },
     { "blanknode",              &blanknode,             true,      false,      true },
     { "blanknodelist",          &blanknodelist,         true,      false,      false },
-    { "zerosend",              &zerosend,              false,     false,     true },
+#ifdef ENABLE_WALLET
+	{ "setgenerate",		    &setgenerate,			 true,		 false,		 true },
+    { "zerosend",              &zerosend,               false,     false,      true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
     { "getstakinginfo",         &getstakinginfo,         true,      false,     false },
     { "getnewaddress",          &getnewaddress,          true,      false,     true },
@@ -308,10 +307,8 @@ static const CRPCCommand vRPCCommands[] =
     { "checkkernel",            &checkkernel,            true,      false,     true },
     { "getnewstealthaddress",   &getnewstealthaddress,   false,     false,     true},
     { "liststealthaddresses",   &liststealthaddresses,   false,     false,     true},
-    { "scanforalltxns",         &scanforalltxns,         false,     false,     false},
-    { "scanforstealthtxns",     &scanforstealthtxns,     false,     false,     false},
-    { "importstealthaddress",   &importstealthaddress,   false,     false,     true},
-    { "sendtostealthaddress",   &sendtostealthaddress,   false,     false,     true},
+    { "importstealthaddress",   &importstealthaddress,   false,      false,    true},
+    { "sendtostealthaddress",   &sendtostealthaddress,   false,      false,    true},
     { "smsgenable",             &smsgenable,             false,     false,     false },
     { "smsgdisable",            &smsgdisable,            false,     false,     false },
     { "smsglocalkeys",          &smsglocalkeys,          false,     false,     false },

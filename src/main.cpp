@@ -358,25 +358,18 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
         }
     }
 
-
-
     unsigned int nDataOut = 0;
-    unsigned int nTxnOut = 0;
-
     txnouttype whichType;
     BOOST_FOREACH(const CTxOut& txout, tx.vout) {
-        if (!::IsStandard(txout.scriptPubKey, whichType))
+        if (!::IsStandard(txout.scriptPubKey, whichType)) {
             reason = "scriptpubkey";
             return false;
+        }
         if (whichType == TX_NULL_DATA)
-        {
             nDataOut++;
-        } else {
-            if (txout.nValue == 0) {
-                reason = "dust";
-                return false;
-            }
-            nTxnOut++;
+        if (txout.nValue == 0) {
+            reason = "dust";
+            return false;
         }
         if (!txout.scriptPubKey.HasCanonicalPushes()) {
             reason = "scriptpubkey-non-canonical-push";
@@ -386,7 +379,7 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
 
     // not more than one data txout per non-data txout is permitted
     // only one data txout is permitted too
-    if (nDataOut > nTxnOut && nDataOut > tx.vout.size()/2) {
+    if (nDataOut > 1 && nDataOut > tx.vout.size()/2) {
         reason = "multi-op-return";
         return false;
     }
@@ -459,12 +452,13 @@ bool AreInputsStandard(const CTransaction& tx, const MapPrevTx& mapInputs)
             txnouttype whichType2;
             if (Solver(subscript, whichType2, vSolutions2))
             {
-                int tmpExpected;
-                tmpExpected = ScriptSigArgsExpected(whichType2, vSolutions2);                
+                int tmpExpected = ScriptSigArgsExpected(whichType2, vSolutions2);
+                
                 if (whichType2 == TX_SCRIPTHASH)
                     return false;
                 if (tmpExpected < 0)
                     return false;
+
                 nArgsExpected += tmpExpected;
             }
             else

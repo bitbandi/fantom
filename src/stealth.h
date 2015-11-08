@@ -1,29 +1,24 @@
-// Copyright (c) 2014 The ShadowCoin developers
+// Copyright (c) 2014-2015 The ShadowCoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef FANTOM_STEALTH_H
 #define FANTOM_STEALTH_H
 
+#include "util.h"
+#include "serialize.h"
+
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <vector>
 #include <inttypes.h>
 
-#include "util.h"
-#include "serialize.h"
-#include "key.h"
-
 
 typedef std::vector<uint8_t> data_chunk;
-
-const uint32_t MAX_STEALTH_NARRATION_SIZE = 48;
 
 const size_t ec_secret_size = 32;
 const size_t ec_compressed_size = 33;
 const size_t ec_uncompressed_size = 65;
-
-const uint8_t stealth_version_byte = 0x28;
 
 typedef struct ec_secret { uint8_t e[ec_secret_size]; } ec_secret;
 typedef data_chunk ec_point;
@@ -80,12 +75,14 @@ public:
     bool SetEncoded(const std::string& encodedAddress);
     std::string Encoded() const;
     
-    int SetScanPubKey(CPubKey pk);
-    
-    
     bool operator <(const CStealthAddress& y) const
     {
         return memcmp(&scan_pubkey[0], &y.scan_pubkey[0], ec_compressed_size) < 0;
+    }
+
+    bool operator ==(const CStealthAddress& y) const
+    {
+	return Encoded() == y.Encoded();
     }
     
     IMPLEMENT_SERIALIZE
@@ -99,6 +96,8 @@ public:
         READWRITE(this->spend_secret);
     );
     
+    
+
 };
 
 void AppendChecksum(data_chunk& data);

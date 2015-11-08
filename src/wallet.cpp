@@ -225,7 +225,6 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly
 
     fWalletUnlockAnonymizeOnly = anonymizeOnly;
     UnlockStealthAddresses(vMasterKey);
-    SecureMsgWalletUnlocked();
     return true;
     }
     return false;
