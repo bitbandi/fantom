@@ -66,8 +66,8 @@ Fantom is dependent upon libsecp256k1 by sipa and libgmp, please follow this gui
 ```
 cd ~
 sudo apt-get install make automake autoconf libtool unzip git libgmime-2.6-0 libgmp-dev libgmp10 libgmpxx4ldbl
-git clone https://github.com/FNX/Fantom.git
-cd Fantom/libs/
+git clone https://github.com/LordOfTheCoin/fantom.git
+cd fantom/libs/
 sudo unzip secp256k1-master.zip
 cd secp256k1-master
 sudo libtoolize
@@ -83,7 +83,7 @@ sudo make install
 Build Instructions for Qt5 Linux Wallet (Ubuntu)
 ================================================
 ```
-sudo apt-get install make libqt5webkit5-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools qtcreator libprotobuf-dev protobuf-compiler build-essential libboost-dev libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-thread-dev libssl-dev libdb++-dev libstdc++6 libminiupnpc-dev libevent-dev libcurl4-openssl-dev git libpng-dev qrencode libqrencode-dev
+sudo apt-get install make libqt5webkit5-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools qtcreator libprotobuf-dev protobuf-compiler build-essential libboost-dev libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-thread-dev libssl-dev libdb++-dev libstdc++6 libminiupnpc-dev libevent-dev libcurl4-openssl-dev git libpng-dev qrencode libqrencode-dev libgmime-2.6-0 libgmp-dev libgmp10 libgmpxx4ldbl
 ```
 In terminal navigate to the Fantom folder (assuming you have followed the libsecp256k1 guide).
 
@@ -103,7 +103,7 @@ sudo apt-get install build-essential libboost-all-dev libssl-dev libcurl4-openss
 In terminal navigate to the Fantom folder (assuming you have followed the libsecp256k1 guide).
 
 ```
-cd /home/Fantom/src/
+cd /home/fantom/src/
 cp crypto obj/crypto -rR
 mkdir obj/crypto/hash
 mkdir obj/crypto/hash/deps
